@@ -1,0 +1,1 @@
+Repository with all relevant files for the application `Whacky Wheels`, developed in the scope of the subjects AA and SIC from University of Minho.
