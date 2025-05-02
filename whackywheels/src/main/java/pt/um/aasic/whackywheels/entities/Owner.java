@@ -10,7 +10,7 @@ import java.util.List;
 public class Owner extends User {
 
     @OneToMany(mappedBy = "owner")
-    private List<Track> tracksList;
+    private List<Track> tracks;
 
     protected Owner() {}
 

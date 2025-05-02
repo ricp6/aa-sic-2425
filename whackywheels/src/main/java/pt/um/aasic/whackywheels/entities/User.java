@@ -1,6 +1,7 @@
 package pt.um.aasic.whackywheels.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.processing.Pattern;
 import org.springframework.lang.NonNull;
 
 import java.awt.*;
@@ -17,9 +18,11 @@ public abstract class User {
     private Long id;
 
     @NonNull
+    @Column(length = 50)
     private String name;
 
     @NonNull
+    @Column(unique = true, length = 50)
     private String email;
 
     @NonNull

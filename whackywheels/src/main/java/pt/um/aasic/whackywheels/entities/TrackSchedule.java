@@ -3,24 +3,22 @@ package pt.um.aasic.whackywheels.entities;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 public class TrackSchedule {
-    public enum DayOfWeek {
-        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
-    }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @NonNull
     @ManyToOne
+    @JoinColumn(name = "track_id", referencedColumnName = "id")
     private Track track;
 
-    @Enumerated(EnumType.STRING)
+    @NonNull
     private DayOfWeek day;
 
     @NonNull
@@ -29,5 +27,30 @@ public class TrackSchedule {
     @NonNull
     private LocalTime closingTime;
 
-    private int slotDuration;
+    protected TrackSchedule() {}
+
+    public TrackSchedule(@NonNull Track track, @NonNull DayOfWeek day, @NonNull LocalTime openingTime, @NonNull LocalTime closingTime) {
+        this.track = track;
+        this.day = day;
+        this.openingTime = openingTime;
+        this.closingTime = closingTime;
+    }
+
+    @NonNull
+    public LocalTime getOpeningTime() {
+        return openingTime;
+    }
+
+    public void setOpeningTime(@NonNull LocalTime openingTime) {
+        this.openingTime = openingTime;
+    }
+
+    @NonNull
+    public LocalTime getClosingTime() {
+        return closingTime;
+    }
+
+    public void setClosingTime(@NonNull LocalTime closingTime) {
+        this.closingTime = closingTime;
+    }
 }
