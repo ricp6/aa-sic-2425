@@ -1,0 +1,18 @@
+package pt.um.aasic.whackywheels.entities;
+
+import jakarta.persistence.Entity;
+import org.springframework.lang.NonNull;
+
+import java.util.List;
+
+@Entity
+public class Owner extends User {
+
+    //private List<Track> tracksList;
+
+    protected Owner() {}
+
+    public Owner(@NonNull String password, @NonNull String email, @NonNull String name, String profilePicture) {
+        super(password, email, name, profilePicture);
+    }
+}

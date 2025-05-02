@@ -1,5 +1,7 @@
 package pt.um.aasic.whackywheels;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -10,4 +12,13 @@ public class WhackywheelsApplication {
 		SpringApplication.run(WhackywheelsApplication.class, args);
 	}
 
+	@PostConstruct
+	public void init() {
+		System.out.println("Initializing!");
+	}
+
+	@PreDestroy
+	public void shutdown() {
+		System.out.println("Shutdown!");
+	}
 }
