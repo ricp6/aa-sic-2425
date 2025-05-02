@@ -1,6 +1,7 @@
 package pt.um.aasic.whackywheels.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -8,7 +9,8 @@ import java.util.List;
 @Entity
 public class Owner extends User {
 
-    //private List<Track> tracksList;
+    @OneToMany(mappedBy = "owner")
+    private List<Track> tracksList;
 
     protected Owner() {}
 

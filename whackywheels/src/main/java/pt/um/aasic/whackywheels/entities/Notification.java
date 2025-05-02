@@ -1,6 +1,7 @@
 package pt.um.aasic.whackywheels.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.lang.NonNull;
 
 import java.util.Date;
@@ -21,6 +22,7 @@ public class Notification {
 
     private boolean read;
 
+    @CreationTimestamp
     private Date createdAt;
 
     protected Notification() {}
@@ -29,7 +31,6 @@ public class Notification {
         this.body = body;
         this.title = title;
         this.read = false;
-        this.createdAt = new Date();
     }
 
     @NonNull
