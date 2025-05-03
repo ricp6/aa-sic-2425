@@ -6,10 +6,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class WhackywheelsApplication {
+public class WhackyWheelsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(WhackywheelsApplication.class, args);
+		SpringApplication.run(WhackyWheelsApplication.class, args);
 	}
 
 	@PostConstruct

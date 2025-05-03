@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.lang.NonNull;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 public class Notification {
@@ -12,6 +12,11 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+
+    @NonNull
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @NonNull
     @Column(length = 100)
@@ -23,14 +28,25 @@ public class Notification {
     private boolean read;
 
     @CreationTimestamp
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     protected Notification() {}
 
-    public Notification(@NonNull String body, @NonNull String title) {
-        this.body = body;
+    public Notification(@NonNull User user, @NonNull String title, @NonNull String body) {
+        this.user = user;
         this.title = title;
+        this.body = body;
         this.read = false;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    @NonNull
+    public User getUser() {
+        return user;
     }
 
     @NonNull
@@ -51,7 +67,7 @@ public class Notification {
         this.read = read;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 }

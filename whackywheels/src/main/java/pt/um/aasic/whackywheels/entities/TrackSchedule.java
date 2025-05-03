@@ -6,17 +6,8 @@ import org.springframework.lang.NonNull;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-@Entity
+@Embeddable
 public class TrackSchedule {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
-
-    @NonNull
-    @ManyToOne
-    @JoinColumn(name = "track_id", referencedColumnName = "id")
-    private Track track;
 
     @NonNull
     private DayOfWeek day;
@@ -29,11 +20,15 @@ public class TrackSchedule {
 
     protected TrackSchedule() {}
 
-    public TrackSchedule(@NonNull Track track, @NonNull DayOfWeek day, @NonNull LocalTime openingTime, @NonNull LocalTime closingTime) {
-        this.track = track;
+    public TrackSchedule(@NonNull DayOfWeek day, @NonNull LocalTime openingTime, @NonNull LocalTime closingTime) {
         this.day = day;
         this.openingTime = openingTime;
         this.closingTime = closingTime;
+    }
+
+    @NonNull
+    public DayOfWeek getDay() {
+        return day;
     }
 
     @NonNull

@@ -1,12 +1,9 @@
 package pt.um.aasic.whackywheels.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.processing.Pattern;
 import org.springframework.lang.NonNull;
 
-import java.awt.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -31,12 +28,7 @@ public abstract class User {
     private String profilePicture;
 
     @NonNull
-    @ManyToMany
-    @JoinTable(
-            name = "users_notifications",
-            joinColumns = @JoinColumn(name = "user_id"), // column referencing User
-            inverseJoinColumns = @JoinColumn(name = "notification_id") // column referencing Notification
-    )
+    @OneToMany(mappedBy = "user")
     private Set<Notification> notifications;
 
     protected User() {}

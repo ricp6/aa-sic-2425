@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalTime;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 public class TrackSlot {
@@ -19,28 +19,38 @@ public class TrackSlot {
     private Track track;
 
     @NonNull
-    private Date date;
+    private LocalDate date;
 
     @NonNull
     private LocalTime startTime;
 
-    private boolean available;
+    @ManyToOne
+    @JoinColumn(name = "reservation_id", referencedColumnName = "id")
+    private Reservation reservation;
 
     protected TrackSlot() {}
 
-    public TrackSlot(@NonNull Track track, @NonNull Date date, @NonNull LocalTime startTime, boolean available) {
+    public TrackSlot(@NonNull Track track, @NonNull LocalDate date, @NonNull LocalTime startTime) {
         this.track = track;
         this.date = date;
         this.startTime = startTime;
-        this.available = available;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     @NonNull
-    public Date getDate() {
+    public Track getTrack() {
+        return track;
+    }
+
+    @NonNull
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(@NonNull Date date) {
+    public void setDate(@NonNull LocalDate date) {
         this.date = date;
     }
 
@@ -53,11 +63,15 @@ public class TrackSlot {
         this.startTime = startTime;
     }
 
-    public boolean isAvailable() {
-        return available;
+    public Reservation getReservation() {
+        return reservation;
     }
 
-    public void setAvailable(boolean available) {
-        this.available = available;
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
+    }
+
+    public boolean isAvailable() {
+        return reservation == null;
     }
 }

@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 public class Track {
@@ -27,19 +27,24 @@ public class Track {
     private String location;
 
     @NonNull
-    private Double slotPrice;
+    @Column(precision = 5, scale = 2) // precision - total number of digits, scale - number of decimal digits
+    private BigDecimal slotPrice;
 
     @NonNull
-    private Integer slotDuration;
+    private Integer slotDuration; // in minutes
 
     @OneToMany(mappedBy = "track")
-    private List<TrackSlot> slots;
+    private Set<TrackSlot> slots;
+
+    @NonNull
+    @ElementCollection
+    @CollectionTable(
+            joinColumns = @JoinColumn(name = "track_id")
+    )
+    private Set<TrackSchedule> schedule;
 
     @OneToMany(mappedBy = "track")
-    private List<TrackSchedule> schedule;
-
-    @OneToMany(mappedBy = "track")
-    private List<Kart> karts;
+    private Set<Kart> karts;
 
     private String description;
 
@@ -51,16 +56,16 @@ public class Track {
 
     @ElementCollection
     @Column(name = "image_url") // name of the column in the collection table
-    private List<String> images;
+    private Set<String> images;
 
-    private boolean isAvailable;
+    private boolean isAvailable; // true - available, false - temporarily/permanently closed
 
     @CreationTimestamp
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     protected Track() {}
 
-    public Track(@NonNull Owner owner, @NonNull String name, @NonNull String location, @NonNull Double slotPrice, @NonNull Integer slotDuration, List<TrackSlot> slots, List<TrackSchedule> schedule, List<Kart> karts, String description, String email, String phone, List<String> images, boolean isAvailable) {
+    public Track(@NonNull Owner owner, @NonNull String name, @NonNull String location, @NonNull BigDecimal slotPrice, @NonNull Integer slotDuration, Set<TrackSlot> slots, @NonNull Set<TrackSchedule> schedule, Set<Kart> karts, String description, String email, String phone, Set<String> images, boolean isAvailable) {
         this.owner = owner;
         this.name = name;
         this.location = location;
@@ -74,6 +79,16 @@ public class Track {
         this.phone = phone;
         this.images = images;
         this.isAvailable = isAvailable;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    @NonNull
+    public Owner getOwner() {
+        return owner;
     }
 
     @NonNull
@@ -86,11 +101,16 @@ public class Track {
     }
 
     @NonNull
-    public Double getSlotPrice() {
+    public String getLocation() {
+        return location;
+    }
+
+    @NonNull
+    public BigDecimal getSlotPrice() {
         return slotPrice;
     }
 
-    public void setSlotPrice(@NonNull Double slotPrice) {
+    public void setSlotPrice(@NonNull BigDecimal slotPrice) {
         this.slotPrice = slotPrice;
     }
 
@@ -103,27 +123,28 @@ public class Track {
         this.slotDuration = slotDuration;
     }
 
-    public List<TrackSlot> getSlots() {
+    public Set<TrackSlot> getSlots() {
         return slots;
     }
 
-    public void setSlot(List<TrackSlot> slots) {
+    public void setSlot(Set<TrackSlot> slots) {
         this.slots = slots;
     }
 
-    public List<TrackSchedule> getSchedule() {
+    @NonNull
+    public Set<TrackSchedule> getSchedule() {
         return schedule;
     }
 
-    public void setSchedule(List<TrackSchedule> schedule) {
+    public void setSchedule(@NonNull Set<TrackSchedule> schedule) {
         this.schedule = schedule;
     }
 
-    public List<Kart> getKarts() {
+    public Set<Kart> getKarts() {
         return karts;
     }
 
-    public void setKarts(List<Kart> karts) {
+    public void setKarts(Set<Kart> karts) {
         this.karts = karts;
     }
 
@@ -151,11 +172,11 @@ public class Track {
         this.phone = phone;
     }
 
-    public List<String> getImages() {
+    public Set<String> getImages() {
         return images;
     }
 
-    public void setImages(List<String> images) {
+    public void setImages(Set<String> images) {
         this.images = images;
     }
 
@@ -165,5 +186,9 @@ public class Track {
 
     public void setAvailable(boolean available) {
         isAvailable = available;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

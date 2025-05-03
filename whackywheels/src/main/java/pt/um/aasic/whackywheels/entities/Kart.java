@@ -18,18 +18,22 @@ public class Kart {
     @NonNull
     private Integer kartNumber;
 
-    private boolean isAvailable;
+    private Boolean isAvailable; // true - available, false - occupied, null - maintenance
 
     @Column(length = 50)
     private String model;
 
     protected Kart() {}
 
-    public Kart(@NonNull Track track, @NonNull Integer kartNumber, boolean isAvailable, String model) {
+    public Kart(@NonNull Track track, @NonNull Integer kartNumber, Boolean isAvailable, String model) {
         this.track = track;
         this.kartNumber = kartNumber;
         this.isAvailable = isAvailable;
         this.model = model;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     @NonNull
@@ -42,16 +46,24 @@ public class Kart {
         return kartNumber;
     }
 
-    public boolean isAvailable() {
+    public void setKartNumber(@NonNull Integer kartNumber) {
+        this.kartNumber = kartNumber;
+    }
+
+    public Boolean isAvailable() {
         return isAvailable;
     }
 
-    public void setAvailable(boolean available) {
+    public void setAvailable(Boolean available) {
         isAvailable = available;
     }
 
     public String getModel() {
         return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 }
 
