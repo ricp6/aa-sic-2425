@@ -25,49 +25,58 @@ public class Notification {
     @NonNull
     private String body;
 
-    private boolean read;
+    private boolean isRead;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     protected Notification() {}
 
-    public Notification(@NonNull User user, @NonNull String title, @NonNull String body) {
-        this.user = user;
-        this.title = title;
-        this.body = body;
-        this.read = false;
-        this.createdAt = LocalDateTime.now();
-    }
-
     public Long getId() {
         return id;
     }
 
-    @NonNull
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public User getUser() {
         return user;
     }
 
-    @NonNull
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public String getTitle() {
         return title;
     }
 
-    @NonNull
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getBody() {
         return body;
     }
 
-    public boolean isRead() {
-        return read;
+    public void setBody(String body) {
+        this.body = body;
     }
 
-    public void setRead(boolean read) {
-        this.read = read;
+    public boolean getIsRead() { // Usar getIsRead para booleanos
+        return isRead;
+    }
+
+    public void setIsRead(boolean isRead) {
+        this.isRead = isRead;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

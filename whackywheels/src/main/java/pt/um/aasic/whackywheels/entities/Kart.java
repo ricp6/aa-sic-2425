@@ -3,6 +3,8 @@ package pt.um.aasic.whackywheels.entities;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
+import java.util.Set;
+
 
 @Entity
 public class Kart {
@@ -23,39 +25,41 @@ public class Kart {
     @Column(length = 50)
     private String model;
 
-    protected Kart() {}
+    @OneToMany(mappedBy = "kart")
+    private Set<Participant> participants;
 
-    public Kart(@NonNull Track track, @NonNull Integer kartNumber, Boolean isAvailable, String model) {
-        this.track = track;
-        this.kartNumber = kartNumber;
-        this.isAvailable = isAvailable;
-        this.model = model;
-    }
+    protected Kart() {}
 
     public Long getId() {
         return id;
     }
 
-    @NonNull
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Track getTrack() {
         return track;
     }
 
-    @NonNull
+    public void setTrack(Track track) {
+        this.track = track;
+    }
+
     public Integer getKartNumber() {
         return kartNumber;
     }
 
-    public void setKartNumber(@NonNull Integer kartNumber) {
+    public void setKartNumber(Integer kartNumber) {
         this.kartNumber = kartNumber;
     }
 
-    public Boolean isAvailable() {
+    public Boolean getIsAvailable() {
         return isAvailable;
     }
 
-    public void setAvailable(Boolean available) {
-        isAvailable = available;
+    public void setIsAvailable(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
     }
 
     public String getModel() {
@@ -64,6 +68,14 @@ public class Kart {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public Set<Participant> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(Set<Participant> participants) {
+        this.participants = participants;
     }
 }
 

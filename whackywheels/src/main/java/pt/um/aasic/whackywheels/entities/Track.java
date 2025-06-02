@@ -1,7 +1,6 @@
 package pt.um.aasic.whackywheels.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;
@@ -15,145 +14,87 @@ public class Track {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(precision = 5, scale = 2, nullable = false) // precision - total number of digits, scale - number of decimal digits
+    private BigDecimal slotPrice;
+
+    @Column(nullable = false)
+    private Integer slotDuration;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false, length = 13)
+    private String phoneNumber;
+
+    @ElementCollection
+    @Column(name = "image_url")
+    private Set<String> images;
+
+    private boolean isAvailable; // true - available, false - temporarily/permanently closed
+
     @NonNull
     @ManyToOne
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private Owner owner;
 
-    @NonNull
-    private String name;
-
-    @NonNull
-    private String location;
-
-    @NonNull
-    @Column(precision = 5, scale = 2) // precision - total number of digits, scale - number of decimal digits
-    private BigDecimal slotPrice;
-
-    @NonNull
-    private Integer slotDuration; // in minutes
+    @OneToMany(mappedBy = "track")
+    private Set<DaySchedule> daySchedules;
 
     @OneToMany(mappedBy = "track")
-    private Set<TrackSlot> slots;
-
-    @NonNull
-    @ElementCollection
-    @CollectionTable(
-            joinColumns = @JoinColumn(name = "track_id")
-    )
-    private Set<TrackSchedule> schedule;
+    private Set<Reservation> reservations;
 
     @OneToMany(mappedBy = "track")
     private Set<Kart> karts;
 
-    private String description;
-
-    @Column(length = 50)
-    private String email;
-
-    @Column(length = 13)
-    private String phone;
-
-    @ElementCollection
-    @Column(name = "image_url") // name of the column in the collection table
-    private Set<String> images;
-
-    private boolean isAvailable; // true - available, false - temporarily/permanently closed
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    @ManyToMany(mappedBy = "favoriteTracks")
+    private Set<User> favoritedByUsers;
 
     protected Track() {}
-
-    public Track(@NonNull Owner owner, @NonNull String name, @NonNull String location, @NonNull BigDecimal slotPrice, @NonNull Integer slotDuration, Set<TrackSlot> slots, @NonNull Set<TrackSchedule> schedule, Set<Kart> karts, String description, String email, String phone, Set<String> images, boolean isAvailable) {
-        this.owner = owner;
-        this.name = name;
-        this.location = location;
-        this.slotPrice = slotPrice;
-        this.slotDuration = slotDuration;
-        this.slots = slots;
-        this.schedule = schedule;
-        this.karts = karts;
-        this.description = description;
-        this.email = email;
-        this.phone = phone;
-        this.images = images;
-        this.isAvailable = isAvailable;
-        this.createdAt = LocalDateTime.now();
-    }
 
     public Long getId() {
         return id;
     }
 
-    @NonNull
-    public Owner getOwner() {
-        return owner;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    @NonNull
     public String getName() {
         return name;
     }
 
-    public void setName(@NonNull String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    @NonNull
-    public String getLocation() {
-        return location;
+    public String getAddress() {
+        return address;
     }
 
-    @NonNull
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public BigDecimal getSlotPrice() {
         return slotPrice;
     }
 
-    public void setSlotPrice(@NonNull BigDecimal slotPrice) {
+    public void setSlotPrice(BigDecimal slotPrice) {
         this.slotPrice = slotPrice;
     }
 
-    @NonNull
     public Integer getSlotDuration() {
         return slotDuration;
     }
 
-    public void setSlotDuration(@NonNull Integer slotDuration) {
+    public void setSlotDuration(Integer slotDuration) {
         this.slotDuration = slotDuration;
-    }
-
-    public Set<TrackSlot> getSlots() {
-        return slots;
-    }
-
-    public void setSlot(Set<TrackSlot> slots) {
-        this.slots = slots;
-    }
-
-    @NonNull
-    public Set<TrackSchedule> getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(@NonNull Set<TrackSchedule> schedule) {
-        this.schedule = schedule;
-    }
-
-    public Set<Kart> getKarts() {
-        return karts;
-    }
-
-    public void setKarts(Set<Kart> karts) {
-        this.karts = karts;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getEmail() {
@@ -164,12 +105,12 @@ public class Track {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public Set<String> getImages() {
@@ -180,15 +121,43 @@ public class Track {
         this.images = images;
     }
 
-    public boolean isAvailable() {
+    public boolean getIsAvailable() {
         return isAvailable;
     }
 
-    public void setAvailable(boolean available) {
-        isAvailable = available;
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Owner owner) {
+        this.owner = owner;
+    }
+
+    public Set<DaySchedule> getDaySchedules() {
+        return daySchedules;
+    }
+
+    public void setDaySchedules(Set<DaySchedule> daySchedules) {
+        this.daySchedules = daySchedules;
+    }
+
+    public Set<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(Set<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
+    public Set<Kart> getKarts() {
+        return karts;
+    }
+
+    public void setKarts(Set<Kart> karts) {
+        this.karts = karts;
     }
 }
