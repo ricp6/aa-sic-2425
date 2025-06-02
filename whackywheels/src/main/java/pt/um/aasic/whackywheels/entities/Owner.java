@@ -2,12 +2,14 @@ package pt.um.aasic.whackywheels.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.DiscriminatorValue;
 import org.springframework.lang.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@DiscriminatorValue("OWNER")
 public class Owner extends User {
 
     @NonNull
