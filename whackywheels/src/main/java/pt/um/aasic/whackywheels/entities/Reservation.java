@@ -3,7 +3,6 @@ package pt.um.aasic.whackywheels.entities;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,101 +14,69 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    /*
-    /// ///////////////////////////////////////////
-    @NonNull
-    @ManyToOne
-    @JoinColumn(name = "track_id", referencedColumnName = "id")
-    private Track track;
-
-    @NonNull
-    private LocalDate date;
-
-    @NonNull
-    private LocalDateTime startTime;
-
-    @NonNull
-    private LocalDateTime endTime;
-
-    /// //////////////////////////////////////////
-*/
-    @NonNull
-    @OneToMany
-    private Set<TrackSlot> slots;
-
-    /// /////////////////////////////////////////
-
-    @OneToMany(mappedBy = "reservation")
-    private Set<ReservationParticipant> participants = new HashSet<>();
+    private LocalDateTime date;
 
     @NonNull
     @Enumerated(EnumType.ORDINAL) // maps the enum value to an int, saves space on the table
     private ReservationStatus status;
 
-    protected Reservation() {}
+    @OneToMany(mappedBy = "reservation")
+    private Set<Session> sessions;
 
-    public Reservation(@NonNull Track track, @NonNull LocalDateTime startTime, @NonNull LocalDateTime endTime, Set<ReservationParticipant> participants, Set<TrackSlot> slots) {
-        /*this.track = track;
-        this.startTime = startTime;
-        this.endTime = endTime;*/
-        this.slots = slots;
-        this.participants = participants;
-        this.status = ReservationStatus.PENDING;
-    }
+    @OneToMany(mappedBy = "reservation")
+    private Set<Participant> participants;
+
+    @ManyToOne
+    @JoinColumn(name = "track_id")
+    private Track track;
+
+    protected Reservation() {}
 
     public Long getId() {
         return id;
     }
 
-    @NonNull
-    public Set<TrackSlot> getSlots() {
-        return slots;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setSlots(@NonNull Set<TrackSlot> slots) {
-        this.slots = slots;
+    public LocalDateTime getDate() {
+        return date;
     }
 
-    /*
-    @NonNull
-    public Track getTrack() {
-        return track;
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
-    public void setTrack(@NonNull Track track) {
-        this.track = track;
-    }
-
-    @NonNull
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(@NonNull LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    @NonNull
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(@NonNull LocalDateTime endTime) {
-        this.endTime = endTime;
-    }*/
-
-    public Set<ReservationParticipant> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(Set<ReservationParticipant> participants) {
-        this.participants = participants;
-    }
-
-    @NonNull
     public ReservationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(@NonNull ReservationStatus status) { this.status = status; }
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
+
+    public Set<Session> getSessions() {
+        return sessions;
+    }
+
+    public void setSessions(Set<Session> sessions) {
+        this.sessions = sessions;
+    }
+
+    public Set<Participant> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(Set<Participant> participants) {
+        this.participants = participants;
+    }
+
+    public Track getTrack() {
+        return track;
+    }
+
+    public void setTrack(Track track) {
+        this.track = track;
+    }
 }
