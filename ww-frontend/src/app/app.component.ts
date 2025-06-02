@@ -1,13 +1,30 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
-  title = 'Wacky Wheels!';
+export class AppComponent implements OnInit {
+  
+  userName: string = 'Example';
+
+  navLinks = [
+    { path: 'tracks', label: 'Tracks' },
+    { path: 'reservations', label: 'Reservations' },
+    { path: 'sessions', label: 'Sessions' },
+  ];
+  
+  constructor(
+    private readonly titleService: Title
+  ) { }
+
+  ngOnInit(): void {
+    this.titleService.setTitle("Wacky Wheels");
+  }
+  
+  logout() {
+    // Implement logout logic here
+  }
 }

@@ -1,0 +1,153 @@
+.nav-container {
+  display: flex;
+  /* This will place items at both ends */
+  align-items: center;
+  height: 50px;
+}
+
+nav {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  /* Adjust the width as needed */
+  height: 46px;
+  margin: 4px 20px 0;
+}
+
+.nav-logo-div, a {
+  height: 50px;
+}
+
+a {
+  flex: 1;
+}
+
+.nav-links {
+  display: flex;
+  flex-grow: 1;
+  justify-content: space-around;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  /* Adjust as needed */
+  margin-right: 8px;
+  /* Space between icon and label */
+  vertical-align: middle;
+}
+
+.user-button {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  padding: 0 20px;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.user-icon {
+  height: 26px;
+  width: 26px;
+  font-size: 26px;
+}
+
+.hamburger-button {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Media query for screen sizes below 940px */
+@media (max-width: 1035px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav-links.active {
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    padding: 0;
+  }
+
+  a {
+    flex: 1;
+    display: flex;
+    justify-content: left;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .user-button, .hamburger-button {
+    display: flex;
+    flex: 1;
+  }
+
+  .nav-logo-div {
+    display: flex;
+    justify-content: center;
+    flex: 6;
+  }
+
+  .hamburger-button {
+    justify-content: left;
+    align-items: center;
+    padding: 0 20px;  
+    margin: 0;
+  }
+}
+
+.main-content {
+  height: 91%;
+  /* Adjust this based on your navigation bar height */
+  overflow-y: auto;
+  /* Enable vertical scrolling */
+}
+
+/* Custom scrollbar styles */
+.main-content::-webkit-scrollbar {
+  width: 12px;
+  /* Width of the scrollbar */
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: var(--scroll-blue-track);
+  /* Background of the scrollbar track */
+  border-radius: 10px;
+  /* Rounding the corners */
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: var(--scroll-blue);
+  /* Color of the scrollbar thumb */
+  border-radius: 10px;
+  /* Rounding the corners */
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-blue-hover);
+  /* Color when hovered */
+}
+
+@media (max-width: 450px) {
+  .main-content::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* This is for other browsers like Firefox */
+  .main-content {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+}

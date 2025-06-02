@@ -1,1 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+:root {
+    --warning-red: #d73a3a;
+    --warning-red-light: #fbd1d1;
+    
+    --nav-blue: aliceblue;
+    --scroll-blue-track: #e4f4fc;
+    --scroll-blue: #95dbf6;
+    --scroll-blue-hover: #6d9fb3;
+}
