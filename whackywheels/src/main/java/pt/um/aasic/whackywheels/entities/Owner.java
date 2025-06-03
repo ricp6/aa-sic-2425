@@ -1,5 +1,6 @@
 package pt.um.aasic.whackywheels.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.DiscriminatorValue;
@@ -11,13 +12,16 @@ import java.util.Set;
 @Entity
 @DiscriminatorValue("OWNER")
 public class Owner extends User {
-
+    //O JsonIgnore serve para na criação se responder com track n haver um loop de ligações e mostar um json enorme
+    //Mais tarde fizermos um trackResponseDTO podemos tirar.
     @NonNull
     @OneToMany(mappedBy = "owner")
-    private Set<Track> tracks;
+    @JsonIgnore
+    private Set<Track> tracks = new HashSet<>();
 
     protected Owner() {
         super();
+        this.userType = "OWNER";
     }
 
     public Set<Track> getTracks() {

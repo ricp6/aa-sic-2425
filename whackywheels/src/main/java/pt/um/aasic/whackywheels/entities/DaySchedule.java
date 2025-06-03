@@ -1,8 +1,7 @@
 package pt.um.aasic.whackywheels.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.springframework.lang.NonNull;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -25,9 +24,10 @@ public class DaySchedule {
 
     @ManyToOne
     @JoinColumn(name = "track_id")
+    @JsonIgnore
     private Track track;
 
-    protected DaySchedule() {} //
+    public DaySchedule() {} //
 
     public Long getId() {
         return id;

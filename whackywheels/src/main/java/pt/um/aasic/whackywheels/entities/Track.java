@@ -6,6 +6,7 @@ import org.springframework.lang.NonNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 public class Track {
@@ -34,7 +35,7 @@ public class Track {
 
     @ElementCollection
     @Column(name = "image_url")
-    private Set<String> images;
+    private Set<String> images = new HashSet<>();
 
     private boolean isAvailable; // true - available, false - temporarily/permanently closed
 
@@ -55,7 +56,7 @@ public class Track {
     @ManyToMany(mappedBy = "favoriteTracks")
     private Set<User> favoritedByUsers;
 
-    protected Track() {}
+    public Track() {}
 
     public Long getId() {
         return id;

@@ -2,16 +2,22 @@ package pt.um.aasic.whackywheels.entities;
 
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.Collections;
+
 import java.util.Set;
+import java.util.HashSet;
+
 
 @Entity
+@Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
-@DiscriminatorValue("USER")
-@Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -31,8 +37,11 @@ public class User {
 
     private String profilePicture;
 
+    @Column(name = "user_type", insertable = false, updatable = false)
+    protected String userType;
+
     @OneToMany(mappedBy = "user")
-    private Set<Notification> notifications;
+    private Set<Notification> notifications = new HashSet<>();
 
     @NonNull
     @ManyToMany
@@ -44,6 +53,12 @@ public class User {
     private Set<Track> favoriteTracks;
 
     public User() {}
+
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
 
     public Long getId() {
         return id;
@@ -88,5 +103,45 @@ public class User {
 
     public void setNotifications(Set<Notification> notifications) {
         this.notifications = notifications;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String role = (this instanceof Owner) ? "ROLE_OWNER" : "ROLE_USER";
+        return Collections.singleton(new SimpleGrantedAuthority(role));
+    }
+
+    //Nesta caso é o email
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

@@ -1,5 +1,6 @@
 package pt.um.aasic.whackywheels.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
@@ -15,6 +16,7 @@ public class Kart {
     @NonNull
     @ManyToOne
     @JoinColumn(name = "track_id", referencedColumnName = "id")
+    @JsonIgnore
     private Track track;
 
     @NonNull
@@ -28,7 +30,7 @@ public class Kart {
     @OneToMany(mappedBy = "kart")
     private Set<Participant> participants;
 
-    protected Kart() {}
+    public Kart() {}
 
     public Long getId() {
         return id;
