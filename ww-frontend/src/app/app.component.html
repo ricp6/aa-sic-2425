@@ -4,42 +4,81 @@
     <button [matMenuTriggerFor]="menu" type="button" class="hamburger-button">
       <mat-icon>menu</mat-icon>
     </button>
-
-    <div class="nav-logo-div">
-      <a mat-tab-link [routerLink]="['home']">
-        WACKY WHEELS
-        <!-- <img class="nav-logo" src="assets/logo.png" alt="Logo"> -->
+    
+    <!-- Navigation Links if short screen -->
+    <mat-menu class=".nav-links.active" #menu="matMenu">
+      <!-- Personal links -->
+      <a mat-tab-link *ngIf="!isEnterpriseView" routerLink="tracks">
+        Tracks
       </a>
+      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations">
+        Reservations
+      </a>
+      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions">
+        Sessions
+      </a>
+
+      <!-- Entreprise links -->
+      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home">
+        My Tracks
+      </a>
+      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home">
+        Reservations
+      </a>
+    </mat-menu>
+
+    <div class="nav-logo-div" [routerLink]="isEnterpriseView ? 'enterprise/home' : 'home'">
+      <h2> {{ isEnterpriseView ? "WW" : "WackyWheels" }} </h2>
+      <h4> {{ isEnterpriseView ? "Enterprise" : "" }} </h4>
+      <!-- <img class="nav-logo" src="assets/logo.png" alt="Logo"> -->
     </div>
 
     <!-- Navigation Links if large screen -->
     <div class="nav-links" id="nav-links-div">
-      <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
-        [active]="rla.isActive">
-        {{ link.label }}
+      <!-- Personal links -->
+      <a mat-tab-link *ngIf="!isEnterpriseView" routerLink="tracks">
+        Tracks
+      </a>
+      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations">
+        Reservations
+      </a>
+      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions">
+        Sessions
+      </a>
+
+      <!-- Entreprise links -->
+      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home">
+        My Tracks
+      </a>
+      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home">
+        Reservations
       </a>
     </div>
     
-    <button routerLink="notifications" type="button" class="notifications-button">
-      <mat-icon>notifications</mat-icon>
-    </button>
+    <!-- User logged in -->
+    <div *ngIf="isLoggedIn" class="account-div">
+      <button routerLink="notifications" type="button" class="notifications-button">
+        <mat-icon>notifications</mat-icon>
+      </button>
+      <button [matMenuTriggerFor]="profilemenu" type="button" class="profile-button">
+        <span class="profile-name">{{ userName }}</span>
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </div>
+    <!-- Anonimous User or logged out -->
+    <div *ngIf="!isLoggedIn" class="account-div">
+      <button type="button" routerLink="login" class="login-button">
+        Login
+        <mat-icon>login</mat-icon>
+      </button>
+    </div>
 
-    <button [matMenuTriggerFor]="profilemenu" type="button" class="profile-button">
-      <span class="profile-name">{{ userName }}</span>
-      <mat-icon>account_circle</mat-icon>
-    </button>
-
-    <!-- Navigation Links if short screen -->
-    <mat-menu class=".nav-links.active" #menu="matMenu">
-      <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
-        [active]="rla.isActive">
-        {{ link.label }}
-      </a>
-    </mat-menu>
-
-    <mat-menu class=".nav-links.active" #profilemenu="matMenu">
+    <mat-menu #profilemenu="matMenu">
       <button mat-tab-link type="button" routerLink="profile">
         My Profile
+      </button>
+      <button mat-tab-link type="button" *ngIf="isOwner" (click)="toogleEnterprise()">
+        {{ isEnterpriseView ? 'Go to personal' : 'Go to enterprise' }}
       </button>
       <button mat-tab-link type="button" (click)="logout()">
         Logout

@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login/login.component';
-import { TracksComponent } from './tracks/tracks.component';
-import { ReservationsComponent } from './reservations/reservations.component';
-import { SessionsComponent } from './sessions/sessions.component';
-import { NotificationsComponent } from './notifications/notifications.component';
-import { ProfileComponent } from './profile/profile.component';
+import { HomeComponent } from './components/home/home.component';
+import { LoginComponent } from './components/login/login.component';
+import { TracksComponent } from './components/tracks/tracks.component';
+import { ReservationsComponent } from './components/reservations/reservations.component';
+import { SessionsComponent } from './components/sessions/sessions.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { EnterpriseHomeComponent } from './components/enterprise-home/enterprise-home.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -16,6 +17,9 @@ const routes: Routes = [
   { path: 'notifications', component: NotificationsComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'enterprise/home', component: EnterpriseHomeComponent },
+  { path: 'enterprise/tracks', component: EnterpriseHomeComponent },
+  { path: 'enterprise/reservations', component: EnterpriseHomeComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' }, 
   { path: '**', redirectTo: '/home' },
 ];

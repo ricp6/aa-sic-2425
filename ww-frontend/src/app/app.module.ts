@@ -9,13 +9,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
-import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login/login.component';
-import { SessionsComponent } from './sessions/sessions.component';
-import { ReservationsComponent } from './reservations/reservations.component';
-import { ProfileComponent } from './profile/profile.component';
-import { NotificationsComponent } from './notifications/notifications.component';
-import { TracksComponent } from './tracks/tracks.component';
+import { HomeComponent } from './components/home/home.component';
+import { LoginComponent } from './components/login/login.component';
+import { SessionsComponent } from './components/sessions/sessions.component';
+import { ReservationsComponent } from './components/reservations/reservations.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
+import { TracksComponent } from './components/tracks/tracks.component';
+import { EnterpriseHomeComponent } from './components/enterprise-home/enterprise-home.component';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -26,7 +28,8 @@ import { TracksComponent } from './tracks/tracks.component';
     ReservationsComponent,
     ProfileComponent,
     NotificationsComponent,
-    TracksComponent
+    TracksComponent,
+    EnterpriseHomeComponent
   ],
   imports: [
     BrowserModule,
@@ -38,6 +41,7 @@ import { TracksComponent } from './tracks/tracks.component';
     MatIconModule
   ],
   providers: [
+    provideHttpClient(withInterceptorsFromDi()),
     provideAnimationsAsync()
   ],
   bootstrap: [AppComponent],
