@@ -1,1 +1,21 @@
-<p>login works!</p>
+<form (ngSubmit)="login()" [formGroup]="form">
+  <input formControlName="email" type="email" placeholder="E-mail" />
+
+  <div class="password-field">
+    <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Password" />
+    <button type="button" class="toggle-eye" (click)="togglePassword()">
+      <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+    </button>
+  </div>
+
+  <button class="primary-button" type="submit" [disabled]="form.invalid">
+    Login
+  </button>
+</form>
+
+<p>
+  Don't have an account yet? <a routerLink="/auth/register">Sign up!</a>
+</p>
+<p>
+  Or feel free to <a routerLink="/home">stay as a guest</a>.
+</p>

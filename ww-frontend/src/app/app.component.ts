@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { User } from './interfaces/user';
 import { AuthService } from './services/auth.service';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,7 @@ import { AuthService } from './services/auth.service';
 export class AppComponent implements OnInit {
   
   isEnterpriseView: boolean = false;
+  isAuthPage: boolean = false;
   user: User | null = null;
   
   personalLinks = [
@@ -49,6 +51,12 @@ export class AppComponent implements OnInit {
     this.authService.user$.subscribe(user => {
       this.user = user;
     });
+    
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.isAuthPage = event.urlAfterRedirects.startsWith('/auth');
+      });
   }
 
   logout(): void {

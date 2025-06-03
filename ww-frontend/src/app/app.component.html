@@ -1,31 +1,5 @@
-<div class="nav-container">
+<div class="nav-container" *ngIf="!isAuthPage">
   <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-
-    <button [matMenuTriggerFor]="menu" type="button" class="hamburger-button">
-      <mat-icon>menu</mat-icon>
-    </button>
-    
-    <!-- Navigation Links if short screen -->
-    <mat-menu class=".nav-links.active" #menu="matMenu">
-      <!-- Personal links -->
-      <a mat-tab-link *ngIf="!isEnterpriseView" routerLink="tracks">
-        Tracks
-      </a>
-      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations">
-        Reservations
-      </a>
-      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions">
-        Sessions
-      </a>
-
-      <!-- Entreprise links -->
-      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home">
-        My Tracks
-      </a>
-      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home">
-        Reservations
-      </a>
-    </mat-menu>
 
     <div class="nav-logo-div" [routerLink]="isEnterpriseView ? 'enterprise/home' : 'home'">
       <h2> {{ isEnterpriseView ? "WW" : "WackyWheels" }} </h2>
@@ -67,7 +41,7 @@
     </div>
     <!-- Anonimous User or logged out -->
     <div *ngIf="!isLoggedIn" class="account-div">
-      <button type="button" routerLink="login" class="login-button">
+      <button type="button" routerLink="auth" class="login-button">
         Login
         <mat-icon>login</mat-icon>
       </button>

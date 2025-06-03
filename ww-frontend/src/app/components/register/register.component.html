@@ -1,0 +1,26 @@
+<form (ngSubmit)="register()" [formGroup]="form">
+    <input formControlName="name" placeholder="Name">
+    <input formControlName="email" type="email" placeholder="E-mail" />
+
+    <div class="password-field">
+        <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Password" />
+        <button type="button" class="toggle-eye" (click)="togglePassword()">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+    </div>
+
+    <button class="primary-button" type="submit" [disabled]="form.invalid">
+        Sign up
+    </button>
+</form>
+
+<p>
+    Already have an account? <a routerLink="/auth/login">Login!</a>
+</p>
+<p>
+    Are you an owner of one or more tracks?
+    <a (click)="requestEnterprise()">Request access to an enterprise account!</a>
+</p>
+<p>
+    Or feel free to <a routerLink="/home">stay as a guest</a>.
+</p>

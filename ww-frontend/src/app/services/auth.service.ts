@@ -7,15 +7,24 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly authURL = "localhost:8080/api/auth/";
+  private readonly authURL = "http://localhost:8080/api/auth/";
 
   private readonly userSubject = new BehaviorSubject<User | null>(this.loadUserFromStorage());
   user$: Observable<User | null> = this.userSubject.asObservable();
 
   constructor(private readonly http: HttpClient) {}
 
-  login(email: string, password: string): Observable<User> {
-    return this.http.post<User>(this.authURL + 'login', { email, password }).pipe(
+  login(data: { email: string; password: string }) {
+    return this.http.post<User>(this.authURL + 'login', data).pipe(
+      tap((user) => {
+        localStorage.setItem('user', JSON.stringify(user));
+        this.userSubject.next(user);
+      })
+    );
+  }
+
+  register(data: { name: string; email: string; password: string }) {
+    return this.http.post<User>(this.authURL + 'register', data).pipe(
       tap((user) => {
         localStorage.setItem('user', JSON.stringify(user));
         this.userSubject.next(user);

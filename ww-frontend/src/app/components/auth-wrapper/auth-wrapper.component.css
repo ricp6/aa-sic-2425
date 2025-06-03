@@ -1,0 +1,49 @@
+.auth-container {
+  display: flex;
+  height: 100vh;
+}
+
+.auth-left {
+  flex: 1;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.auth-left img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.auth-right {
+  flex: 1;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+  border-radius: 40px 0 0 40px;
+}
+
+.auth-right h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.auth-right h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.social-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.social-buttons button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}

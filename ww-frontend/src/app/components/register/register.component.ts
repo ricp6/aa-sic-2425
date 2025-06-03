@@ -5,11 +5,11 @@ import { AuthService } from '../../services/auth.service';
 import { AuthWrapperComponent } from '../auth-wrapper/auth-wrapper.component';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.css']
 })
-export class LoginComponent extends AuthWrapperComponent {
+export class RegisterComponent extends AuthWrapperComponent {
   form: FormGroup;
 
   constructor(
@@ -19,16 +19,17 @@ export class LoginComponent extends AuthWrapperComponent {
   ) {
     super();
     this.form = this.fb.group({
+      name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
-  login(): void {
+  register(): void {
     if (this.form.valid) {
-      this.authService.login(this.form.value).subscribe({
+      this.authService.register(this.form.value).subscribe({
         next: () => this.router.navigate(['/home']),
-        error: (err) => console.error('Login failed', err)
+        error: (err) => console.error('Register failed', err)
       });
     }
   }
