@@ -1,6 +1,8 @@
 package pt.um.aasic.whackywheels.controllers;
 import pt.um.aasic.whackywheels.dtos.LoginRequestDTO;
 import pt.um.aasic.whackywheels.dtos.RegisterRequestDTO;
+import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
+import pt.um.aasic.whackywheels.entities.Owner;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.AuthService;
 
@@ -28,6 +30,13 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO request) {
         try {
             User newUser = authService.registerNewUser(request);
+            String userTypeString = "USER";
+            UserResponseDTO userResponse = new UserResponseDTO(
+                    newUser.getId(),
+                    newUser.getEmail(),
+                    newUser.getName(),
+                    userTypeString
+            );
             return new ResponseEntity<>(newUser, HttpStatus.CREATED);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -41,7 +50,21 @@ public class AuthController {
         try {
             User authenticatedUser = authService.authenticateUser(request);
 
-            return new ResponseEntity<>(authenticatedUser, HttpStatus.OK);
+            String userTypeString;
+            if (authenticatedUser instanceof Owner) {
+                userTypeString = "OWNER";
+            } else {
+                userTypeString = "USER";
+            }
+
+            UserResponseDTO userResponse = new UserResponseDTO(
+                    authenticatedUser.getId(),
+                    authenticatedUser.getEmail(),
+                    authenticatedUser.getName(),
+                    userTypeString
+            );
+            //Talvez incluir token JWT aqui?
+            return new ResponseEntity<>(userResponse, HttpStatus.OK);
         } catch (org.springframework.security.authentication.BadCredentialsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         } catch (Exception e) {
