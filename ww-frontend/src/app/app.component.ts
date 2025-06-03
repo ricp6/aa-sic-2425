@@ -12,9 +12,10 @@ import { filter } from 'rxjs';
 })
 export class AppComponent implements OnInit {
   
-  isEnterpriseView: boolean = false;
-  isAuthPage: boolean = false;
   user: User | null = null;
+  isAuthPage: boolean = false;
+  isEnterpriseView: boolean = false;
+  notificationsIcon: string = 'notifications_none';
   
   personalLinks = [
     { path: 'tracks', label: 'Tracks' },
@@ -34,9 +35,14 @@ export class AppComponent implements OnInit {
   get userName(): string | undefined {
     return this.user?.name;
   }
+  
+  get numNotifications(): string | number {
+    const count = /*this.user?.numNotifications ??*/ 1;
+    return count > 10 ? '10+' : count;
+  }
 
   get isOwner(): boolean {
-    return this.user?.user_type === 'OWNER';
+    return this.user?.userType === 'OWNER';
   }
 
   constructor(
@@ -61,7 +67,7 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
-    //this.router.navigate(['/home']);
+    this.router.navigate(["home"]);
   }
 
   toogleEnterprise(): void {

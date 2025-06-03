@@ -1,68 +1,76 @@
-<div class="nav-container" *ngIf="!isAuthPage">
-  <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+<nav mat-tab-nav-bar [tabPanel]="tabPanel">
 
-    <div class="nav-logo-div" [routerLink]="isEnterpriseView ? 'enterprise/home' : 'home'">
-      <h2> {{ isEnterpriseView ? "WW" : "WackyWheels" }} </h2>
-      <h4> {{ isEnterpriseView ? "Enterprise" : "" }} </h4>
-      <!-- <img class="nav-logo" src="assets/logo.png" alt="Logo"> -->
-    </div>
+  <!-- Left content -->
+  <div id="nav-home-container" [routerLink]="isEnterpriseView ? 'enterprise/home' : 'home'">
+    <h3 id="nav-home-title"> {{ isEnterpriseView ? "WW" : "WACKY WHEELS" }} </h3>
+    <h4 id="nav-home-subtitle"> {{ isEnterpriseView ? "Enterprise" : "" }} </h4>
+    <!-- <img class="nav-logo" src="assets/logo.png" alt="Logo"> -->
+  </div>
 
-    <!-- Navigation Links if large screen -->
-    <div class="nav-links" id="nav-links-div">
+  <!-- Right content -->
+  <div id="nav-right-group">
+    
+    <!-- Main Links -->
+    <div id="nav-links">
       <!-- Personal links -->
-      <a mat-tab-link *ngIf="!isEnterpriseView" routerLink="tracks">
-        Tracks
+      <a mat-tab-link *ngIf="!isEnterpriseView" routerLink="tracks"
+        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
+        Tracks 
       </a>
-      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations">
-        Reservations
+      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations"
+        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
+        Reservations 
       </a>
-      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions">
-        Sessions
+      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions"
+        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
+        Sessions 
       </a>
-
+      
       <!-- Entreprise links -->
-      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home">
-        My Tracks
+      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home"
+        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
+        My Tracks 
       </a>
-      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home">
-        Reservations
+      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home"
+        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
+        Reservations 
       </a>
     </div>
     
-    <!-- User logged in -->
-    <div *ngIf="isLoggedIn" class="account-div">
-      <button routerLink="notifications" type="button" class="notifications-button">
-        <mat-icon>notifications</mat-icon>
-      </button>
-      <button [matMenuTriggerFor]="profilemenu" type="button" class="profile-button">
-        <span class="profile-name">{{ userName }}</span>
-        <mat-icon>account_circle</mat-icon>
-      </button>
-    </div>
     <!-- Anonimous User or logged out -->
-    <div *ngIf="!isLoggedIn" class="account-div">
-      <button type="button" routerLink="auth" class="login-button">
+    <div *ngIf="!isLoggedIn" class="nav-account-container">
+      <button mat-stroked-button type="button" routerLink="auth/login" id="login-button"> 
         Login
         <mat-icon>login</mat-icon>
       </button>
     </div>
-
-    <mat-menu #profilemenu="matMenu">
-      <button mat-tab-link type="button" routerLink="profile">
-        My Profile
+    
+    <!-- User logged in -->
+    <div *ngIf="isLoggedIn" class="nav-account-container">
+      <button mat-icon-button routerLink="notifications" type="button" id="notifications-button">
+        <mat-icon [matBadge]="numNotifications" [matBadgeHidden]="!numNotifications">
+          {{ notificationsIcon }}
+        </mat-icon>
       </button>
-      <button mat-tab-link type="button" *ngIf="isOwner" (click)="toogleEnterprise()">
-        {{ isEnterpriseView ? 'Go to personal' : 'Go to enterprise' }}
+      <button mat-stroked-button [matMenuTriggerFor]="profilemenu" type="button" id="user-button">
+        {{ userName }}
+        <mat-icon>account_circle</mat-icon>
       </button>
-      <button mat-tab-link type="button" (click)="logout()">
-        Logout
-      </button>
+    </div>
+    <mat-menu #profilemenu="matMenu" id="user-menu">
+      <a mat-tab-link routerLink="profile" id="profile-button"> My Profile </a>
+      <a mat-tab-link *ngIf="isOwner" (click)="toogleEnterprise()" id="enterprise-toogle-button">
+        {{ isEnterpriseView ? 'Personal View' : 'Enterprise View' }}
+      </a>
+      <a mat-tab-link (click)="logout()" id="logout-button">
+        <span>Logout</span>
+        <mat-icon id="logout-icon">logout</mat-icon>
+      </a>
     </mat-menu>
+  </div>
+</nav>
+<mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 
-  </nav>
-  <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
-</div>
-
-<div class="main-content">
+<div id="main-content">
   <router-outlet></router-outlet>
 </div>

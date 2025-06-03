@@ -9,6 +9,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -46,6 +48,8 @@ import { RegisterComponent } from './components/register/register.component';
     MatTabsModule,
     MatMenuModule,
     MatIconModule,
+    MatButtonModule,
+    MatBadgeModule,
     ReactiveFormsModule
   ],
   providers: [
