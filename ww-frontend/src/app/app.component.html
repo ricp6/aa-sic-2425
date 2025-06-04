@@ -2,9 +2,9 @@
 
   <!-- Left content -->
   <div id="nav-home-container" [routerLink]="isEnterpriseView ? 'enterprise/home' : 'home'">
+    <img id="nav-home-logo" src="logo.png" alt="Logo">
     <h3 id="nav-home-title"> {{ isEnterpriseView ? "WW" : "WACKY WHEELS" }} </h3>
     <h4 id="nav-home-subtitle"> {{ isEnterpriseView ? "Enterprise" : "" }} </h4>
-    <!-- <img class="nav-logo" src="assets/logo.png" alt="Logo"> -->
   </div>
 
   <!-- Right content -->
@@ -47,9 +47,9 @@
     
     <!-- User logged in -->
     <div *ngIf="isLoggedIn" class="nav-account-container">
-      <button mat-icon-button routerLink="notifications" type="button" id="notifications-button">
-        <mat-icon [matBadge]="numNotifications" [matBadgeHidden]="!numNotifications">
-          {{ notificationsIcon }}
+      <button mat-icon-button routerLink="notifications" type="button" id="notifications-button"  [class.active]="isNotificationsPage">
+        <mat-icon [matBadge]="unreadNotificationCount" [matBadgeHidden]="!unreadNotificationCount" aria-hidden="false">
+          notifications_none
         </mat-icon>
       </button>
       <button mat-stroked-button [matMenuTriggerFor]="profilemenu" type="button" id="user-button">
@@ -59,7 +59,7 @@
     </div>
     <mat-menu #profilemenu="matMenu" id="user-menu">
       <a mat-tab-link routerLink="profile" id="profile-button"> My Profile </a>
-      <a mat-tab-link *ngIf="isOwner" (click)="toogleEnterprise()" id="enterprise-toogle-button">
+      <a mat-tab-link *ngIf="isOwner" (click)="toggleEnterprise()" id="enterprise-toggle-button">
         {{ isEnterpriseView ? 'Personal View' : 'Enterprise View' }}
       </a>
       <a mat-tab-link (click)="logout()" id="logout-button">

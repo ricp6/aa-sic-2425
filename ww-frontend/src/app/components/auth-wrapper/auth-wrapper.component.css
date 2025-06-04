@@ -1,49 +1,73 @@
-.auth-container {
-  display: flex;
+/* Full screen background image */
+#auth-container {
+  position: relative;
   height: 100vh;
+  width: 100vw;
+  background-image: url('/kart.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.auth-left {
-  flex: 1;
-  background-color: #000;
-  overflow: hidden;
-}
-
-.auth-left img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-
-.auth-right {
-  flex: 1;
+/* Floating white box */
+#auth-floating {
   background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 450px;
+  width: 90%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 40px;
-  border-radius: 40px 0 0 40px;
+  align-items: center;
 }
 
-.auth-right h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
-}
-
-.auth-right h2 {
-  font-size: 1.5rem;
+/* Logo styling */
+#logo {
+  width: 50%;
   margin-bottom: 20px;
 }
 
-.social-buttons {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
+/* Title */
+#title {
+  font-size: 1.8rem;
 }
 
-.social-buttons button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+  gap: 5px;
+}
+
+mat-form-field, #primary-button {
+  width: 300px;
+}
+
+#password-field {
+  position: relative;
+}
+
+#primary-button {
+  border-radius: 5px;
+  margin: 10px 0 15px;
+  background-color: black;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+#primary-button:hover {
+  background-color: #333;
+}
+
+#primary-button:disabled {
+  background-color: #ccc;
+  color: black;
+}
+
+p {
+  text-align: center;
 }

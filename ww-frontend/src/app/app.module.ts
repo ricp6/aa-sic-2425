@@ -11,6 +11,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -45,12 +48,15 @@ import { RegisterComponent } from './components/register/register.component';
     AppRoutingModule,
     CommonModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     MatTabsModule,
     MatMenuModule,
     MatIconModule,
     MatButtonModule,
     MatBadgeModule,
-    ReactiveFormsModule
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule
   ],
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
