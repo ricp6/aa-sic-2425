@@ -114,21 +114,21 @@ nav {
 }
 
 #main-content::-webkit-scrollbar-track {
-  background: var(--scroll-blue-track);
+  background: var(--scroll-track);
   /* Background of the scrollbar track */
   border-radius: 10px;
   /* Rounding the corners */
 }
 
 #main-content::-webkit-scrollbar-thumb {
-  background: var(--scroll-blue);
+  background: var(--scroll);
   /* Color of the scrollbar thumb */
   border-radius: 10px;
   /* Rounding the corners */
 }
 
 #main-content::-webkit-scrollbar-thumb:hover {
-  background: var(--scroll-blue-hover);
+  background: var(--scroll-hover);
   /* Color when hovered */
 }
 

@@ -11,8 +11,7 @@ body {
     --warning-red: #d73a3a;
     --warning-red-light: #fbd1d1;
     
-    --nav-blue: aliceblue;
-    --scroll-blue-track: #e4f4fc;
-    --scroll-blue: #95dbf6;
-    --scroll-blue-hover: #6d9fb3;
+    --scroll-track: #ebebeb;
+    --scroll: #bebebe;
+    --scroll-hover: #919191;
 }
