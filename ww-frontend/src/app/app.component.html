@@ -48,7 +48,7 @@
     <!-- User logged in -->
     <div *ngIf="isLoggedIn" class="nav-account-container">
       <button mat-icon-button routerLink="notifications" type="button" id="notifications-button">
-        <mat-icon [matBadge]="numNotifications" [matBadgeHidden]="!numNotifications">
+        <mat-icon [matBadge]="unreadNotificationCount" [matBadgeHidden]="!unreadNotificationCount">
           {{ notificationsIcon }}
         </mat-icon>
       </button>

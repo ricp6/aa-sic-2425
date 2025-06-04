@@ -19,8 +19,8 @@ export class RegisterComponent extends AuthWrapperComponent {
   ) {
     super();
     this.form = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      name: ['', Validators.required, Validators.minLength(3), Validators.maxLength(50)],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }

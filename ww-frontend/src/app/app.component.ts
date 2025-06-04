@@ -36,8 +36,8 @@ export class AppComponent implements OnInit {
     return this.user?.name;
   }
   
-  get numNotifications(): string | number {
-    const count = /*this.user?.numNotifications ??*/ 1;
+  get unreadNotificationCount(): string | number {
+    const count = this.user?.unreadNotificationCount ?? 0;
     return count > 10 ? '10+' : count;
   }
 
@@ -62,6 +62,8 @@ export class AppComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.isAuthPage = event.urlAfterRedirects.startsWith('/auth');
+        this.notificationsIcon = event.urlAfterRedirects.startsWith('/notifications') ? 
+          'notifications' : 'notifications_none';
       });
   }
 
