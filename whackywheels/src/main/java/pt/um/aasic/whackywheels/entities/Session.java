@@ -23,7 +23,13 @@ public class Session {
     @OneToMany(mappedBy = "session")
     private Set<Classification> classifications;
 
-    protected Session() {}
+    public Session() {}
+
+    public Session(LocalTime startTime, LocalTime endTime, Reservation reservation) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.reservation = reservation;
+    }
 
     public Long getId() {
         return id;

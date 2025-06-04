@@ -36,15 +36,15 @@ public class TrackCreateRequestDTO {
     // @Nullable para imagens, pois o owner pode não as enviar
     private Set<String> images;
 
-    @Valid // Valida a lista de DayScheduleDTOs
+    @Valid
     @NotNull(message = "Day schedules cannot be null")
     @Size(min = 1, message = "At least one day schedule must be provided")
-    private Set<DayScheduleDTO> daySchedules; // Usar Set para garantir unicidade por dia
+    private Set<DayScheduleDTO> daySchedules;
 
-    @Valid // Valida a lista de KartDTOs
+    @Valid
     @NotNull(message = "Karts cannot be null")
     @Size(min = 1, message = "At least one kart must be provided")
-    private Set<KartDTO> karts; // Usar Set para karts
+    private Set<KartDTO> karts;
 
     public TrackCreateRequestDTO() {}
 

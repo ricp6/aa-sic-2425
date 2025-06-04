@@ -24,7 +24,6 @@ public class NotificationCreateRequestDTO {
         this.body = body;
     }
 
-    // Getters e Setters
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
     public String getTitle() { return title; }

@@ -6,7 +6,7 @@ import java.time.LocalTime;
 
 public class DayScheduleDTO {
     @NotNull(message = "Day of week cannot be null")
-    private DayOfWeek day; // Usar o enum DayOfWeek do Java
+    private DayOfWeek day;
 
     @NotNull(message = "Opening time cannot be null")
     private LocalTime openingTime;

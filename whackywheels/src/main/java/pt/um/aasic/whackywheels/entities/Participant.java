@@ -28,6 +28,11 @@ public class Participant {
 
     public Participant() {}
 
+    public Participant(User user, Kart kart, Reservation reservation) {
+        this.user = user;
+        this.kart = kart;
+        this.reservation = reservation;
+    }
     public Long getId() {
         return id;
     }
