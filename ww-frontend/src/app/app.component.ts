@@ -14,8 +14,8 @@ export class AppComponent implements OnInit {
   
   user: User | null = null;
   isAuthPage: boolean = false;
+  isNotificationsPage: boolean = false;
   isEnterpriseView: boolean = false;
-  notificationsIcon: string = 'notifications_none';
   
   personalLinks = [
     { path: 'tracks', label: 'Tracks' },
@@ -62,8 +62,7 @@ export class AppComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.isAuthPage = event.urlAfterRedirects.startsWith('/auth');
-        this.notificationsIcon = event.urlAfterRedirects.startsWith('/notifications') ? 
-          'notifications' : 'notifications_none';
+        this.isNotificationsPage = event.urlAfterRedirects.startsWith('/notifications');
       });
   }
 
