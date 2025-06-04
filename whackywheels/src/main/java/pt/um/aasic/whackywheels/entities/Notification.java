@@ -30,7 +30,7 @@ public class Notification {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    protected Notification() {}
+    public Notification() {}
 
     public Long getId() {
         return id;

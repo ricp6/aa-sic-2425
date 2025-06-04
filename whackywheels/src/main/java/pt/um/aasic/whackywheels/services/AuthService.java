@@ -4,7 +4,7 @@ import pt.um.aasic.whackywheels.dtos.LoginRequestDTO;
 import pt.um.aasic.whackywheels.dtos.RegisterRequestDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.repositories.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder; // Para o hash de passwords
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
