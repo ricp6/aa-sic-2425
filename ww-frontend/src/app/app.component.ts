@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
     this.router.navigate(["home"]);
   }
 
-  toogleEnterprise(): void {
+  toggleEnterprise(): void {
     this.isEnterpriseView = !this.isEnterpriseView;
     const title = this.isEnterpriseView ? "Wacky Wheels Enterprise" : "Wacky Wheels";
     this.titleService.setTitle(title);

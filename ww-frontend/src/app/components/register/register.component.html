@@ -1,26 +1,34 @@
-<form (ngSubmit)="register()" [formGroup]="form">
-    <input formControlName="name" placeholder="Name">
-    <input formControlName="email" type="email" placeholder="E-mail" />
+<form id="register-form" (ngSubmit)="register()" [formGroup]="form">
+    <mat-form-field appearance="outline" id="name-field">
+        <mat-label>Name</mat-label>
+        <input matInput id="name" formControlName="name">
+        <mat-error *ngIf="form.get('name')?.hasError('required')">Required Field</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" id="email-field">
+        <mat-label>E-mail</mat-label>
+        <input matInput type="email" id="email" formControlName="email">
+        <mat-error *ngIf="form.get('email')?.hasError('required')">Required Field</mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">
+            Please enter a valid email address
+        </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" id="password-field">
+        <mat-label>Password</mat-label>
+        <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password" />
+        <mat-error *ngIf="form.get('password')?.hasError('required')">Required Field</mat-error>
 
-    <div class="password-field">
-        <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Password" />
-        <button type="button" class="toggle-eye" (click)="togglePassword()">
+        <button mat-icon-button type="button" matSuffix (click)="togglePassword()"
+            [attr.aria-label]="'Hide password'" [attr.aria-pressed]="showPassword">
             <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
-    </div>
+    </mat-form-field>
 
-    <button class="primary-button" type="submit" [disabled]="form.invalid">
+    <button mat-raised-button type="submit" id="primary-button" [disabled]="form.invalid">
         Sign up
     </button>
 </form>
 
-<p>
-    Already have an account? <a routerLink="/auth/login">Login!</a>
-</p>
-<p>
-    Are you an owner of one or more tracks?
-    <a (click)="requestEnterprise()">Request access to an enterprise account!</a>
-</p>
-<p>
-    Or feel free to <a routerLink="/home">stay as a guest</a>.
-</p>
+<p>Already have an account? <a routerLink="/auth/login">Login!</a></p>
+<p>Own a track? <a (click)="requestEnterprise()">Request an enterprise account!</a></p>
+<p>Or feel free to <a routerLink="/home">stay as a guest.</a></p>

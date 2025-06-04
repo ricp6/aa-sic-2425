@@ -3,6 +3,7 @@ nav {
   justify-content: space-between;
   height: 60px;
   width: 100%;
+  flex-shrink: 0;
 }
 
 #nav-home-container {
@@ -11,6 +12,10 @@ nav {
   cursor: pointer;
   margin-left: 30px;
   margin-right: auto;
+}
+
+#nav-home-logo {
+  height: 60px;
 }
 
 #nav-home-title {
@@ -86,7 +91,7 @@ nav {
   border-radius: 5px;
 }
 
-#profile-button, #enterprise-toogle-button, #logout-button {
+#profile-button, #enterprise-toggle-button, #logout-button {
   justify-content: left;
   width: 150px;
 }
@@ -99,12 +104,8 @@ nav {
   margin-left: 10px;
 }
 
-
 #main-content {
-  height: 91%;
-  /* Adjust this based on your navigation bar height */
-  overflow-y: auto;
-  /* Enable vertical scrolling */
+  flex-grow: 1;
 }
 
 /* Custom scrollbar styles */

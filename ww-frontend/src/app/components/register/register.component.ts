@@ -7,7 +7,7 @@ import { AuthWrapperComponent } from '../auth-wrapper/auth-wrapper.component';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.css', '../auth-wrapper/auth-wrapper.component.css']
 })
 export class RegisterComponent extends AuthWrapperComponent {
   form: FormGroup;

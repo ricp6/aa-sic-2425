@@ -7,7 +7,7 @@ import { AuthWrapperComponent } from '../auth-wrapper/auth-wrapper.component';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css', '../auth-wrapper/auth-wrapper.component.css']
 })
 export class LoginComponent extends AuthWrapperComponent {
   form: FormGroup;
