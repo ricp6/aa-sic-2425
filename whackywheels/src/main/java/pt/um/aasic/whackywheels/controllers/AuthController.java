@@ -5,6 +5,8 @@ import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
 import pt.um.aasic.whackywheels.entities.Owner;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.AuthService;
+import pt.um.aasic.whackywheels.services.NotificationService;
+
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +24,6 @@ public class AuthController {
         this.authService = authService;
     }
 
-    /**
-     * Endpoint para registar um novo utilizador.
-     * Mapeia para POST /api/auth/register
-     */
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO request) {
         try {
@@ -35,7 +33,8 @@ public class AuthController {
                     newUser.getId(),
                     newUser.getEmail(),
                     newUser.getName(),
-                    userTypeString
+                    userTypeString,
+                    0L
             );
             return new ResponseEntity<>(newUser, HttpStatus.CREATED);
         } catch (IllegalStateException e) {
@@ -56,12 +55,13 @@ public class AuthController {
             } else {
                 userTypeString = "USER";
             }
-
+            Long unreadNotificationCount = NotificationService.getUnreadNotificationCount(authenticatedUser.getId());
             UserResponseDTO userResponse = new UserResponseDTO(
                     authenticatedUser.getId(),
                     authenticatedUser.getEmail(),
                     authenticatedUser.getName(),
-                    userTypeString
+                    userTypeString,
+                    unreadNotificationCount
             );
             //Talvez incluir token JWT aqui?
             return new ResponseEntity<>(userResponse, HttpStatus.OK);
