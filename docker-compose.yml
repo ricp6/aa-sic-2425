@@ -34,8 +34,11 @@ services:
       - backend
     volumes:
       - ./ww-frontend:/app
-      - /app/node_modules 
-    command: npx ng serve --host 0.0.0.0
+      - /app/node_modules
+    environment:
+    - CHOKIDAR_USEPOLLING=true
+    - NG_CLI_ANALYTICS=off 
+    command: npx ng serve --host 0.0.0.0 --poll=2000
 
 volumes:
   db_data:
