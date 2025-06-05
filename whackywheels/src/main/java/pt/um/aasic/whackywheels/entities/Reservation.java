@@ -30,7 +30,7 @@ public class Reservation {
     @JoinColumn(name = "track_id")
     private Track track;
 
-    protected Reservation() {}
+    public Reservation() {}
 
     public Long getId() {
         return id;

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class NotificationResponseDTO {
     private Long id;
-    private Long userId; // O ID do utilizador que recebeu a notificação
+    private Long userId;
     private String title;
     private String body;
     private boolean isRead;
