@@ -1,20 +1,15 @@
-# Etapa 1: Build da aplicação Angular
-FROM node:20-alpine AS build
+FROM node:18
 
 WORKDIR /app
-COPY . .
+
+COPY package*.json ./
 
 RUN npm install
-RUN npm run build -- --configuration production
 
-# Etapa 2: Servir a app Angular com Nginx
-FROM nginx:alpine
+COPY . .
 
-COPY --from=build /app/dist/ww-frontend /usr/share/nginx/html
+RUN npm install -g @angular/cli
 
-# Remove config padrão e adiciona uma customizada (opcional)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 4200
 
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npx", "ng", "serve", "--host", "0.0.0.0", "--disable-host-check"]
