@@ -1,13 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100vh; }
+html, body { height: 100vh; width: 100vw; }
 body { 
     font-family: Arial, sans-serif; 
     margin: 0;
-    display: flex;
-    flex-direction: column;
 }
 
+app-root {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
 
 :root {
     --warning-red: #d73a3a;

@@ -1,0 +1,68 @@
+#hero-image {
+  background-image: url('/kart.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 400px;
+  width: 100%;
+}
+
+#popular-section {
+  padding: 20px 30px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.section-scroll-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.tracks-container {
+  display: flex;
+  flex-wrap: nowrap; /* Keep all cards in one row */
+  overflow-x: auto;   /* Enable horizontal scroll */
+  gap: 20px;
+  padding: 10px;
+  scroll-behavior: smooth;
+}
+
+/* Optional: hide vertical scrollbar for cleaner look */
+.tracks-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tracks-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.track-card {
+  flex: 0 0 auto;
+  max-width: 250px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.track-card:hover {
+  transform: translateY(-4px);
+}
+
+mat-card-title, mat-card-subtitle {
+    padding: 10px;
+}
+
+img[mat-card-image] {
+  width: 100%;
+  object-fit: cover;
+  flex-grow: 1;
+}
