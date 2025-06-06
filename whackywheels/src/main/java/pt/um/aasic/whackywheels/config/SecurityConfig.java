@@ -19,9 +19,6 @@ import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-
-
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -39,17 +36,15 @@ public class SecurityConfig {
                 .cors(withDefaults()) // Enable CorsConfigurationSource bean
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                AntPathRequestMatcher.antMatcher("/api/auth/register"),
-                                AntPathRequestMatcher.antMatcher("/api/auth/login")
-                        ).permitAll()
-                        .requestMatchers(
-                                AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
-                                AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
-                                AntPathRequestMatcher.antMatcher("/swagger-ui.html")
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(withDefaults());
+                .httpBasic(httpBasic -> httpBasic.disable());
         return http.build();
     }
 
