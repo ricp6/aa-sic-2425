@@ -1,1 +1,33 @@
-<p>tracks works!</p>
+<section id="tracks-container">
+    
+    <div id="tracks-header">
+        <h1 id="title">Tracks</h1>
+        
+        <div id="tracks-controls">
+            <button mat-icon-button id="filter-favs" (click)="toggleFavs()">
+                <mat-icon>{{ onlyFavs ? 'star' : 'star_border' }}</mat-icon>
+            </button>
+
+            <button mat-stroked-button id="filter-options">
+                <mat-icon>filter_list</mat-icon>
+                Filtros
+            </button>
+
+            <mat-form-field appearance="outline" id="search-field">
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput placeholder="Search track..." [(ngModel)]="searchTerm" />
+            </mat-form-field>
+        </div>
+    </div>
+
+    <mat-card class="track-card" *ngFor="let track of filteredTracks()">
+        <button mat-icon-button id="set-fav" (click)="setFav(track)">
+            <mat-icon class="star-icon">
+                {{ track.favorite ? 'star' : 'star_border' }}
+            </mat-icon>
+        </button>
+        <img mat-card-image class="track-image" [src]="track.image" [alt]="track.name" />
+        <mat-card-title>{{ track.name }}</mat-card-title>
+        <mat-card-subtitle>{{ track.location }}</mat-card-subtitle>
+    </mat-card>
+</section>

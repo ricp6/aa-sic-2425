@@ -1,24 +1,37 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { User } from '../interfaces/user';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly authURL = "http://localhost:8080/api/auth/";
+  private readonly userSubject = new BehaviorSubject<User | null>(null);
 
-  private readonly userSubject = new BehaviorSubject<User | null>(this.loadUserFromStorage());
   user$: Observable<User | null> = this.userSubject.asObservable();
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly toastr: ToastrService
+  ) {}
 
   login(data: { email: string; password: string }) {
     return this.http.post<User>(this.authURL + 'login', data).pipe(
       tap((user) => {
         localStorage.setItem('user', JSON.stringify(user));
         this.userSubject.next(user);
+        this.toastr.success('Your login was successful!', 'Welcome ' + user.name);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.toastr.warning('Invalid credentials.', 'Authentication error');
+        } else {
+          this.toastr.error('An error occoured while processing the login.', 'Server error');
+        }
+        return throwError(() => error);
       })
     );
   }
@@ -28,6 +41,15 @@ export class AuthService {
       tap((user) => {
         localStorage.setItem('user', JSON.stringify(user));
         this.userSubject.next(user);
+        this.toastr.success('Your account was successfully created!', 'Welcome ' + user.name);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 400) {
+          this.toastr.warning(error.error ?? 'Invalid data given.', 'Registration error');
+        } else {
+          this.toastr.error('An error occoured while processing the registration.', 'Server error');
+        }
+        return throwError(() => error);
       })
     );
   }
@@ -35,11 +57,6 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('user');
     this.userSubject.next(null);
-  }
-
-  private loadUserFromStorage(): User | null {
-    const raw = localStorage.getItem('user');
-    return raw ? JSON.parse(raw) : null;
   }
 
   getCurrentUser(): User | null {
