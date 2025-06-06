@@ -52,6 +52,11 @@ public class User implements UserDetails {
     )
     private Set<Track> favoriteTracks;
 
+    // Campos para el perfil
+    private int totalSessions;
+    private int victories;
+    private int tracksVisited;
+
     public User() {}
 
     public User(String name, String email, String password) {
@@ -144,4 +149,21 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public int getTotalSessions() {return totalSessions;}
+
+    public void setTotalSessions(int totalSessions) {this.totalSessions = totalSessions;}
+
+    public int getVictories() {return victories;}
+
+    public void setVictories(int victories) {this.victories = victories;}
+
+    public int getTracksVisited() {return tracksVisited;}
+
+    public void setTracksVisited(int tracksVisited) {this.tracksVisited = tracksVisited;}
+
+    public Set<Track> getFavoriteTracks() {return favoriteTracks;}
+
+    public void setFavoriteTracks(Set<Track> favoriteTracks) {this.favoriteTracks = favoriteTracks;}
+
 }

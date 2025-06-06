@@ -1,1 +1,30 @@
-<p>profile works!</p>
+<div class="profile-container" *ngIf="user">
+  <h1>Perfil de Usuario</h1>
+  <div class="info">
+    <img src="/assets/avatar.png" class="avatar" alt="Avatar">
+    <h2>{{ user.name }}</h2>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Rol:</strong> {{ user.role }}</p>
+  </div>
+
+  <div class="stats">
+    <h3>Estadísticas</h3>
+    <ul>
+      <li>Total de sesiones: {{ user.totalSessions }}</li>
+      <li>Victorias: {{ user.victories }}</li>
+      <li>Pistas visitadas: {{ user.tracksVisited }}</li>
+    </ul>
+  </div>
+
+  <div class="favorites">
+    <h3>Pistas favoritas</h3>
+    <ul>
+      <li *ngFor="let track of user.favoriteTracks">{{ track }}</li>
+    </ul>
+  </div>
+</div>
+
+<div *ngIf="errorMessage">
+  <p>{{ errorMessage }}</p>
+</div>
+
