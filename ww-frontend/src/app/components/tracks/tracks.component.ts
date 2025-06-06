@@ -1,47 +1,51 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { TracksService } from '../../services/tracks.service';
+import { Track } from '../../interfaces/track';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-tracks',
   templateUrl: './tracks.component.html',
   styleUrl: './tracks.component.css'
 })
-export class TracksComponent {
+export class TracksComponent implements OnInit {
+
   searchTerm: string = '';
   onlyFavs: boolean = false;
 
-  tracks = [
-    {
-      name: 'Speed Karting',
-      location: 'Porto',
-      image: '/track1.jpg',
-      favorite: true,
-    },
-    {
-      name: 'Grand Prix Circuit',
-      location: 'Lisboa',
-      image: '/track2.jpg',
-      favorite: false,
-    },
-    {
-      name: 'Riverside Kartway',
-      location: 'Leiria',
-      image: '/track3.jpeg',
-      favorite: false,
-    },
-    {
-      name: 'Seaside Raceway',
-      location: 'Faro',
-      image: '/track4.jpg',
-      favorite: false,
-    },
-  ];
+  tracks: Track[] | null = null;
+
+  constructor(
+    private readonly authService: AuthService,
+    private readonly tracksService: TracksService
+  ) {}
+
+  ngOnInit(): void {
+    this.tracksService.getAll().subscribe({
+      next: (data) => {
+        this.tracks = data;
+      },
+      error: (err) => {
+        console.error('Track loading failed:', err);
+        // You’re already showing toast inside the service on error
+      }
+    });
+  }
 
   filteredTracks() {
     const search = this.searchTerm.trim().toLowerCase();
-    return this.tracks.filter(track =>
+    return this.tracks?.filter(track =>
       track.name.toLowerCase().includes(search) ||
-      track.location.toLowerCase().includes(search)
+      this.location(track).toLowerCase().includes(search)
     );
+  }
+
+  location(track: Track): string {
+    return track.address.substring(track.address.lastIndexOf(",") + 1, track.address.length)
+  }
+
+  isFav(track: Track): boolean {
+    return this.authService.getCurrentUser()?.favoriteTrackIds.includes(track.id) ?? false;
   }
 
   toggleFavs(): void {

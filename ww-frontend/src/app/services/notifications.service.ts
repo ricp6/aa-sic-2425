@@ -3,23 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Notification } from '../interfaces/notification';
 
-
-export interface NotificationResponseDTO {
-  id: number;
-  userId: number;
-  title: string;
-  body: string;
-  isRead: boolean;
-  createdAt: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  private apiUrl = 'http://localhost:8080/api/notifications';
+  private readonly apiUrl = 'http://localhost:8080/api/notifications';
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   getNotifications(): Observable<Notification[]> {
     return this.http.get<Notification[]>(this.apiUrl);
