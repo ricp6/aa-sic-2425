@@ -3,6 +3,7 @@ import pt.um.aasic.whackywheels.dtos.LoginRequestDTO;
 import pt.um.aasic.whackywheels.dtos.RegisterRequestDTO;
 import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
 import pt.um.aasic.whackywheels.entities.Owner;
+import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.AuthService;
 import pt.um.aasic.whackywheels.services.NotificationService;
@@ -15,7 +16,6 @@ import jakarta.validation.Valid;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -63,8 +63,8 @@ public class AuthController {
             Long unreadNotificationCount = NotificationService.getUnreadNotificationCount(authenticatedUser.getId());
 
             List<Long> favoriteTrackIds = authenticatedUser.getFavoriteTracks().stream()
-                    .map(track -> track.getId())
-                    .collect(Collectors.toList());
+                    .map(Track::getId)
+                    .toList();
 
             UserResponseDTO userResponse = new UserResponseDTO(
                     authenticatedUser.getId(),

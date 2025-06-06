@@ -4,4 +4,5 @@ export interface User {
     name: string,
     userType: 'USER' | 'OWNER', // should match the discriminator column
     unreadNotificationCount: number,
+    favoriteTrackIds: number[]
 }
