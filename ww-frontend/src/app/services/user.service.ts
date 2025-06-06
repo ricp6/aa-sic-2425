@@ -7,7 +7,7 @@ import { UserProfile } from '../interfaces/user-profile';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/api/user';
+  private apiUrl = 'http://localhost:8080/api/user'; // Creo q es esta
 
   constructor(private http: HttpClient) {}
 
