@@ -46,6 +46,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/notifications/{id}/read").permitAll() // <<-- CORRIGIDO AQUI
                         .requestMatchers(HttpMethod.GET, "/api/tracks/all").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/tracks").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/notifications/{id}/read").authenticated() // Marcar como lida
                         .requestMatchers(HttpMethod.DELETE, "/api/notifications/{id}").authenticated() // Apagar uma notificação
                         .requestMatchers(HttpMethod.DELETE, "/api/notifications/read").authenticated() // Apagar todas as lidas

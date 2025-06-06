@@ -10,10 +10,12 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { EnterpriseHomeComponent } from './components/enterprise-home/enterprise-home.component';
 import { AuthWrapperComponent } from './components/auth-wrapper/auth-wrapper.component';
 import { RegisterComponent } from './components/register/register.component';
+import {TrackDetailsComponent} from "./components/track-details/track-details.component";
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'tracks', component: TracksComponent },
+  { path: 'tracks/:id', component: TrackDetailsComponent },
   { path: 'reservations', component: ReservationsComponent },
   { path: 'sessions', component: SessionsComponent },
   { path: 'notifications', component: NotificationsComponent },
@@ -36,7 +38,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },
-  { path: '', redirectTo: '/home', pathMatch: 'full' }, 
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/home' },
 ];
 
