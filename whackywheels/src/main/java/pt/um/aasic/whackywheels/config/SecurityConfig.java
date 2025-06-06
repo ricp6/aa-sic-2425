@@ -2,6 +2,7 @@ package pt.um.aasic.whackywheels.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,10 +39,17 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
+                                "/api/notifications",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/notifications/{id}/read").permitAll() // <<-- CORRIGIDO AQUI
+                        .requestMatchers(HttpMethod.GET, "/api/tracks/all").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/notifications/{id}/read").authenticated() // Marcar como lida
+                        .requestMatchers(HttpMethod.DELETE, "/api/notifications/{id}").authenticated() // Apagar uma notificação
+                        .requestMatchers(HttpMethod.DELETE, "/api/notifications/read").authenticated() // Apagar todas as lidas
+                        .requestMatchers(HttpMethod.PUT, "/api/notifications/mark-all-read").authenticated() // Marcar todas como lidas
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable());

@@ -3,6 +3,7 @@ package pt.um.aasic.whackywheels.services;
 import pt.um.aasic.whackywheels.dtos.DayScheduleDTO;
 import pt.um.aasic.whackywheels.dtos.KartDTO;
 import pt.um.aasic.whackywheels.dtos.TrackCreateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.TrackResponseDTO;
 import pt.um.aasic.whackywheels.entities.*;
 import pt.um.aasic.whackywheels.repositories.DayScheduleRepository;
 import pt.um.aasic.whackywheels.repositories.KartRepository;
@@ -13,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TrackService {
@@ -27,6 +30,23 @@ public class TrackService {
         this.userRepository = userRepository;
         this.dayScheduleRepository = dayScheduleRepository;
         this.kartRepository = kartRepository;
+    }
+
+    public List<TrackResponseDTO> findAllTracks() {
+        return trackRepository.findAll().stream()
+                .map(track -> new TrackResponseDTO(
+                        track.getId(),
+                        track.getName(),
+                        track.getAddress(),
+                        track.getSlotPrice(),
+                        track.getSlotDuration(),
+                        track.getEmail(),
+                        track.getPhoneNumber(),
+                        track.getImages(),
+                        track.getIsAvailable(),
+                        track.getOwner() != null ? track.getOwner().getId() : null
+                ))
+                .collect(Collectors.toList());
     }
 
     @Transactional
