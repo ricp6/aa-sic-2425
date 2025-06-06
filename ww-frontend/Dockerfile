@@ -10,4 +10,6 @@ COPY . .
 
 RUN npm install -g @angular/cli
 
+RUN  ng add @angular/material --skip-confirmation
+
 EXPOSE 4200

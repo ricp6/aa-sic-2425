@@ -28,6 +28,7 @@ import { TracksComponent } from './components/tracks/tracks.component';
 import { EnterpriseHomeComponent } from './components/enterprise-home/enterprise-home.component';
 import { AuthWrapperComponent } from './components/auth-wrapper/auth-wrapper.component';
 import { RegisterComponent } from './components/register/register.component';
+import { TrackDetailsComponent } from './components/track-details/track-details.component';
 
 import { ToastrModule } from 'ngx-toastr';
 
@@ -43,7 +44,8 @@ import { ToastrModule } from 'ngx-toastr';
     TracksComponent,
     EnterpriseHomeComponent,
     AuthWrapperComponent,
-    RegisterComponent
+    RegisterComponent,
+    TrackDetailsComponent
   ],
   imports: [
     BrowserModule,
