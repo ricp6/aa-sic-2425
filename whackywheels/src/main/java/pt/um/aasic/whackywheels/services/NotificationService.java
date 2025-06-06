@@ -9,6 +9,9 @@ import pt.um.aasic.whackywheels.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class NotificationService {
 
@@ -65,5 +68,52 @@ public class NotificationService {
                 notification.getIsRead(),
                 notification.getCreatedAt()
         );
+    }
+
+    public List<NotificationResponseDTO> findAllNotifications() {
+        return notificationRepository.findAll().stream()
+                .map(notification -> new NotificationResponseDTO(
+                        notification.getId(),
+                        notification.getUser().getId(),
+                        notification.getTitle(),
+                        notification.getBody(),
+                        notification.getIsRead(),
+                        notification.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean deleteNotification(Long notificationId, Long userId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElse(null);
+
+        if (notification == null) {
+            return false;
+        }
+
+        if (!notification.getUser().getId().equals(userId)) {
+            throw new SecurityException("User is not authorized to delete this notification.");
+        }
+
+        notificationRepository.delete(notification);
+        return true;
+    }
+
+    @Transactional
+    public int deleteReadNotifications(Long userId) {
+        List<Notification> readNotifications = notificationRepository.findByUserIdAndIsReadTrue(userId);
+        notificationRepository.deleteAll(readNotifications);
+        return readNotifications.size();
+    }
+
+    @Transactional
+    public int markAllNotificationsAsRead(Long userId) {
+        List<Notification> unreadNotifications = notificationRepository.findByUserIdAndIsReadFalse(userId);
+        for (Notification notification : unreadNotifications) {
+            notification.setIsRead(true);
+        }
+        notificationRepository.saveAll(unreadNotifications);
+        return unreadNotifications.size();
     }
 }

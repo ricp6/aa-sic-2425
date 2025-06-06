@@ -13,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -34,9 +38,10 @@ public class AuthController {
                     newUser.getEmail(),
                     newUser.getName(),
                     userTypeString,
-                    0L
+                    0L,
+                    Collections.emptyList()
             );
-            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+            return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -56,12 +61,18 @@ public class AuthController {
                 userTypeString = "USER";
             }
             Long unreadNotificationCount = NotificationService.getUnreadNotificationCount(authenticatedUser.getId());
+
+            List<Long> favoriteTrackIds = authenticatedUser.getFavoriteTracks().stream()
+                    .map(track -> track.getId())
+                    .collect(Collectors.toList());
+
             UserResponseDTO userResponse = new UserResponseDTO(
                     authenticatedUser.getId(),
                     authenticatedUser.getEmail(),
                     authenticatedUser.getName(),
                     userTypeString,
-                    unreadNotificationCount
+                    unreadNotificationCount,
+                    favoriteTrackIds
             );
             //Talvez incluir token JWT aqui?
             return new ResponseEntity<>(userResponse, HttpStatus.OK);

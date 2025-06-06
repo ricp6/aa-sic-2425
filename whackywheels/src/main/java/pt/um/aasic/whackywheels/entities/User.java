@@ -119,6 +119,13 @@ public class User implements UserDetails {
         return Collections.singleton(new SimpleGrantedAuthority(role));
     }
 
+    public Set<Track> getFavoriteTracks() {
+        return favoriteTracks;
+    }
+    public void setFavoriteTracks(Set<Track> favoriteTracks) {
+        this.favoriteTracks = favoriteTracks;
+    }
+
     //Nesta caso é o email
     @Override
     public String getUsername() {
@@ -144,4 +151,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

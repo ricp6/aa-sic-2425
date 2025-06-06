@@ -1,6 +1,7 @@
 package pt.um.aasic.whackywheels.controllers;
 
 import pt.um.aasic.whackywheels.dtos.TrackCreateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.TrackResponseDTO;
 import pt.um.aasic.whackywheels.entities.Owner;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
@@ -12,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tracks")
@@ -49,5 +52,11 @@ public class TrackController {
             e.printStackTrace();
             return new ResponseEntity<>("Failed to create track: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/all") // <<-- Novo endpoint
+    public ResponseEntity<List<TrackResponseDTO>> getAllTracks() {
+        List<TrackResponseDTO> tracks = trackService.findAllTracks();
+        return new ResponseEntity<>(tracks, HttpStatus.OK);
     }
 }
