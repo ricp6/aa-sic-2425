@@ -1,0 +1,81 @@
+<div class="session-detail-container" *ngIf="session">
+  <div class="header-section">
+    <button class="back-button" (click)="goBack()">← Back</button>
+  </div>
+
+  <div class="content-wrapper">
+    <div class="left-column">
+      <div class="session-data-header-card"> <h2>Session Data</h2>
+      </div>
+
+
+      <h2>Podium</h2>
+      <div class="podium-grid">
+        <div class="podium-item" *ngFor="let entry of podiumEntries"
+             [class.gold-podium]="entry.position === 1"
+             [class.silver-podium]="entry.position === 2"
+             [class.bronze-podium]="entry.position === 3">
+          <img [src]="entry.profilePic" alt="{{ entry.driverName }} Profile Picture">
+          <p class="driver-name">{{ entry.driverName }}</p>
+          <span class="position-badge">{{ entry.position }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="right-column">
+      <div class="track-details-card">
+        <h1>{{ trackName }}</h1>
+        <div class="session-details-right">
+          <div class="data-row">
+            <span class="label">Data</span>
+            <span class="value">{{ session.date }}</span>
+          </div>
+          <div class="data-row">
+            <span class="label">Nº participants</span>
+            <span class="value">{{ session.kartsUsed }}</span>
+          </div>
+          <div class="data-row">
+            <span class="label">Duration</span>
+            <span class="value">{{ session.startTime }} - {{ session.endTime }}</span>
+          </div>
+          <div class="data-row">
+            <span class="label">Price</span>
+            <span class="value">{{ session.totalCost }}€</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rankings-section">
+      <table class="rankings-table">
+        <thead>
+        <tr>
+          <th>Pos.</th>
+          <th>Pilot</th>
+          <th>Laps</th>
+          <th>Avg Time</th>
+          <th>Best time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let classification of session.classifications; let i = index">
+          <td class="pos-highlight"
+              [class.gold]="classification.position === 1"
+              [class.silver]="classification.position === 2"
+              [class.bronze]="classification.position === 3">
+            {{ classification.position }}.
+          </td>
+          <td>
+            <mat-icon class="purple-icon">star</mat-icon>
+            {{ classification.participant.user.name }}
+          </td>
+          <td>{{ classification.averageTime }}</td>
+          <td>{{ classification.bestLapTime }}</td>
+          <td>{{ classification.bestLapTime }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
