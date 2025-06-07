@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { MatIconModule } from '@angular/material/icon';
@@ -16,8 +16,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 
-import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { JwtInterceptor } from './interceptors/jwt.interceptor';
+
+import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { SessionsComponent } from './components/sessions/sessions.component';
@@ -29,9 +31,9 @@ import { EnterpriseHomeComponent } from './components/enterprise-home/enterprise
 import { AuthWrapperComponent } from './components/auth-wrapper/auth-wrapper.component';
 import { RegisterComponent } from './components/register/register.component';
 import { TrackDetailsComponent } from './components/track-details/track-details.component';
+import { SessionDetailsComponent } from './components/session-details/session-details.component';
 
 import { ToastrModule } from 'ngx-toastr';
-import { SessionDetailsComponent } from './components/session-details/session-details.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +68,7 @@ import { SessionDetailsComponent } from './components/session-details/session-de
     MatCardModule,
     FormsModule,
     ToastrModule.forRoot({
-      timeOut: 6000,
+      timeOut: 5000,
       extendedTimeOut: 2000, //Time to close after a user hovers over toast
       positionClass: 'toast-top-left',
       progressBar: true,
@@ -75,7 +77,12 @@ import { SessionDetailsComponent } from './components/session-details/session-de
   ],
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true // multi: true means that HTTP_INTERCEPTORS is an array of providers
+    }
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

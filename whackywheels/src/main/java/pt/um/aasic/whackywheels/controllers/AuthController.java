@@ -6,7 +6,6 @@ import org.springframework.security.core.Authentication;
 import pt.um.aasic.whackywheels.dtos.LoginRequestDTO;
 import pt.um.aasic.whackywheels.dtos.LoginResponseDTO; // Importe o novo DTO
 import pt.um.aasic.whackywheels.dtos.RegisterRequestDTO;
-import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
 import pt.um.aasic.whackywheels.entities.Owner;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
@@ -20,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
-import java.util.Collections;
 import java.util.List;
 
 
@@ -44,17 +42,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO request) {
         try {
-            User newUser = authService.registerNewUser(request);
-            String userTypeString = "USER";
-            UserResponseDTO userResponse = new UserResponseDTO(
-                    newUser.getId(),
-                    newUser.getEmail(),
-                    newUser.getName(),
-                    userTypeString,
-                    0L,
-                    Collections.emptyList()
-            );
-            return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+            authService.registerNewUser(request);
+
+            return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
