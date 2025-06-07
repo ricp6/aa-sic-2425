@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TracksService } from '../../services/tracks.service';
 import { Track } from '../../interfaces/track';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tracks',
@@ -13,9 +14,10 @@ export class TracksComponent implements OnInit {
   searchTerm: string = '';
   onlyFavs: boolean = false;
 
-  tracks: Track[] | null = null;
+  tracks: Track[] = [];
 
   constructor(
+    private readonly router: Router,
     private readonly authService: AuthService,
     private readonly tracksService: TracksService
   ) {}
@@ -34,7 +36,7 @@ export class TracksComponent implements OnInit {
 
   filteredTracks() {
     const search = this.searchTerm.trim().toLowerCase();
-    return this.tracks?.filter(track =>
+    return this.tracks.filter(track =>
       track.name.toLowerCase().includes(search) ||
       this.location(track).toLowerCase().includes(search)
     );
@@ -54,5 +56,11 @@ export class TracksComponent implements OnInit {
 
   setFav(track: any): void {
     track.favorite = !track.favorite;
+  }
+
+  showTrack(track : Track) {
+    this.router.navigate(['/tracks', track.id], {
+      state: { track: track }
+    });
   }
 }

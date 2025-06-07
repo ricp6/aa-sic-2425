@@ -16,10 +16,10 @@
     
     <div class="scroll-wrapper">
         <div class="tracks-container" #scrollContainer>
-            <mat-card class="track-card" *ngFor="let track of tracks">
+            <mat-card class="track-card" *ngFor="let track of tracks" (click)="showTrack(track)">
                 <mat-card-title>{{ track.name }}</mat-card-title>
-                <mat-card-subtitle>{{ track.location }}</mat-card-subtitle>
-                <img mat-card-image [src]="track.image" [alt]="track.name" />
+                <mat-card-subtitle>{{ location(track) }}</mat-card-subtitle>
+                <img mat-card-image [src]="track.images[0]" [alt]="track.name" />
             </mat-card>
         </div>
     </div>

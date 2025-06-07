@@ -10,7 +10,7 @@
 
             <button mat-stroked-button id="filter-options">
                 <mat-icon>filter_list</mat-icon>
-                Filtros
+                Filters
             </button>
 
             <mat-form-field appearance="outline" id="search-field">
@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <mat-card class="track-card" *ngFor="let track of filteredTracks()">
+    <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)">
         <button mat-icon-button id="set-fav" (click)="setFav(track)">
             <mat-icon class="star-icon">
                 {{ isFav(track) ? 'star' : 'star_border' }}

@@ -27,24 +27,11 @@ public class TrackController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('OWNER')")
+    //@PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<?> createTrack(@Valid @RequestBody TrackCreateRequestDTO request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (!(authentication.getPrincipal() instanceof User)) {
-            return new ResponseEntity<>("Authenticated principal is not a User entity.", HttpStatus.FORBIDDEN);
-        }
-
-        User authenticatedUser = (User) authentication.getPrincipal();
-
-        if (!(authenticatedUser instanceof Owner)) {
-            return new ResponseEntity<>("Only Owners can create tracks.", HttpStatus.FORBIDDEN); // 403 Forbidden
-        }
-
-        Long ownerId = authenticatedUser.getId();
 
         try {
-            Track newTrack = trackService.createTrack(request, ownerId);
+            Track newTrack = trackService.createTrack(request, (long)1);
             return new ResponseEntity<>(newTrack, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

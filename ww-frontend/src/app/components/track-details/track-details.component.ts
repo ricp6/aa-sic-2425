@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { Track } from '../../interfaces/track'
-import { TrackService } from '../../services/track.service';
+import { TracksService } from '../../services/tracks.service';
 
 @Component({
   selector: 'app-track-details',
@@ -13,21 +14,29 @@ export class TrackDetailsComponent implements OnInit {
   activeTab: 'about' | 'rankings' = 'about';
 
   constructor(
-    private route: ActivatedRoute,
-    private trackService: TrackService
+    private readonly router: Router,
+    private readonly location: Location,
+    private readonly tracksService: TracksService
   ) { }
 
   ngOnInit(): void {
-    this.getTrack();
-  }
+    const state = history.state;
 
-  getTrack(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.trackService.getTrack(id)
-      .subscribe(trackData => this.track = trackData);
+    if (state?.track) {
+      this.track = state.track;
+    } else {
+      // Optionally navigate away or fetch from API if track is missing
+      console.warn('Track not found in state, redirecting...');
+      this.router.navigate(['/tracks']);
+    }
+  
   }
 
   setActiveTab(tab: 'about' | 'rankings'): void {
     this.activeTab = tab;
+  }
+
+  goBack() {
+    this.location.back();
   }
 }
