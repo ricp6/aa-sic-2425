@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { TracksService } from '../../services/tracks.service';
+import { TracksService } from '../../services/track.service';
 import { Track } from '../../interfaces/track';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { User } from '../../interfaces/user';
+import { ToastrService } from 'ngx-toastr';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-tracks',
@@ -16,10 +19,20 @@ export class TracksComponent implements OnInit {
 
   tracks: Track[] = [];
 
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  get user(): User | null {
+    return this.authService.getCurrentUser();
+  }
+
   constructor(
     private readonly router: Router,
     private readonly authService: AuthService,
-    private readonly tracksService: TracksService
+    private readonly userService: UserService,
+    private readonly tracksService: TracksService,
+    private readonly toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -28,18 +41,26 @@ export class TracksComponent implements OnInit {
         this.tracks = data;
       },
       error: (err) => {
-        console.error('Track loading failed:', err);
+        console.error('Tracks loading failed:', err);
         // You’re already showing toast inside the service on error
       }
     });
   }
 
-  filteredTracks() {
+  filteredTracks(): Track[] {
     const search = this.searchTerm.trim().toLowerCase();
-    return this.tracks.filter(track =>
-      track.name.toLowerCase().includes(search) ||
-      this.location(track).toLowerCase().includes(search)
-    );
+
+    return this.tracks.filter(track => {
+      const matchesSearch =
+        track.name.toLowerCase().includes(search) ||
+        this.location(track).toLowerCase().includes(search);
+
+      const matchesFav = !this.onlyFavs || this.isFav(track);
+
+      // Add other filters here if needed
+
+      return matchesSearch && matchesFav;
+    });
   }
 
   location(track: Track): string {
@@ -47,18 +68,41 @@ export class TracksComponent implements OnInit {
   }
 
   isFav(track: Track): boolean {
-    return this.authService.getCurrentUser()?.favoriteTrackIds.includes(track.id) ?? false;
+    return this.user!.favoriteTrackIds.includes(track.id);
   }
 
   toggleFavs(): void {
     this.onlyFavs = !this.onlyFavs;
   }
 
-  setFav(track: any): void {
-    track.favorite = !track.favorite;
+  setFav(track: Track): void {
+    console.log("before ", this.user?.favoriteTrackIds)
+    if (!this.isFav(track)) {
+      this.user!.favoriteTrackIds.push(track.id);
+      /*this.userService.removeFavorite(track.id).subscribe({
+        next: () => {
+          this.toastr.info(`${track.name} removed from favorites.`);
+          },
+          error: () => {
+            this.toastr.error(`Failed to remove ${track.name} from favorites.`);
+            }
+            });*/
+            console.log("add ", this.user?.favoriteTrackIds)
+          } else {
+            this.user!.favoriteTrackIds = this.user!.favoriteTrackIds.filter(id => id !== track.id);
+            console.log("remove ", this.user?.favoriteTrackIds)
+      /*this.userService.addFavorite(track.id).subscribe({
+        next: () => {
+          this.toastr.success(`${track.name} added to favorites!`);
+        },
+        error: () => {
+          this.toastr.error(`Failed to add ${track.name} to favorites.`);
+        }
+      });*/
+    }
   }
 
-  showTrack(track : Track) {
+  showTrack(track : Track): void {
     this.router.navigate(['/tracks', track.id], {
       state: { track: track }
     });

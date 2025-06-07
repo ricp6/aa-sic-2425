@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { Track } from '../../interfaces/track'
-import { TracksService } from '../../services/tracks.service';
+import { TracksService } from '../../services/track.service';
 
 @Component({
   selector: 'app-track-details',

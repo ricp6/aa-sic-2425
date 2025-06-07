@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Track } from '../../interfaces/track';
 import { Router } from '@angular/router';
-import { TracksService } from '../../services/tracks.service';
+import { TracksService } from '../../services/track.service';
 
 @Component({
   selector: 'app-home',
@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit{
         this.tracks = data;
       },
       error: (err) => {
-        console.error('Track loading failed:', err);
+        console.error('Tracks loading failed:', err);
         // You’re already showing toast inside the service on error
       }
     });

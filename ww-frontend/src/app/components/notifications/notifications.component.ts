@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NotificationService } from '../../services/notifications.service';
+import { NotificationService } from '../../services/notification.service';
 import { Notification } from '../../interfaces/notification';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';

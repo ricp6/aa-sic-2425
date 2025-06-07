@@ -4,6 +4,7 @@ html, body { height: 100vh; width: 100vw; }
 body { 
     font-family: Arial, sans-serif; 
     margin: 0;
+    overflow-x: hidden;
 }
 
 app-root {
@@ -21,5 +22,3 @@ app-root {
     --scroll: #bebebe;
     --scroll-hover: #919191;
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -1,4 +1,17 @@
+#tracks-content {
+  display: flex;
+  height: 100%;
+}
+
+#banner-image {
+  background-image: url('/kart.jpg');
+  background-size: cover;
+  background-position: center;
+  width: 35%;
+}
+
 #tracks-container {
+  width: 65%;
   padding: 30px;
 }
 
@@ -11,44 +24,137 @@
 
 #title {
   font-size: 28px;
+  font-weight: 500;
+  margin: 0;
 }
 
 #tracks-controls {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
+}
+
+#filter-favs {
+  height: 56px;
+  width: 56px;
+}
+
+#filter-favs mat-icon {
+  font-size: 25px;
+}
+
+#filter-options {
+  color: black;
+  border-radius: 5px;
+  height: 56px;
+  font-size: 16px;
 }
 
 #search-field {
   flex: 1;
-  min-width: 200px;
-  margin-bottom: -20px; /* ignore the hint space */
+  min-width: 250px;
+  margin-bottom: -20px;
+}
+
+#track-list-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
 .track-card {
+  height: 100px;
   display: flex;
-  align-items: center;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: none;
+  flex-direction: row;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
-.star-icon {
-  margin-right: 10px;
+.track-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .track-image {
-  height: 50px;
-  margin-right: 15px;
+  width: 30%;
+  object-fit: cover;
+  border-radius: 12px !important;
+}
+
+.track-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 0 !important;
+}
+
+.track-details {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .track-name {
   font-weight: 600;
-  font-size: 18px;
+  font-size: 1.1em;
 }
 
-.track-location {
-  color: #666;
+.track-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.track-record {
+  font-size: 0.9em;
+  color: #555;
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.record-value {
+  font-weight: 600;
+  color: #333;
+}
+
+.star-button-container {
+  /* gives 15px of margin-top/bottom */
+  height: 70px; 
+}
+
+.star-button,
+#filter-favs {
+  color: #FFD700;
+  background-color: black;
+  transition: background-color 0.2s ease;
+  border-radius: 5px;
+}
+
+.star-button:hover,
+#filter-favs:hover {
+  background-color: #333;
+}
+
+.star-button {
+  height: 30px;
+  width: 30px;
+  padding: 5px 2px;
+}
+
+.star-icon {
+  font-size: 20px;
+}
+
+#no-tracks {
+  text-align: center;
+  color: #888;
+  margin-top: 30px;
+  font-style: italic;
 }

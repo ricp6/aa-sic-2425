@@ -1,33 +1,61 @@
-<section id="tracks-container">
+<div id="tracks-content">
+    <div id="banner-image"></div>
 
-    <div id="tracks-header">
-        <h1 id="title">Tracks</h1>
+    <section id="tracks-container">
 
-        <div id="tracks-controls">
-            <button mat-icon-button id="filter-favs" (click)="toggleFavs()">
-                <mat-icon>{{ onlyFavs ? 'star' : 'star_border' }}</mat-icon>
-            </button>
+        <div id="tracks-header">
+            <h1 id="title">Tracks</h1>
 
-            <button mat-stroked-button id="filter-options">
-                <mat-icon>filter_list</mat-icon>
-                Filters
-            </button>
+            <div id="tracks-controls">
+                <button mat-icon-button type="button" *ngIf="isLoggedIn" id="filter-favs" (click)="toggleFavs()">
+                    <mat-icon>{{ onlyFavs ? 'star' : 'star_border' }}</mat-icon>
+                </button>
 
-            <mat-form-field appearance="outline" id="search-field">
-                <mat-icon matPrefix>search</mat-icon>
-                <input matInput placeholder="Search track..." [(ngModel)]="searchTerm" />
-            </mat-form-field>
+                <button mat-stroked-button type="button" id="filter-options">
+                    <mat-icon>filter_list</mat-icon>
+                    Filters
+                </button>
+
+                <mat-form-field appearance="outline" id="search-field">
+                    <mat-icon matPrefix>search</mat-icon>
+                    <input matInput placeholder="Search track..." [(ngModel)]="searchTerm" />
+                </mat-form-field>
+            </div>
         </div>
-    </div>
 
-    <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)">
-        <button mat-icon-button id="set-fav" (click)="setFav(track)">
-            <mat-icon class="star-icon">
-                {{ isFav(track) ? 'star' : 'star_border' }}
-            </mat-icon>
-        </button>
-        <img mat-card-image class="track-image" [src]="track.images[0]" [alt]="track.name" />
-        <mat-card-title>{{ track.name }}</mat-card-title>
-        <mat-card-subtitle>{{ location(track) }}</mat-card-subtitle>
-    </mat-card>
-</section>
+        <div id="track-list-container">
+            <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)">
+                <img mat-card-image [src]="track.images[0]" [alt]="track.name" class="track-image" />
+
+                <mat-card-content class="track-info">
+                    <div class="track-details">
+                        <div class="track-name">{{ track.name }}</div>
+                        <div class="track-location">{{ location(track) }}</div>
+                    </div>
+
+                    <div class="track-stats" *ngIf="isLoggedIn">
+                        <div class="track-record">
+                            Personal Record:
+                            <span class="record-value">0:39.340</span>
+                        </div>
+                        <div class="track-record" *ngIf="isLoggedIn">
+                            Track Record:
+                            <span class="record-value">0:36.984</span>
+                        </div>
+                    </div>
+
+                    <div class="star-button-container">
+                        <button mat-icon-button type="button" *ngIf="isLoggedIn" class="star-button"
+                            (click)="setFav(track); $event.stopPropagation()">
+                            <mat-icon class="star-icon">
+                                {{ isFav(track) ? 'star' : 'star_border' }}
+                            </mat-icon>
+                        </button>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <p *ngIf="filteredTracks().length === 0" id="no-tracks">No results found.</p>
+        </div>
+    </section>
+</div>

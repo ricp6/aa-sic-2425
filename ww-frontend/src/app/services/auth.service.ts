@@ -16,7 +16,13 @@ export class AuthService {
   constructor(
     private readonly http: HttpClient,
     private readonly toastr: ToastrService
-  ) {}
+  ) {
+    // Save the session, helps in development but change before going to production
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      this.userSubject.next(JSON.parse(storedUser));
+    }
+  }
 
   login(data: { email: string; password: string }) {
     return this.http.post<User>(this.authURL + 'login', data).pipe(
@@ -65,5 +71,10 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return this.getCurrentUser() !== null;
+  }
+
+  updateUser(user: User): void {
+    this.userSubject.next(user);
+    localStorage.setItem('user', JSON.stringify(user));
   }
 }
