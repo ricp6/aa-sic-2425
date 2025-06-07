@@ -1,10 +1,16 @@
 package pt.um.aasic.whackywheels.controllers;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import pt.um.aasic.whackywheels.dtos.LoginRequestDTO;
+import pt.um.aasic.whackywheels.dtos.LoginResponseDTO; // Importe o novo DTO
 import pt.um.aasic.whackywheels.dtos.RegisterRequestDTO;
 import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
 import pt.um.aasic.whackywheels.entities.Owner;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
+import pt.um.aasic.whackywheels.security.JwtService; // Importe o JwtService
 import pt.um.aasic.whackywheels.services.AuthService;
 import pt.um.aasic.whackywheels.services.NotificationService;
 
@@ -23,9 +29,13 @@ import java.util.List;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.authService = authService;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/register")
@@ -52,7 +62,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequestDTO request) {
         try {
-            User authenticatedUser = authService.authenticateUser(request);
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+
+            User authenticatedUser = (User) authentication.getPrincipal();
 
             String userTypeString;
             if (authenticatedUser instanceof Owner) {
@@ -66,16 +83,18 @@ public class AuthController {
                     .map(Track::getId)
                     .toList();
 
-            UserResponseDTO userResponse = new UserResponseDTO(
+            String jwtToken = jwtService.generateToken(authenticatedUser);
+
+            LoginResponseDTO  loginResponse  = new LoginResponseDTO(
                     authenticatedUser.getId(),
                     authenticatedUser.getEmail(),
                     authenticatedUser.getName(),
                     userTypeString,
                     unreadNotificationCount,
-                    favoriteTrackIds
+                    favoriteTrackIds,
+                    jwtToken
             );
-            //Talvez incluir token JWT aqui?
-            return new ResponseEntity<>(userResponse, HttpStatus.OK);
+            return new ResponseEntity<>(loginResponse, HttpStatus.OK);
         } catch (org.springframework.security.authentication.BadCredentialsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         } catch (Exception e) {
