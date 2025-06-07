@@ -31,6 +31,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { TrackDetailsComponent } from './components/track-details/track-details.component';
 
 import { ToastrModule } from 'ngx-toastr';
+import { SessionDetailsComponent } from './components/session-details/session-details.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { ToastrModule } from 'ngx-toastr';
     EnterpriseHomeComponent,
     AuthWrapperComponent,
     RegisterComponent,
-    TrackDetailsComponent
+    TrackDetailsComponent,
+    SessionDetailsComponent
   ],
   imports: [
     BrowserModule,

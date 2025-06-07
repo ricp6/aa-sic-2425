@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class NotificationService {
 
-    private static NotificationRepository notificationRepository = null;
+    private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
 
     public NotificationService(NotificationRepository notificationRepository, UserRepository userRepository) {
@@ -33,54 +33,62 @@ public class NotificationService {
         notification.setTitle(request.getTitle());
         notification.setBody(request.getBody());
         notification.setIsRead(false);
+        notification.setCreatedAt(java.time.LocalDateTime.now());
 
         Notification savedNotification = notificationRepository.save(notification);
 
         return new NotificationResponseDTO(
                 savedNotification.getId(),
-                savedNotification.getUser().getId(),
                 savedNotification.getTitle(),
                 savedNotification.getBody(),
                 savedNotification.getIsRead(),
                 savedNotification.getCreatedAt()
         );
     }
+    public List<NotificationResponseDTO> getAllNotificationsForUser(Long userId) {
+        List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
-    public static Long getUnreadNotificationCount(Long userId) {
-        return notificationRepository.countByUserIdAndIsReadFalse(userId);
-    }
-
-    @Transactional
-    public NotificationResponseDTO markNotificationAsRead(Long notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("Notification with ID " + notificationId + " not found."));
-
-        if (!notification.getIsRead()) {
-            notification.setIsRead(true);
-            notificationRepository.save(notification);
-        }
-
-        return new NotificationResponseDTO(
-                notification.getId(),
-                notification.getUser().getId(),
-                notification.getTitle(),
-                notification.getBody(),
-                notification.getIsRead(),
-                notification.getCreatedAt()
-        );
-    }
-
-    public List<NotificationResponseDTO> findAllNotifications() {
-        return notificationRepository.findAll().stream()
+        return notifications.stream()
                 .map(notification -> new NotificationResponseDTO(
                         notification.getId(),
-                        notification.getUser().getId(),
                         notification.getTitle(),
                         notification.getBody(),
                         notification.getIsRead(),
                         notification.getCreatedAt()
                 ))
                 .collect(Collectors.toList());
+    }
+    public Long getUnreadNotificationCount(Long userId) {
+        return notificationRepository.countByUserIdAndIsReadFalse(userId);
+    }
+
+    @Transactional
+    public NotificationResponseDTO markNotificationAsRead(Long notificationId, Long userId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found."));
+
+        if (!notification.getUser().getId().equals(userId)) {
+            throw new SecurityException("User is not authorized to mark this notification as read.");
+        }
+
+        if (!notification.getIsRead()) {
+            notification.setIsRead(true);
+            Notification updatedNotification = notificationRepository.save(notification);
+            return new NotificationResponseDTO(
+                    updatedNotification.getId(),
+                    updatedNotification.getTitle(),
+                    updatedNotification.getBody(),
+                    updatedNotification.getIsRead(),
+                    updatedNotification.getCreatedAt()
+            );
+        }
+        return new NotificationResponseDTO(
+                notification.getId(),
+                notification.getTitle(),
+                notification.getBody(),
+                notification.getIsRead(),
+                notification.getCreatedAt()
+        );
     }
 
     @Transactional

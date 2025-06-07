@@ -9,7 +9,7 @@ import pt.um.aasic.whackywheels.services.TrackService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -27,11 +27,11 @@ public class TrackController {
     }
 
     @PostMapping
-    //@PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<?> createTrack(@Valid @RequestBody TrackCreateRequestDTO request) {
-
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<?> createTrack(@Valid @RequestBody TrackCreateRequestDTO request, @AuthenticationPrincipal User authenticatedUser) {
         try {
-            Track newTrack = trackService.createTrack(request, (long)1);
+            Long ownerId = authenticatedUser.getId();
+            Track newTrack = trackService.createTrack(request, ownerId);
             return new ResponseEntity<>(newTrack, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
