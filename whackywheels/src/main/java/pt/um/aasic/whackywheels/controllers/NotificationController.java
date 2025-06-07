@@ -1,6 +1,7 @@
 package pt.um.aasic.whackywheels.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import pt.um.aasic.whackywheels.dtos.NotificationCreateRequestDTO;
 import pt.um.aasic.whackywheels.dtos.NotificationResponseDTO;
 import pt.um.aasic.whackywheels.entities.User;
@@ -37,84 +38,96 @@ public class NotificationController {
         }
     }
 
-    @PutMapping("/{id}/read")
-    //@PreAuthorize("isAuthenticated()")
-    public ResponseEntity<NotificationResponseDTO> markNotificationAsRead(@PathVariable Long id) {
-        try {
-            NotificationResponseDTO updatedNotification = notificationService.markNotificationAsRead(id);
-            return ResponseEntity.ok(updatedNotification);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping
-    public ResponseEntity<List<NotificationResponseDTO>> getAllNotifications() {
-        List<NotificationResponseDTO> notifications = notificationService.findAllNotifications();
-        return new ResponseEntity<>(notifications, HttpStatus.OK);
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<List<NotificationResponseDTO>> getAllNotificationsForUser(@AuthenticationPrincipal User authenticatedUser) {
+        try {
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            Long userId = authenticatedUser.getId();
+
+            List<NotificationResponseDTO> notifications = notificationService.getAllNotificationsForUser(userId);
+            return new ResponseEntity<>(notifications, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @DeleteMapping("/{id}")
-    //@PreAuthorize("hasAnyRole('USER', 'OWNER', 'ADMIN')")
-    public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
-        Long userId = getCurrentUserId();
-        if (userId == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+    @PutMapping("/{id}/read")
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<NotificationResponseDTO> markNotificationAsRead(@PathVariable Long id,@AuthenticationPrincipal User authenticatedUser) {
         try {
-            boolean deleted = notificationService.deleteNotification(id, userId);
-            if (deleted) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
+            Long userId = authenticatedUser.getId();
+            NotificationResponseDTO updatedNotification = notificationService.markNotificationAsRead(id, userId);
+            return ResponseEntity.ok(updatedNotification);
         } catch (SecurityException e) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long id, @AuthenticationPrincipal User authenticatedUser) {
+        try {
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            Long userId = authenticatedUser.getId();
+
+            boolean deleted = notificationService.deleteNotification(id, userId);
+            if (deleted) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/read")
-    //@PreAuthorize("hasAnyRole('USER', 'OWNER', 'ADMIN')")
-    public ResponseEntity<Void> deleteReadNotifications() {
-        Long userId = getCurrentUserId();
-        if (userId == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<Void> deleteReadNotifications(@AuthenticationPrincipal User authenticatedUser) {
         try {
-            int deletedCount = notificationService.deleteReadNotifications(userId);
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            Long userId = authenticatedUser.getId();
+
+            notificationService.deleteReadNotifications(userId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/mark-all-read")
-    //@PreAuthorize("hasAnyRole('USER', 'OWNER', 'ADMIN')")
-    public ResponseEntity<Void> markAllNotificationsAsRead() {
-        Long userId = getCurrentUserId();
-        if (userId == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<Void> markAllNotificationsAsRead(@AuthenticationPrincipal User authenticatedUser) { // <<-- NOVO PARAMETRO
         try {
-            int markedCount = notificationService.markAllNotificationsAsRead(userId);
-            // Poderíamos retornar o count, mas 204 é comum para operações PUT que modificam estado
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            Long userId = authenticatedUser.getId();
+
+            notificationService.markAllNotificationsAsRead(userId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    private Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
-            return null;
-        }
-        User user = (User) authentication.getPrincipal();
-        return user.getId();
-    }
-
 }

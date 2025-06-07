@@ -31,11 +31,14 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final NotificationService notificationService;
 
-    public AuthController(AuthService authService, JwtService jwtService, AuthenticationManager authenticationManager) {
+
+    public AuthController(AuthService authService, JwtService jwtService, AuthenticationManager authenticationManager, NotificationService notificationService) {
         this.authService = authService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("/register")
@@ -77,7 +80,7 @@ public class AuthController {
             } else {
                 userTypeString = "USER";
             }
-            Long unreadNotificationCount = NotificationService.getUnreadNotificationCount(authenticatedUser.getId());
+            Long unreadNotificationCount = notificationService.getUnreadNotificationCount(authenticatedUser.getId());
 
             List<Long> favoriteTrackIds = authenticatedUser.getFavoriteTracks().stream()
                     .map(Track::getId)
