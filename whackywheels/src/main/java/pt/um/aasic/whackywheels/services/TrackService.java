@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TrackService {
@@ -29,9 +28,9 @@ public class TrackService {
         this.kartRepository = kartRepository;
     }
 
-    public List<SimpleTrackResponseDTO> findAllTracks() {
+    public List<TrackResponseDTO> findAllTracks() {
         return trackRepository.findAll().stream()
-                .map(track -> new SimpleTrackResponseDTO(
+                .map(track -> new TrackResponseDTO(
                         track.getId(),
                         track.getName(),
                         track.getCity(),
@@ -41,12 +40,12 @@ public class TrackService {
                 .toList();
     }
 
-    public TrackResponseDTO findTrack(Long id) {
+    public TrackDetailsResponseDTO findTrack(Long id) {
         Track track = trackRepository.findById(id).orElse(null);
         if (track == null) {
             return null;
         }
-        return new TrackResponseDTO(
+        return new TrackDetailsResponseDTO(
                 track.getId(),
                 track.getName(),
                 track.getAddress(),

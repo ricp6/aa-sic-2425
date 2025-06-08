@@ -1,9 +1,8 @@
 package pt.um.aasic.whackywheels.controllers;
 
-import pt.um.aasic.whackywheels.dtos.SimpleTrackResponseDTO;
-import pt.um.aasic.whackywheels.dtos.TrackCreateRequestDTO;
 import pt.um.aasic.whackywheels.dtos.TrackResponseDTO;
-import pt.um.aasic.whackywheels.entities.Owner;
+import pt.um.aasic.whackywheels.dtos.TrackCreateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.TrackDetailsResponseDTO;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.TrackService;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -43,14 +41,17 @@ public class TrackController {
     }
 
     @GetMapping("/all") // <<-- Novo endpoint
-    public ResponseEntity<List<SimpleTrackResponseDTO>> getAllTracks() {
-        List<SimpleTrackResponseDTO> tracks = trackService.findAllTracks();
+    public ResponseEntity<List<TrackResponseDTO>> getAllTracks() {
+        List<TrackResponseDTO> tracks = trackService.findAllTracks();
         return new ResponseEntity<>(tracks, HttpStatus.OK);
     }
 
+
+
     @GetMapping("/{id}") // <<-- Novo endpoint
-    public ResponseEntity<TrackResponseDTO> getTrack(@PathVariable Long id) {
-        TrackResponseDTO track = trackService.findTrack(id);
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<TrackDetailsResponseDTO> getTrack(@PathVariable Long id) {
+        TrackDetailsResponseDTO track = trackService.findTrack(id);
         if (track == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

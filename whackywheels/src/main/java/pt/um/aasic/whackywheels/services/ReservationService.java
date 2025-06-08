@@ -175,4 +175,71 @@ public class ReservationService {
                 participantResponses
         );
     }
+
+    public List<ReservationResponseDTO> getReservationsByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        List<Reservation> reservations = reservationRepository.findByParticipants_User(user);
+
+        return reservations.stream()
+                .map(reservation -> {
+                    List<SessionResponseDTO> sessionResponses = reservation.getSessions().stream()
+                            .map(session -> new SessionResponseDTO(session.getId(), session.getStartTime(), session.getEndTime()))
+                            .collect(Collectors.toList());
+
+                    List<ParticipantResponseDTO> participantResponses = reservation.getParticipants().stream()
+                            .map(participant -> new ParticipantResponseDTO(
+                                    participant.getId(),
+                                    participant.getUser().getId(),
+                                    participant.getUser().getName(),
+                                    participant.getKart() != null ? participant.getKart().getId() : null,
+                                    participant.getKart() != null ? participant.getKart().getKartNumber() : null
+                            ))
+                            .collect(Collectors.toList());
+
+                    return new ReservationResponseDTO(
+                            reservation.getId(),
+                            reservation.getDate(),
+                            reservation.getStatus(),
+                            reservation.getTrack().getId(),
+                            reservation.getTrack().getName(),
+                            sessionResponses,
+                            participantResponses
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    public ReservationResponseDTO getReservationById(Long reservationId, Long userId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
+        // Verifica se o usuário atual é um participante da reserva
+        boolean isParticipant = reservation.getParticipants().stream()
+                .anyMatch(participant -> participant.getUser().getId().equals(userId));
+        if (!isParticipant) {
+            throw new IllegalArgumentException("User does not have access to this reservation.");
+        }
+        List<SessionResponseDTO> sessionResponses = reservation.getSessions().stream()
+                .map(session -> new SessionResponseDTO(session.getId(), session.getStartTime(), session.getEndTime()))
+                .collect(Collectors.toList());
+        List<ParticipantResponseDTO> participantResponses = reservation.getParticipants().stream()
+                .map(participant -> new ParticipantResponseDTO(
+                        participant.getId(),
+                        participant.getUser().getId(),
+                        participant.getUser().getName(),
+                        participant.getKart() != null ? participant.getKart().getId() : null,
+                        participant.getKart() != null ? participant.getKart().getKartNumber() : null
+                ))
+                .collect(Collectors.toList());
+        return new ReservationResponseDTO(
+                reservation.getId(),
+                reservation.getDate(),
+                reservation.getStatus(),
+                reservation.getTrack().getId(),
+                reservation.getTrack().getName(),
+                sessionResponses,
+                participantResponses
+        );
+    }
 }
