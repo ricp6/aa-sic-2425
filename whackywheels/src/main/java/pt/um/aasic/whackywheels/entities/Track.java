@@ -82,6 +82,10 @@ public class Track {
         this.address = address;
     }
 
+    public String getCity() {
+        return address.substring(address.lastIndexOf(',') + 2);
+    }
+
     public BigDecimal getSlotPrice() {
         return slotPrice;
     }
@@ -120,6 +124,10 @@ public class Track {
 
     public void setImages(Set<String> images) {
         this.images = images;
+    }
+
+    public String getBannerImage() {
+        return images.iterator().next();
     }
 
     public boolean getIsAvailable() {

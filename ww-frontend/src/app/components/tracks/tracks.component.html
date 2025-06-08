@@ -25,22 +25,22 @@
 
         <div id="track-list-container">
             <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)">
-                <img mat-card-image [src]="track.images[0]" [alt]="track.name" class="track-image" />
+                <img mat-card-image [src]="track.image" [alt]="track.name" class="track-image" />
 
                 <mat-card-content class="track-info">
                     <div class="track-details">
                         <div class="track-name">{{ track.name }}</div>
-                        <div class="track-location">{{ location(track) }}</div>
+                        <div class="track-location">{{ track.address }}</div>
                     </div>
 
-                    <div class="track-stats" *ngIf="isLoggedIn">
+                    <div class="track-stats" *ngIf="track.personalRecord">
                         <div class="track-record">
                             Personal Record:
-                            <span class="record-value">0:39.340</span>
+                            <span class="record-value">{{ track.personalRecord }}</span>
                         </div>
-                        <div class="track-record" *ngIf="isLoggedIn">
+                        <div class="track-record" *ngIf="track.personalRecord">
                             Track Record:
-                            <span class="record-value">0:36.984</span>
+                            <span class="record-value">{{ track.trackRecord }}</span>
                         </div>
                     </div>
 
@@ -55,7 +55,7 @@
                 </mat-card-content>
             </mat-card>
 
-            <p *ngIf="filteredTracks().length === 0" id="no-tracks">No results found.</p>
+            <p *ngIf="!filteredTracks() || filteredTracks()!.length === 0" id="no-tracks">No results found.</p>
         </div>
     </section>
 </div>

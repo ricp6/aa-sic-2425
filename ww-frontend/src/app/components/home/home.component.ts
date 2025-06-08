@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Track } from '../../interfaces/track';
+import { SimpleTrack } from '../../interfaces/track';
 import { Router } from '@angular/router';
-import { TracksService } from '../../services/track.service';
+import { TrackService } from '../../services/track.service';
 
 @Component({
   selector: 'app-home',
@@ -10,21 +10,20 @@ import { TracksService } from '../../services/track.service';
 })
 export class HomeComponent implements OnInit{
   
-  tracks: Track[] = [];
+  tracks: SimpleTrack[] | null = null;
   
   constructor(
     private readonly router: Router,
-    private readonly tracksService: TracksService
+    private readonly tracksService: TrackService
   ) {}
 
   ngOnInit(): void {
     this.tracksService.getAll().subscribe({
-      next: (data) => {
-        this.tracks = data;
+      next: (tracks) => {
+        this.tracks = tracks;
       },
       error: (err) => {
-        console.error('Tracks loading failed:', err);
-        // You’re already showing toast inside the service on error
+        // Optionally handle error, e.g. show a toast
       }
     });
   }
@@ -39,13 +38,9 @@ export class HomeComponent implements OnInit{
     this.scrollContainer.nativeElement.scrollBy({ left: 600, behavior: 'smooth' });
   }
 
-  showTrack(track : Track) {
+  showTrack(track : SimpleTrack) {
     this.router.navigate(['/tracks', track.id], {
       state: { track: track }
     });
-  }
-
-  location(track: Track): string {
-    return track.address.substring(track.address.lastIndexOf(",") + 1, track.address.length)
   }
 }

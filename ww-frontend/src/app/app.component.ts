@@ -4,6 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { User } from './interfaces/user';
 import { AuthService } from './services/auth.service';
 import { filter } from 'rxjs';
+import { TrackService } from './services/track.service';
 
 @Component({
   selector: 'app-root',
@@ -49,6 +50,7 @@ export class AppComponent implements OnInit {
     private readonly titleService: Title,
     private readonly router: Router,
     private readonly authService: AuthService,
+    private readonly tracksService: TrackService
   ) { }
 
   ngOnInit(): void {
@@ -57,6 +59,9 @@ export class AppComponent implements OnInit {
     this.authService.user$.subscribe(user => {
       this.user = user;
     });
+
+    // Load tracks once at app start
+    this.tracksService.loadTracks().subscribe();
     
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))

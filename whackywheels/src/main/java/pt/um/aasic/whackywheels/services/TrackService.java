@@ -1,9 +1,6 @@
 package pt.um.aasic.whackywheels.services;
 
-import pt.um.aasic.whackywheels.dtos.DayScheduleDTO;
-import pt.um.aasic.whackywheels.dtos.KartDTO;
-import pt.um.aasic.whackywheels.dtos.TrackCreateRequestDTO;
-import pt.um.aasic.whackywheels.dtos.TrackResponseDTO;
+import pt.um.aasic.whackywheels.dtos.*;
 import pt.um.aasic.whackywheels.entities.*;
 import pt.um.aasic.whackywheels.repositories.DayScheduleRepository;
 import pt.um.aasic.whackywheels.repositories.KartRepository;
@@ -32,21 +29,35 @@ public class TrackService {
         this.kartRepository = kartRepository;
     }
 
-    public List<TrackResponseDTO> findAllTracks() {
+    public List<SimpleTrackResponseDTO> findAllTracks() {
         return trackRepository.findAll().stream()
-                .map(track -> new TrackResponseDTO(
+                .map(track -> new SimpleTrackResponseDTO(
                         track.getId(),
                         track.getName(),
-                        track.getAddress(),
-                        track.getSlotPrice(),
-                        track.getSlotDuration(),
-                        track.getEmail(),
-                        track.getPhoneNumber(),
-                        track.getImages(),
-                        track.getIsAvailable(),
-                        track.getOwner() != null ? track.getOwner().getId() : null
+                        track.getCity(),
+                        track.getBannerImage(),
+                        track.getIsAvailable()
                 ))
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    public TrackResponseDTO findTrack(Long id) {
+        Track track = trackRepository.findById(id).orElse(null);
+        if (track == null) {
+            return null;
+        }
+        return new TrackResponseDTO(
+                track.getId(),
+                track.getName(),
+                track.getAddress(),
+                track.getSlotPrice(),
+                track.getSlotDuration(),
+                track.getEmail(),
+                track.getPhoneNumber(),
+                track.getImages(),
+                track.getIsAvailable(),
+                track.getOwner().getId()
+        );
     }
 
     @Transactional

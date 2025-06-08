@@ -1,5 +1,6 @@
 package pt.um.aasic.whackywheels.controllers;
 
+import pt.um.aasic.whackywheels.dtos.SimpleTrackResponseDTO;
 import pt.um.aasic.whackywheels.dtos.TrackCreateRequestDTO;
 import pt.um.aasic.whackywheels.dtos.TrackResponseDTO;
 import pt.um.aasic.whackywheels.entities.Owner;
@@ -42,8 +43,17 @@ public class TrackController {
     }
 
     @GetMapping("/all") // <<-- Novo endpoint
-    public ResponseEntity<List<TrackResponseDTO>> getAllTracks() {
-        List<TrackResponseDTO> tracks = trackService.findAllTracks();
+    public ResponseEntity<List<SimpleTrackResponseDTO>> getAllTracks() {
+        List<SimpleTrackResponseDTO> tracks = trackService.findAllTracks();
         return new ResponseEntity<>(tracks, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}") // <<-- Novo endpoint
+    public ResponseEntity<TrackResponseDTO> getTrack(@PathVariable Long id) {
+        TrackResponseDTO track = trackService.findTrack(id);
+        if (track == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(track, HttpStatus.OK);
     }
 }

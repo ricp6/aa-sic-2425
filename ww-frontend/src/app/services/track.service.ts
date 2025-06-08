@@ -1,29 +1,62 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, tap, catchError, throwError } from 'rxjs';
-import { Track } from '../interfaces/track';
-import { DaySchedule } from '../interfaces/daySchedule';
+import { Observable, tap, catchError, throwError, BehaviorSubject, of } from 'rxjs';
+import { Records, SimpleTrack, Track, TrackWithRecords } from '../interfaces/track';
 
 @Injectable({
   providedIn: 'root'
 })
-export class TracksService {
+export class TrackService {
   private readonly tracksURL = "http://localhost:8080/api/tracks";
+
+  private tracksCache: SimpleTrack[] | null = null;
+  private readonly tracksSubject = new BehaviorSubject<SimpleTrack[] | null>(null);
 
   constructor(
     private readonly http: HttpClient,
     private readonly toastr: ToastrService
   ) {}
 
-  getAll(): Observable<Track[]> {
-    return this.http.get<Track[]>(this.tracksURL + '/all').pipe(
+  loadTracks(): Observable<SimpleTrack[]> {
+    if (this.tracksCache) {
+      return of(this.tracksCache);
+    }
+    return this.http.get<SimpleTrack[]>(this.tracksURL + '/all').pipe(
+      tap(tracks => {
+        this.tracksCache = tracks;
+        this.tracksSubject.next(tracks);
+      }),
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          this.toastr.warning('No tracks loaded.', 'Loading error');
-        } else {
-          this.toastr.error('An error occoured while loading the tracks.', 'Server error');
-        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getAll(): Observable<SimpleTrack[] | null> {
+    if (this.tracksCache) {
+      return of(this.tracksCache);
+    }
+    return this.tracksSubject.asObservable();
+  }
+
+  // Optionally, add a method to force refresh
+  refreshTracks(): Observable<SimpleTrack[]> {
+    this.tracksCache = null;
+    return this.loadTracks();
+  }
+  
+  getTracksRecords(): Observable<Records[] | null> {
+    return this.http.get<Records[]>(this.tracksURL + '/records').pipe(
+      catchError((error: HttpErrorResponse) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getTrack(id: number): Observable<Track> {
+    return this.http.get<Track>(this.tracksURL + '/' + id).pipe(
+      catchError((error: HttpErrorResponse) => {
         return throwError(() => error);
       })
     );
@@ -41,19 +74,6 @@ export class TracksService {
           this.toastr.error(error.error ?? 'You need permission to access this page.', 'No permission');
         } else {
           this.toastr.error('An error occoured while processing the registration.', 'Server error');
-        }
-        return throwError(() => error);
-      })
-    );
-  }
-
-  getSchedule(id: number) {
-    return this.http.get<DaySchedule[]>(this.tracksURL + '/:' + id).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          this.toastr.warning('Could not find the track you were looking for.', 'Loading error');
-        } else {
-          this.toastr.error('An error occoured while loading the track.', 'Server error');
         }
         return throwError(() => error);
       })

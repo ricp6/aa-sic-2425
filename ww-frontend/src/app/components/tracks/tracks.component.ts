@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { TracksService } from '../../services/track.service';
-import { Track } from '../../interfaces/track';
+import { TrackService } from '../../services/track.service';
+import { SimpleTrack, Track, TrackWithRecords } from '../../interfaces/track';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { User } from '../../interfaces/user';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../services/user.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-tracks',
@@ -17,7 +18,7 @@ export class TracksComponent implements OnInit {
   searchTerm: string = '';
   onlyFavs: boolean = false;
 
-  tracks: Track[] = [];
+  tracks: TrackWithRecords[] | null = null;
 
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
@@ -31,29 +32,41 @@ export class TracksComponent implements OnInit {
     private readonly router: Router,
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly tracksService: TracksService,
+    private readonly tracksService: TrackService,
     private readonly toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
-    this.tracksService.getAll().subscribe({
-      next: (data) => {
-        this.tracks = data;
-      },
-      error: (err) => {
-        console.error('Tracks loading failed:', err);
-        // You’re already showing toast inside the service on error
-      }
-    });
+    if (this.isLoggedIn) {
+      combineLatest(
+        this.tracksService.getAll(),
+        this.tracksService.getTracksRecords()
+      ).subscribe({
+        next: ([tracks, records]) => {
+          const recordsMap = new Map(records!.map(r => [r.trackId, r]));
+          this.tracks = (tracks ?? []).map(track => ({
+            ...track,
+            personalRecord: recordsMap.get(track.id)?.personalRecord ?? null,
+            trackRecord: recordsMap.get(track.id)?.trackRecord ?? null
+          }));
+        },
+        error: () => { this.tracks = []; }
+      });
+    } else {
+      this.tracksService.getAll().subscribe({
+        next: (tracks) => { this.tracks = tracks as TrackWithRecords[]; },
+        error: () => { this.tracks = []; }
+      });
+    }
   }
 
-  filteredTracks(): Track[] {
+  filteredTracks(): TrackWithRecords[] | undefined {
     const search = this.searchTerm.trim().toLowerCase();
 
-    return this.tracks.filter(track => {
+    return this.tracks?.filter(track => {
       const matchesSearch =
         track.name.toLowerCase().includes(search) ||
-        this.location(track).toLowerCase().includes(search);
+        track.address.toLowerCase().includes(search);
 
       const matchesFav = !this.onlyFavs || this.isFav(track);
 
@@ -63,11 +76,7 @@ export class TracksComponent implements OnInit {
     });
   }
 
-  location(track: Track): string {
-    return track.address.substring(track.address.lastIndexOf(",") + 1, track.address.length)
-  }
-
-  isFav(track: Track): boolean {
+  isFav(track: TrackWithRecords): boolean {
     return this.user!.favoriteTrackIds.includes(track.id);
   }
 
@@ -75,7 +84,7 @@ export class TracksComponent implements OnInit {
     this.onlyFavs = !this.onlyFavs;
   }
 
-  setFav(track: Track): void {
+  setFav(track: TrackWithRecords): void {
     console.log("before ", this.user?.favoriteTrackIds)
     if (!this.isFav(track)) {
       this.user!.favoriteTrackIds.push(track.id);
@@ -102,9 +111,7 @@ export class TracksComponent implements OnInit {
     }
   }
 
-  showTrack(track : Track): void {
-    this.router.navigate(['/tracks', track.id], {
-      state: { track: track }
-    });
+  showTrack(track : Track | SimpleTrack): void {
+    this.router.navigate(['/tracks', track.id]);
   }
 }
