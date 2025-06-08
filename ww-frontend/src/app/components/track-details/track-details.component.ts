@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Track } from '../../interfaces/track'
+import { TrackDetails } from '../../interfaces/track'
 import { TrackService } from '../../services/track.service';
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../interfaces/user';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-track-details',
@@ -10,14 +13,29 @@ import { TrackService } from '../../services/track.service';
   styleUrl: './track-details.component.css'
 })
 export class TrackDetailsComponent implements OnInit {
-  track: Track | undefined;
+
+  track!: TrackDetails;
   activeTab: 'about' | 'rankings' = 'about';
+
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  get user(): User | null {
+    return this.authService.getCurrentUser();
+  }
+  
+  get isFav(): boolean {
+    return this.userService.isFavorite(this.track.id);
+  }
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly location: Location,
-    private readonly trackService: TrackService
+    private readonly trackService: TrackService,
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
   ) { }
 
   ngOnInit(): void {
@@ -44,5 +62,13 @@ export class TrackDetailsComponent implements OnInit {
 
   goBack() {
     this.location.back();
+  }
+
+  setFav(): void {
+    if (!this.isFav) {
+      this.userService.addFavorite(this.track.id).subscribe();
+    } else {
+      this.userService.removeFavorite(this.track.id).subscribe();
+    }
   }
 }

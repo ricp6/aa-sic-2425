@@ -9,9 +9,9 @@ import pt.um.aasic.whackywheels.repositories.TrackRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TrackService {
@@ -40,11 +40,82 @@ public class TrackService {
                 .toList();
     }
 
+    public List<TrackRecordResponseDTO> findAllTracksRecords(Long userId) {
+// 1. Fetch overall minimum lap times for all tracks
+        List<Object[]> overallRecordsRaw = trackRepository.findOverallMinLapTimesPerTrack();
+        // Convert to a Map for efficient lookup (trackId -> overallBestTime)
+        Map<Long, Double> overallRecordsMap = overallRecordsRaw.stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],  // The track ID
+                        row -> (Double) row[1] // The minimum lap time
+                ));
+
+        // 2. Fetch personal minimum lap times for the specific user on tracks they participated in
+        List<Object[]> personalRecordsRaw = trackRepository.findPersonalMinLapTimesForUser(userId);
+        // Convert to a Map for efficient lookup (trackId -> personalBestTime)
+        Map<Long, Double> personalRecordsMap = personalRecordsRaw.stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Double) row[1]
+                ));
+
+        // 4. Map each Track to a TrackRecordResponseDTO, ensure every track is returned even if there are no records set for it
+        return trackRepository.findAll().stream()
+                .map(track -> {
+                    // Get overall best time for this track, or null if no record exists
+                    Double trackRecord = overallRecordsMap.get(track.getId());
+                    // Get personal best time for this user on this track, or null if no record exists
+                    Double personalRecord = personalRecordsMap.get(track.getId());
+
+                    return new TrackRecordResponseDTO(
+                            track.getId(),
+                            personalRecord,
+                            trackRecord
+                    );
+                })
+                .toList();
+    }
+
+    @Transactional(readOnly = true) // Add @Transactional for methods that interact with lazily loaded collections
     public TrackDetailsResponseDTO findTrack(Long id) {
-        Track track = trackRepository.findById(id).orElse(null);
+        // *** OPTIMIZED LINE: Use the custom query to fetch Track with day schedules and karts ***
+        Track track = trackRepository.findByIdWithDaySchedulesAndKarts(id).orElse(null);
+
         if (track == null) {
             return null;
         }
+
+        // 1. Get available karts count
+        // Now 'track.getKarts()' is already initialized because of JOIN FETCH
+        Integer availableKartsCount = track.getKarts() != null ? track.getKarts().size() : 0;
+
+        // 2. Map DaySchedule entities to DayScheduleDTOs
+        // 'track.getDaySchedules()' is also initialized
+        Set<DayScheduleDTO> scheduleDTOs = null;
+        if (track.getDaySchedules() != null) {
+            scheduleDTOs = track.getDaySchedules().stream()
+                    .map(ds -> new DayScheduleDTO(ds.getDay(), ds.getOpeningTime(), ds.getClosingTime()))
+                    // Optional: Sort schedules by day of week for consistent display
+                    .sorted(Comparator.comparing(DayScheduleDTO::getDay))
+                    .collect(Collectors.toCollection(java.util.LinkedHashSet::new)); // Use LinkedHashSet to preserve order if sorted
+        }
+
+        // 3. Get Track Rankings as List<Object[]> and then map to List<TrackRankingDTO>
+        List<Object[]> rawRankings = trackRepository.findTopRankingsByTrackId(track.getId());
+
+        List<TrackRankingDTO> rankings = new ArrayList<>();
+        for (Object[] row : rawRankings) {
+            String driverName = (String) row[0];
+            LocalDateTime sessionDateTime = (LocalDateTime) row[1]; // Expected type from r.date
+            String kartNumber = (String) row[2];
+            Double lapTime = (Double) row[3];
+
+            // Create TrackRankingDTO.
+            // Using the constructor that takes LocalDateTime for the date.
+            rankings.add(new TrackRankingDTO(driverName, sessionDateTime, kartNumber, lapTime));
+        }
+
+        // Map and return the complete DTO
         return new TrackDetailsResponseDTO(
                 track.getId(),
                 track.getName(),
@@ -55,7 +126,10 @@ public class TrackService {
                 track.getPhoneNumber(),
                 track.getImages(),
                 track.getIsAvailable(),
-                track.getOwner().getId()
+                track.getOwner().getId(),
+                availableKartsCount,
+                scheduleDTOs,
+                rankings
         );
     }
 

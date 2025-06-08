@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TrackService } from '../../services/track.service';
-import { SimpleTrack, Track, TrackWithRecords } from '../../interfaces/track';
+import { TrackWithRecords } from '../../interfaces/track';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { User } from '../../interfaces/user';
@@ -43,7 +43,7 @@ export class TracksComponent implements OnInit {
         this.tracksService.getTracksRecords()
       ).subscribe({
         next: ([tracks, records]) => {
-          const recordsMap = new Map(records!.map(r => [r.trackId, r]));
+          const recordsMap = new Map(records!.map(r => [r.id, r]));
           this.tracks = (tracks ?? []).map(track => ({
             ...track,
             personalRecord: recordsMap.get(track.id)?.personalRecord ?? null,
@@ -79,39 +79,20 @@ export class TracksComponent implements OnInit {
   isFav(track: TrackWithRecords): boolean {
     return this.user!.favoriteTrackIds.includes(track.id);
   }
+  
+  setFav(track: TrackWithRecords): void {
+    if (!this.isFav(track)) {
+      this.userService.addFavorite(track.id).subscribe();
+    } else {
+      this.userService.removeFavorite(track.id).subscribe();
+    }
+  }
 
   toggleFavs(): void {
     this.onlyFavs = !this.onlyFavs;
   }
 
-  setFav(track: TrackWithRecords): void {
-    console.log("before ", this.user?.favoriteTrackIds)
-    if (!this.isFav(track)) {
-      this.user!.favoriteTrackIds.push(track.id);
-      /*this.userService.removeFavorite(track.id).subscribe({
-        next: () => {
-          this.toastr.info(`${track.name} removed from favorites.`);
-          },
-          error: () => {
-            this.toastr.error(`Failed to remove ${track.name} from favorites.`);
-            }
-            });*/
-            console.log("add ", this.user?.favoriteTrackIds)
-          } else {
-            this.user!.favoriteTrackIds = this.user!.favoriteTrackIds.filter(id => id !== track.id);
-            console.log("remove ", this.user?.favoriteTrackIds)
-      /*this.userService.addFavorite(track.id).subscribe({
-        next: () => {
-          this.toastr.success(`${track.name} added to favorites!`);
-        },
-        error: () => {
-          this.toastr.error(`Failed to add ${track.name} to favorites.`);
-        }
-      });*/
-    }
-  }
-
-  showTrack(track : Track | SimpleTrack): void {
+  showTrack(track : TrackWithRecords): void {
     this.router.navigate(['/tracks', track.id]);
   }
 }

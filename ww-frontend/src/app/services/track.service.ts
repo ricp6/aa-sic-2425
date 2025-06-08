@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, tap, catchError, throwError, BehaviorSubject, of } from 'rxjs';
-import { Records, SimpleTrack, Track, TrackWithRecords } from '../interfaces/track';
+import { Records, SimpleTrack, TrackDetails } from '../interfaces/track';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class TrackService {
     if (this.tracksCache) {
       return of(this.tracksCache);
     }
-    return this.http.get<SimpleTrack[]>(this.tracksURL + '/all').pipe(
+    return this.http.get<SimpleTrack[]>(this.tracksURL).pipe(
       tap(tracks => {
         this.tracksCache = tracks;
         this.tracksSubject.next(tracks);
@@ -54,15 +54,19 @@ export class TrackService {
     );
   }
 
-  getTrack(id: number): Observable<Track> {
-    return this.http.get<Track>(this.tracksURL + '/' + id).pipe(
-      catchError((error: HttpErrorResponse) => {
-        return throwError(() => error);
-      })
-    );
+  // Update the return type to Observable<TrackDetails>
+  getTrack(id: number): Observable<TrackDetails> {
+      return this.http.get<TrackDetails>(`${this.tracksURL}/${id}`).pipe(
+          catchError((error: HttpErrorResponse) => {
+              console.error(`Error fetching track details for ID ${id}:`, error);
+              // Optionally, show a user-friendly toast/message here
+              // this.toastr.error('Failed to load track details.', 'Error');
+              return throwError(() => new Error(`Something went wrong fetching track: ${error.message}`));
+          })
+      );
   }
 
-  createTrack(data: { track: Track }) {
+  /*createTrack(data: { track: Track }) {
     return this.http.post<Track>(this.tracksURL, data).pipe(
       tap(() => {
         this.toastr.success('Your track was successfully created!', 'Start racing!');
@@ -73,10 +77,10 @@ export class TrackService {
         } else if(error.status === 403) {
           this.toastr.error(error.error ?? 'You need permission to access this page.', 'No permission');
         } else {
-          this.toastr.error('An error occoured while processing the registration.', 'Server error');
+          this.toastr.error('An error occurred while processing the registration.', 'Server error');
         }
         return throwError(() => error);
       })
     );
-  }
+  }*/
 }

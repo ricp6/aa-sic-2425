@@ -1,8 +1,6 @@
 package pt.um.aasic.whackywheels.controllers;
 
-import pt.um.aasic.whackywheels.dtos.TrackResponseDTO;
-import pt.um.aasic.whackywheels.dtos.TrackCreateRequestDTO;
-import pt.um.aasic.whackywheels.dtos.TrackDetailsResponseDTO;
+import pt.um.aasic.whackywheels.dtos.*;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.TrackService;
@@ -40,16 +38,30 @@ public class TrackController {
         }
     }
 
-    @GetMapping("/all") // <<-- Novo endpoint
+    @GetMapping // <<-- Novo endpoint
     public ResponseEntity<List<TrackResponseDTO>> getAllTracks() {
         List<TrackResponseDTO> tracks = trackService.findAllTracks();
         return new ResponseEntity<>(tracks, HttpStatus.OK);
     }
 
+    @GetMapping("/records") // <<-- Novo endpoint
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<List<TrackRecordResponseDTO>> getAllTracksRecords(@AuthenticationPrincipal User authenticatedUser) {
+        try {
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            Long userId = authenticatedUser.getId();
 
+            List<TrackRecordResponseDTO> records = trackService.findAllTracksRecords(userId);
+            return new ResponseEntity<>(records, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/{id}") // <<-- Novo endpoint
-    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<TrackDetailsResponseDTO> getTrack(@PathVariable Long id) {
         TrackDetailsResponseDTO track = trackService.findTrack(id);
         if (track == null) {

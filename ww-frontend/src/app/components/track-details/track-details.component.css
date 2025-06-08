@@ -54,6 +54,11 @@
   font-weight: bold;
 }
 
+.actions{
+  display: flex;
+  align-items: center;
+}
+
 .actions button {
   padding: 10px 20px;
   border: none;
@@ -63,6 +68,11 @@
   margin-left: 10px;
   background-color: #000;
   color: white;
+}
+
+#set-fav {
+  color: #FFD700;
+  padding: inherit;
 }
 
 .view-sessions-button {

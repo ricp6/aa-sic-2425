@@ -20,8 +20,9 @@ export class JwtInterceptor implements HttpInterceptor {
     // If a token exists and the request is to our API (not a third-party API), clone the request
     // and add the Authorization header.
     // Avoid sending token to login/register endpoints
-    if (token && !request.url.includes('auth/login') && !request.url.includes('auth/register')) { 
-      console.log("adding token to the request");
+    if (token && !request.url.includes('auth/login') && !request.url.includes('auth/register')
+      && !request.url.includes('tracks/all') && !request.url.includes('tracks/:id')) {
+
       request = request.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
