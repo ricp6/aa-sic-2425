@@ -33,6 +33,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { TrackDetailsComponent } from './components/track-details/track-details.component';
 import { SessionDetailsComponent } from './components/session-details/session-details.component';
 
+
 import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
