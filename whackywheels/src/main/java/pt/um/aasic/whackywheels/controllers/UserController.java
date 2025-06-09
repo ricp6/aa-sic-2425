@@ -10,10 +10,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import pt.um.aasic.whackywheels.dtos.PasswordChangeRequest;
 import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.security.JwtService;
 import pt.um.aasic.whackywheels.services.UserService;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users") // A logical base path for user-related operations
@@ -80,6 +83,27 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user profile: " + e.getMessage());
         }
     }
+
+    @PostMapping("/change-password")
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<?> changePassword(
+            @RequestBody PasswordChangeRequest request,
+            @AuthenticationPrincipal User authenticatedUser) {
+
+        try {
+            if (authenticatedUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            }
+
+            userService.changeUserPassword(authenticatedUser.getId(), request.getCurrentPassword(), request.getNewPassword());
+            return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Internal error"));
+        }
+    }
+
 
 
 }

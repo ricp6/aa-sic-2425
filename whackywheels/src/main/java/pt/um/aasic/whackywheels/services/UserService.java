@@ -1,5 +1,6 @@
 package pt.um.aasic.whackywheels.services;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
@@ -16,10 +17,12 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
 
     private final UserRepository userRepository;
     private final TrackRepository trackRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, TrackRepository trackRepository) {
+    public UserService(UserRepository userRepository, TrackRepository trackRepository,  PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.trackRepository = trackRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional // Ensures the entire operation is a single transaction
@@ -75,4 +78,18 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
                 favoriteTrackNames
         );
     }
+
+    @Transactional
+    public void changeUserPassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
 }

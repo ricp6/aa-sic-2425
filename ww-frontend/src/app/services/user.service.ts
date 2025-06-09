@@ -82,4 +82,14 @@ export class UserService {
       })
     );
   }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.post('http://localhost:8080/api/users/change-password', {
+      currentPassword,
+      newPassword
+    });
+  }
+
+
+
 }

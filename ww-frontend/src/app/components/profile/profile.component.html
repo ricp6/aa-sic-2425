@@ -1,43 +1,63 @@
 <div class="profile-card" *ngIf="user">
+  <!-- Header -->
   <div class="header">
-    <img
-      [src]="user.profilePicture ? user.profilePicture : '/avatarPredet.jpg'"
-      class="avatar"
-      alt="Avatar"
-    />
+    <img [src]="user.profilePicture ? user.profilePicture : '/avatarPredet.jpg'" class="avatar" alt="Avatar">
     <div class="user-info">
       <h2>{{ user.name }}</h2>
       <p>{{ user.email }}</p>
-      <p class="role">{{ user.role === 'OWNER' ? 'Owner' : 'Cliente' }}</p>
+      <p class="role">{{ user.role === 'OWNER' ? 'Owner' : 'Client' }}</p>
     </div>
     <div class="actions">
-      <button class="edit-btn">✏️ Editar</button>
-      <button class="delete-btn">🗑️ Remover</button>
+      <button class="edit-btn">✏️ Edit</button>
+      <button class="delete-btn">🗑️ Delete</button>
     </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <span class="tab" [class.active]="activeTab === 'stats'" (click)="activeTab = 'stats'">Statistics</span>
+    <span class="tab" [class.active]="activeTab === 'password'" (click)="activeTab = 'password'">Change password</span>
   </div>
 
   <hr>
 
-  <div class="stats-section">
+  <!-- Stats Tab -->
+  <div *ngIf="activeTab === 'stats'" class="stats-section">
     <div class="stats">
-      <h3>Estatísticas</h3>
       <ul>
-        <li><strong>Total de sessões:</strong> {{ user.totalSessions }}</li>
-        <li><strong>Vitórias:</strong> {{ user.victories }}</li>
-        <li><strong>Pistas visitadas:</strong> {{ user.tracksVisited }}</li>
+        <li><strong>Total sessions:</strong> {{ user.totalSessions }}</li>
+        <li><strong>Victories:</strong> {{ user.victories }}</li>
+        <li><strong>Tracks visited:</strong> {{ user.tracksVisited }}</li>
       </ul>
     </div>
 
     <div class="favorites">
-      <h3>Pistas favoritas</h3>
+      <h3>Favorite tracks</h3>
       <ul>
         <li *ngFor="let track of user.favoriteTracks">{{ track }}</li>
       </ul>
     </div>
   </div>
+
+  <!-- Password Tab -->
+  <div *ngIf="activeTab === 'password'" class="password-form">
+    <form (ngSubmit)="changePassword()">
+      <div class="form-group">
+        <label>Current password</label>
+        <input type="password" [(ngModel)]="passwordData.current" name="current" required>
+      </div>
+      <div class="form-group">
+        <label>New password</label>
+        <input type="password" [(ngModel)]="passwordData.new" name="new" required>
+      </div>
+      <div class="form-group">
+        <label>Confirm new password</label>
+        <input type="password" [(ngModel)]="passwordData.confirm" name="confirm" required>
+      </div>
+      <button type="submit" class="save-btn">Change</button>
+    </form>
+  </div>
 </div>
 
-<div *ngIf="errorMessage">
-  <p>{{ errorMessage }}</p>
-</div>
+
 
