@@ -104,6 +104,21 @@ public class UserController {
         }
     }
 
+    @PutMapping("/update-profile")
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal User user, @RequestBody Map<String, String> updates) {
+        try {
+            String newName = updates.get("name");
+            String newEmail = updates.get("email");
+
+            userService.updateUserProfile(user.getId(), newName, newEmail);
+            return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+
 
 
 }

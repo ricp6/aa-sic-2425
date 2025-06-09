@@ -90,6 +90,10 @@ export class UserService {
     });
   }
 
+  updateProfile(name: string, email: string): Observable<any> {
+    return this.http.put(`${this.userURL}/update-profile`, { name, email });
+  }
+
 
 
 }

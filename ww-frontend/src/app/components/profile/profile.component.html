@@ -2,13 +2,22 @@
   <!-- Header -->
   <div class="header">
     <img [src]="user.profilePicture ? user.profilePicture : '/avatarPredet.jpg'" class="avatar" alt="Avatar">
-    <div class="user-info">
+    <!-- Original display -->
+    <div class="user-info" *ngIf="!isEditing">
       <h2>{{ user.name }}</h2>
       <p>{{ user.email }}</p>
       <p class="role">{{ user.role === 'OWNER' ? 'Owner' : 'Client' }}</p>
     </div>
+
+    <!-- Formulario de edición -->
+    <div class="user-info" *ngIf="isEditing">
+      <input [(ngModel)]="editData.name" placeholder="Name">
+      <input [(ngModel)]="editData.email" placeholder="Email">
+      <button class="save-btn" (click)="saveProfile()">Save</button>
+    </div>
+
     <div class="actions">
-      <button class="edit-btn">✏️ Edit</button>
+      <button class="edit-btn" (click)="enableEdit()">✏️ Edit</button>
       <button class="delete-btn">🗑️ Delete</button>
     </div>
   </div>

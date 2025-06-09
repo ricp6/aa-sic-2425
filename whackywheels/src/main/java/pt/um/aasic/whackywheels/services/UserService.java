@@ -92,4 +92,20 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
         userRepository.save(user);
     }
 
+    @Transactional
+    public void updateUserProfile(Long userId, String newName, String newEmail) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (newName != null && !newName.trim().isEmpty()) {
+            user.setName(newName.trim());
+        }
+        if (newEmail != null && !newEmail.trim().isEmpty()) {
+            user.setEmail(newEmail.trim());
+        }
+
+        userRepository.save(user);
+    }
+
+
 }

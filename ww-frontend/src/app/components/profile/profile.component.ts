@@ -65,5 +65,36 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  isEditing = false;
+
+  editData = {
+    name: '',
+    email: ''
+  };
+
+  enableEdit(): void {
+    if (this.user) {
+      this.editData.name = this.user.name;
+      this.editData.email = this.user.email;
+      this.isEditing = true;
+    }
+  }
+
+  saveProfile(): void {
+    this.userService.updateProfile(this.editData.name, this.editData.email).subscribe({
+      next: () => {
+        if (this.user) {
+          this.user.name = this.editData.name;
+          this.user.email = this.editData.email;
+        }
+        this.isEditing = false;
+        this.toastr.success("Profile updated successfully.");
+      },
+      error: (err) => {
+        const errorMsg = err.error?.message || "Failed to update profile.";
+        this.toastr.error(errorMsg);
+      }
+    });
+  }
 
 }
