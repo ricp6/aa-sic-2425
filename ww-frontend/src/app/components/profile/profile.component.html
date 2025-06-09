@@ -1,26 +1,39 @@
-<div class="profile-container" *ngIf="user">
-  <h1>Perfil de Usuario</h1>
-  <div class="info">
-    <img src="/assets/avatar.png" class="avatar" alt="Avatar">
-    <h2>{{ user.name }}</h2>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Rol:</strong> {{ user.role }}</p>
+<div class="profile-card" *ngIf="user">
+  <div class="header">
+    <img
+      [src]="user.profilePicture ? user.profilePicture : '/avatarPredet.jpg'"
+      class="avatar"
+      alt="Avatar"
+    />
+    <div class="user-info">
+      <h2>{{ user.name }}</h2>
+      <p>{{ user.email }}</p>
+      <p class="role">{{ user.role === 'OWNER' ? 'Owner' : 'Cliente' }}</p>
+    </div>
+    <div class="actions">
+      <button class="edit-btn">✏️ Editar</button>
+      <button class="delete-btn">🗑️ Remover</button>
+    </div>
   </div>
 
-  <div class="stats">
-    <h3>Estadísticas</h3>
-    <ul>
-      <li>Total de sesiones: {{ user.totalSessions }}</li>
-      <li>Victorias: {{ user.victories }}</li>
-      <li>Pistas visitadas: {{ user.tracksVisited }}</li>
-    </ul>
-  </div>
+  <hr>
 
-  <div class="favorites">
-    <h3>Pistas favoritas</h3>
-    <ul>
-      <li *ngFor="let track of user.favoriteTracks">{{ track }}</li>
-    </ul>
+  <div class="stats-section">
+    <div class="stats">
+      <h3>Estatísticas</h3>
+      <ul>
+        <li><strong>Total de sessões:</strong> {{ user.totalSessions }}</li>
+        <li><strong>Vitórias:</strong> {{ user.victories }}</li>
+        <li><strong>Pistas visitadas:</strong> {{ user.tracksVisited }}</li>
+      </ul>
+    </div>
+
+    <div class="favorites">
+      <h3>Pistas favoritas</h3>
+      <ul>
+        <li *ngFor="let track of user.favoriteTracks">{{ track }}</li>
+      </ul>
+    </div>
   </div>
 </div>
 

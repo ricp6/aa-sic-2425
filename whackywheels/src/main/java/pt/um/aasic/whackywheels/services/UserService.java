@@ -2,10 +2,14 @@ package pt.um.aasic.whackywheels.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.repositories.UserRepository;
 import pt.um.aasic.whackywheels.repositories.TrackRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService { // Or create a new service like UserFavoriteTrackService
@@ -44,5 +48,31 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
             System.out.println("Track " + trackId + " was not in user " + userId + "'s favorites.");
         }
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileDTO getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        // Obtener solo los nombres de los tracks favoritos
+        List<String> favoriteTrackNames = user.getFavoriteTracks()
+                .stream()
+                .map(Track::getName)
+                .collect(Collectors.toList());
+
+        // Determinar rol
+        String role = (user.getUserType() != null) ? user.getUserType() : "USER";
+
+        // Crear y retornar el DTO
+        return new UserProfileDTO(
+                user.getName(),
+                user.getEmail(),
+                role,
+                user.getTotalSessions(),
+                user.getVictories(),
+                user.getTracksVisited(),
+                favoriteTrackNames
+        );
     }
 }

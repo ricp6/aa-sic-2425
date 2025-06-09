@@ -6,4 +6,5 @@ export interface UserProfile {
   victories: number;
   tracksVisited: number;
   favoriteTracks: string[];
+  profilePicture?: string;
 }

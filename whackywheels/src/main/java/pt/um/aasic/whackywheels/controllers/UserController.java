@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.security.JwtService;
 import pt.um.aasic.whackywheels.services.UserService;
@@ -65,25 +66,20 @@ public class UserController {
     }
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
-    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal User authenticatedUser) {
         try {
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header is missing or malformed.");
+            if (authenticatedUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized.");
             }
 
-            String token = authHeader.substring(7);
-            String email = jwtService.extractUsername(token);
+            // Usar el servicio que construye el DTO limpio
+            UserProfileDTO dto = userService.getUserProfile(authenticatedUser.getId());
+            return ResponseEntity.ok(dto);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            if (userDetails == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-            }
-
-            return ResponseEntity.ok(userDetails);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user profile: " + e.getMessage());
         }
     }
+
 
 }
