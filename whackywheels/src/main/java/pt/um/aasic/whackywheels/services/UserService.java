@@ -107,5 +107,12 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
         userRepository.save(user);
     }
 
+    @Transactional
+    public void deleteAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        userRepository.delete(user);
+    }
 
 }

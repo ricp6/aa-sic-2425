@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { UserProfile } from '../../interfaces/user-profile';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
@@ -25,8 +26,10 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private authService: AuthService
   ) {}
+
 
   ngOnInit(): void {
     this.userService.getUserProfile().subscribe({
@@ -93,6 +96,24 @@ export class ProfileComponent implements OnInit {
       error: (err) => {
         const errorMsg = err.error?.message || "Failed to update profile.";
         this.toastr.error(errorMsg);
+      }
+    });
+  }
+
+  deleteAccount(): void {
+    const confirmed = confirm("Are you sure you want to delete your account? This action cannot be undone.");
+
+    if (!confirmed) return;
+
+    this.userService.deleteAccount().subscribe({
+      next: () => {
+        this.toastr.success("Account deleted successfully");
+        this.authService.logout();
+        window.location.href = "/"; // redirigir al inicio o login
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastr.error("Failed to delete account.");
       }
     });
   }

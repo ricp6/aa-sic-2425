@@ -118,6 +118,22 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/delete")
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal User authenticatedUser) {
+        try {
+            if (authenticatedUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            }
+
+            userService.deleteAccount(authenticatedUser.getId());
+            return ResponseEntity.ok(Map.of("message", "Account deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to delete account"));
+        }
+    }
+
+
 
 
 

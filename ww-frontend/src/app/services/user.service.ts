@@ -94,6 +94,9 @@ export class UserService {
     return this.http.put(`${this.userURL}/update-profile`, { name, email });
   }
 
+  deleteAccount(): Observable<any> {
+    return this.http.delete(`${this.userURL}/delete`);
+  }
 
 
 }
