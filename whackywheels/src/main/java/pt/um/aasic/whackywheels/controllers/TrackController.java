@@ -1,17 +1,17 @@
 package pt.um.aasic.whackywheels.controllers;
 
-import pt.um.aasic.whackywheels.dtos.TrackCreateRequestDTO;
-import pt.um.aasic.whackywheels.entities.Owner;
+import pt.um.aasic.whackywheels.dtos.*;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.TrackService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tracks")
@@ -25,22 +25,9 @@ public class TrackController {
 
     @PostMapping
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<?> createTrack(@Valid @RequestBody TrackCreateRequestDTO request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (!(authentication.getPrincipal() instanceof User)) {
-            return new ResponseEntity<>("Authenticated principal is not a User entity.", HttpStatus.FORBIDDEN);
-        }
-
-        User authenticatedUser = (User) authentication.getPrincipal();
-
-        if (!(authenticatedUser instanceof Owner)) {
-            return new ResponseEntity<>("Only Owners can create tracks.", HttpStatus.FORBIDDEN); // 403 Forbidden
-        }
-
-        Long ownerId = authenticatedUser.getId();
-
+    public ResponseEntity<?> createTrack(@Valid @RequestBody TrackCreateRequestDTO request, @AuthenticationPrincipal User authenticatedUser) {
         try {
+            Long ownerId = authenticatedUser.getId();
             Track newTrack = trackService.createTrack(request, ownerId);
             return new ResponseEntity<>(newTrack, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
@@ -49,5 +36,37 @@ public class TrackController {
             e.printStackTrace();
             return new ResponseEntity<>("Failed to create track: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping // <<-- Novo endpoint
+    public ResponseEntity<List<TrackResponseDTO>> getAllTracks() {
+        List<TrackResponseDTO> tracks = trackService.findAllTracks();
+        return new ResponseEntity<>(tracks, HttpStatus.OK);
+    }
+
+    @GetMapping("/records") // <<-- Novo endpoint
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<List<TrackRecordResponseDTO>> getAllTracksRecords(@AuthenticationPrincipal User authenticatedUser) {
+        try {
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            Long userId = authenticatedUser.getId();
+
+            List<TrackRecordResponseDTO> records = trackService.findAllTracksRecords(userId);
+            return new ResponseEntity<>(records, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{id}") // <<-- Novo endpoint
+    public ResponseEntity<TrackDetailsResponseDTO> getTrack(@PathVariable Long id) {
+        TrackDetailsResponseDTO track = trackService.findTrack(id);
+        if (track == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(track, HttpStatus.OK);
     }
 }

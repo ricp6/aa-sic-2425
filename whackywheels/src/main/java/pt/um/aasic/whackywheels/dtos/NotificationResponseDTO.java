@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 public class NotificationResponseDTO {
     private Long id;
-    private Long userId;
     private String title;
     private String body;
     private boolean isRead;
@@ -12,9 +11,8 @@ public class NotificationResponseDTO {
 
     public NotificationResponseDTO() {}
 
-    public NotificationResponseDTO(Long id, Long userId, String title, String body, boolean isRead, LocalDateTime createdAt) {
+    public NotificationResponseDTO(Long id, String title, String body, boolean isRead, LocalDateTime createdAt) {
         this.id = id;
-        this.userId = userId;
         this.title = title;
         this.body = body;
         this.isRead = isRead;
@@ -24,8 +22,6 @@ public class NotificationResponseDTO {
     // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getBody() { return body; }

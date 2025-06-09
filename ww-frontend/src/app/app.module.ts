@@ -1,10 +1,10 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -17,8 +17,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+import { JwtInterceptor } from './interceptors/jwt.interceptor';
 
+import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { SessionsComponent } from './components/sessions/sessions.component';
@@ -29,6 +30,11 @@ import { TracksComponent } from './components/tracks/tracks.component';
 import { EnterpriseHomeComponent } from './components/enterprise-home/enterprise-home.component';
 import { AuthWrapperComponent } from './components/auth-wrapper/auth-wrapper.component';
 import { RegisterComponent } from './components/register/register.component';
+import { TrackDetailsComponent } from './components/track-details/track-details.component';
+import { SessionDetailsComponent } from './components/session-details/session-details.component';
+
+
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -42,7 +48,9 @@ import { RegisterComponent } from './components/register/register.component';
     TracksComponent,
     EnterpriseHomeComponent,
     AuthWrapperComponent,
-    RegisterComponent
+    RegisterComponent,
+    TrackDetailsComponent,
+    SessionDetailsComponent
   ],
   imports: [
     BrowserModule,
@@ -58,11 +66,24 @@ import { RegisterComponent } from './components/register/register.component';
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
-    MatCardModule
+    MatCardModule,
+    FormsModule,
+    ToastrModule.forRoot({
+      timeOut: 5000,
+      extendedTimeOut: 2000, //Time to close after a user hovers over toast
+      positionClass: 'toast-top-left',
+      progressBar: true,
+      preventDuplicates: true
+    }), // ToastrModule added
   ],
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true // multi: true means that HTTP_INTERCEPTORS is an array of providers
+    }
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

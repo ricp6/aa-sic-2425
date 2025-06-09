@@ -38,6 +38,7 @@
             ],
             "styles": [
               "@angular/material/prebuilt-themes/azure-blue.css",
+              "node_modules/ngx-toastr/toastr.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -106,6 +107,6 @@
     }
   },
   "cli": {
-    "analytics": "c0b520f8-b500-4825-bed6-a9bb87fbf459"
+    "analytics": "7504b833-58b3-4960-96d9-635c5d3a1378"
   }
 }

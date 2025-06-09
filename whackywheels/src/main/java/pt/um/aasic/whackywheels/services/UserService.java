@@ -1,54 +1,48 @@
 package pt.um.aasic.whackywheels.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
-import pt.um.aasic.whackywheels.entities.Track;
+import org.springframework.transaction.annotation.Transactional;
 import pt.um.aasic.whackywheels.entities.User;
+import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.repositories.UserRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import pt.um.aasic.whackywheels.repositories.TrackRepository;
 
 @Service
-public class UserService {
+public class UserService { // Or create a new service like UserFavoriteTrackService
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final TrackRepository trackRepository;
 
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public UserService(UserRepository userRepository, TrackRepository trackRepository) {
+        this.userRepository = userRepository;
+        this.trackRepository = trackRepository;
     }
 
-    public UserProfileDTO getUserProfile(Authentication authentication) {
-        String email = authentication.getName();
-        User user = findByEmail(email);
+    @Transactional // Ensures the entire operation is a single transaction
+    public void addFavoriteTrack(Long userId, Long trackId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
-        if (user == null) {
-            throw new RuntimeException("Usuario no encontrado.");
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
+
+        user.getFavoriteTracks().add(track); // set prevents duplicates automatically
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void removeFavoriteTrack(Long userId, Long trackId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        Track track = trackRepository.findById(trackId) // Fetch track to ensure it exists
+                .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
+
+        boolean removed = user.getFavoriteTracks().remove(track);
+        if (!removed) {
+            // Optional: Handle case where the track wasn't a favorite to begin with
+            System.out.println("Track " + trackId + " was not in user " + userId + "'s favorites.");
         }
-
-        List<String> favoriteTrackNames = user.getFavoriteTracks()
-                .stream()
-                .map(Track::getName)
-                .collect(Collectors.toList());
-
-        String role = user.getAuthorities()
-                .stream()
-                .findFirst()
-                .map(a -> a.getAuthority().replace("ROLE_", ""))
-                .orElse("Usuario");
-
-        return new UserProfileDTO(
-                user.getName(),
-                user.getEmail(),
-                role,
-                user.getTotalSessions(),
-                user.getVictories(),
-                user.getTracksVisited(),
-                favoriteTrackNames
-        );
+        userRepository.save(user);
     }
 }
-

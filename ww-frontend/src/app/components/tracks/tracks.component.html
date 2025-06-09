@@ -1,1 +1,61 @@
-<p>tracks works!</p>
+<div id="tracks-content">
+    <div id="banner-image"></div>
+
+    <section id="tracks-container">
+
+        <div id="tracks-header">
+            <h1 id="title">Tracks</h1>
+
+            <div id="tracks-controls">
+                <button mat-icon-button type="button" *ngIf="isLoggedIn" id="filter-favs" (click)="toggleFavs()">
+                    <mat-icon>{{ onlyFavs ? 'star' : 'star_border' }}</mat-icon>
+                </button>
+
+                <button mat-stroked-button type="button" id="filter-options">
+                    <mat-icon>filter_list</mat-icon>
+                    Filters
+                </button>
+
+                <mat-form-field appearance="outline" id="search-field">
+                    <mat-icon matPrefix>search</mat-icon>
+                    <input matInput placeholder="Search track..." [(ngModel)]="searchTerm" />
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div id="track-list-container">
+            <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)">
+                <img mat-card-image [src]="track.image" [alt]="track.name" class="track-image" />
+
+                <mat-card-content class="track-info">
+                    <div class="track-details">
+                        <div class="track-name">{{ track.name }}</div>
+                        <div class="track-location">{{ track.address }}</div>
+                    </div>
+
+                    <div class="track-stats" *ngIf="track.personalRecord">
+                        <div class="track-record">
+                            Personal Record:
+                            <span class="record-value">{{ track.personalRecord }}</span>
+                        </div>
+                        <div class="track-record" *ngIf="track.personalRecord">
+                            Track Record:
+                            <span class="record-value">{{ track.trackRecord }}</span>
+                        </div>
+                    </div>
+
+                    <div class="star-button-container">
+                        <button mat-icon-button type="button" *ngIf="isLoggedIn" class="star-button"
+                            (click)="setFav(track); $event.stopPropagation()">
+                            <mat-icon class="star-icon">
+                                {{ isFav(track) ? 'star' : 'star_border' }}
+                            </mat-icon>
+                        </button>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <p *ngIf="!filteredTracks() || filteredTracks()!.length === 0" id="no-tracks">No results found.</p>
+        </div>
+    </section>
+</div>

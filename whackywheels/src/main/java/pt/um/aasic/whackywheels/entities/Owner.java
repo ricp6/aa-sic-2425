@@ -5,9 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.DiscriminatorValue;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
 @DiscriminatorValue("OWNER")
@@ -30,5 +34,10 @@ public class Owner extends User {
 
     public void setTracks(Set<Track> tracks) {
         this.tracks = tracks;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_OWNER"));
     }
 }

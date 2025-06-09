@@ -2,7 +2,7 @@
 
 <section id="popular-section">
     <div class="section-header">
-        <h2 class="section-title">Pistas Populares</h2>
+        <h2 class="section-title">Popular Tracks</h2>
 
         <div class="section-scroll-buttons">
             <button mat-icon-button class="scroll-button left" (click)="scrollLeft()">
@@ -16,9 +16,9 @@
     
     <div class="scroll-wrapper">
         <div class="tracks-container" #scrollContainer>
-            <mat-card class="track-card" *ngFor="let track of tracks">
+            <mat-card class="track-card" *ngFor="let track of tracks" (click)="showTrack(track)">
                 <mat-card-title>{{ track.name }}</mat-card-title>
-                <mat-card-subtitle>{{ track.location }}</mat-card-subtitle>
+                <mat-card-subtitle>{{ track.address }}</mat-card-subtitle>
                 <img mat-card-image [src]="track.image" [alt]="track.name" />
             </mat-card>
         </div>

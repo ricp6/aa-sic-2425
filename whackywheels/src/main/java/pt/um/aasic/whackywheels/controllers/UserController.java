@@ -1,54 +1,56 @@
 package pt.um.aasic.whackywheels.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
-import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
-import pt.um.aasic.whackywheels.repositories.UserRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import pt.um.aasic.whackywheels.services.UserService;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users") // A logical base path for user-related operations
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserService userService;
 
-    @GetMapping("/profile")
-    public UserProfileDTO getUserProfile(Authentication authentication) {
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email);
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
-        if (user == null) {
-            throw new RuntimeException("Usuario no encontrado.");
+    @PostMapping("/favorites/add/{trackId}")
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<String> addFavoriteTrack(@AuthenticationPrincipal User authenticatedUser, @PathVariable Long trackId) {
+        try {
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+            }
+
+            userService.addFavoriteTrack(authenticatedUser.getId(), trackId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Error adding track to favorites.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
 
-        List<String> favoriteTrackNames = user.getFavoriteTracks()
-                .stream()
-                .map(Track::getName)
-                .collect(Collectors.toList());
+    @DeleteMapping("/favorites/remove/{trackId}")
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<String> removeFavoriteTrack(@AuthenticationPrincipal User authenticatedUser, @PathVariable Long trackId) {
+        try {
+            if (authenticatedUser == null) {
+                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+            }
 
-        String role = user.getAuthorities()
-                .stream()
-                .findFirst()
-                .map(a -> a.getAuthority().replace("ROLE_", ""))
-                .orElse("Usuario");
-
-        return new UserProfileDTO(
-                user.getName(),
-                user.getEmail(),
-                role,
-                user.getTotalSessions(),
-                user.getVictories(),
-                user.getTracksVisited(),
-                favoriteTrackNames
-        );
+            userService.removeFavoriteTrack(authenticatedUser.getId(), trackId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Error removing track from favorites.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
-
-
-

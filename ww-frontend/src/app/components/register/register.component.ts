@@ -28,7 +28,7 @@ export class RegisterComponent extends AuthWrapperComponent {
   register(): void {
     if (this.form.valid) {
       this.authService.register(this.form.value).subscribe({
-        next: () => this.router.navigate(['/home']),
+        next: () => this.router.navigate(['/auth/login']),
         error: (err) => console.error('Register failed', err)
       });
     }
