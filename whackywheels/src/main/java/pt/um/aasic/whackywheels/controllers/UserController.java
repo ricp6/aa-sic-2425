@@ -7,6 +7,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.UserService;
+import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users") // A logical base path for user-related operations
@@ -52,5 +54,17 @@ public class UserController {
             e.printStackTrace();
             return new ResponseEntity<>("Error removing track from favorites.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<List<UserResponseDTO>> searchUsers(@RequestParam(required = false) String query) {
+        List<UserResponseDTO> users;
+        if (query != null && !query.trim().isEmpty()) {
+            users = userService.searchUsersByNameOrEmail(query);
+        } else {
+            users = userService.getAllUsers();
+        }
+        return ResponseEntity.ok(users);
     }
 }

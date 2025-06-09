@@ -10,8 +10,9 @@ public class LoginResponseDTO {
     private Long unreadNotificationCount;
     private List<Long> favoriteTrackIds;
     private String token;
+    private String refreshToken;
 
-    public LoginResponseDTO(Long id, String email, String name, String userType, Long unreadNotificationCount, List<Long> favoriteTrackIds, String token) {
+    public LoginResponseDTO(Long id, String email, String name, String userType, Long unreadNotificationCount, List<Long> favoriteTrackIds, String token, String refreshToken) {
         this.id = id;
         this.email = email;
         this.name = name;
@@ -19,6 +20,7 @@ public class LoginResponseDTO {
         this.unreadNotificationCount = unreadNotificationCount;
         this.favoriteTrackIds = favoriteTrackIds;
         this.token = token;
+        this.refreshToken = refreshToken;
     }
 
     // Getters
@@ -50,6 +52,8 @@ public class LoginResponseDTO {
         return token;
     }
 
+    public String getRefreshToken() {return this.refreshToken;}
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -76,5 +80,9 @@ public class LoginResponseDTO {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

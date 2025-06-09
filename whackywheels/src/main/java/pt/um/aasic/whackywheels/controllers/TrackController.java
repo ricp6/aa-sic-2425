@@ -4,6 +4,8 @@ import pt.um.aasic.whackywheels.dtos.*;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.TrackService;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -38,13 +41,18 @@ public class TrackController {
         }
     }
 
-    @GetMapping // <<-- Novo endpoint
+    @GetMapping
     public ResponseEntity<List<TrackResponseDTO>> getAllTracks() {
-        List<TrackResponseDTO> tracks = trackService.findAllTracks();
-        return new ResponseEntity<>(tracks, HttpStatus.OK);
+        try{
+            List<TrackResponseDTO> tracks = trackService.findAllTracks();
+            return new ResponseEntity<>(tracks, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping("/records") // <<-- Novo endpoint
+    @GetMapping("/records")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<List<TrackRecordResponseDTO>> getAllTracksRecords(@AuthenticationPrincipal User authenticatedUser) {
         try {
@@ -61,12 +69,19 @@ public class TrackController {
         }
     }
 
-    @GetMapping("/{id}") // <<-- Novo endpoint
-    public ResponseEntity<TrackDetailsResponseDTO> getTrack(@PathVariable Long id) {
-        TrackDetailsResponseDTO track = trackService.findTrack(id);
-        if (track == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTrack(@PathVariable Long id) {
+        try{
+            TrackDetailsResponseDTO track = trackService.findTrack(id);
+            if (track == null) {
+                return new ResponseEntity<>("Track not found.",HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(track, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(track, HttpStatus.OK);
     }
 }

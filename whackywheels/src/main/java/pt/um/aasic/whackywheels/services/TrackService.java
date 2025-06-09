@@ -40,8 +40,8 @@ public class TrackService {
                 .toList();
     }
 
-    public List<TrackRecordResponseDTO> findAllTracksRecords(Long userId) {
-// 1. Fetch overall minimum lap times for all tracks
+    public List<TrackRecordResponseDTO> findAllTracksRecords(Long userId)   {
+        // 1. Fetch overall minimum lap times for all tracks
         List<Object[]> overallRecordsRaw = trackRepository.findOverallMinLapTimesPerTrack();
         // Convert to a Map for efficient lookup (trackId -> overallBestTime)
         Map<Long, Double> overallRecordsMap = overallRecordsRaw.stream()
@@ -76,7 +76,7 @@ public class TrackService {
                 .toList();
     }
 
-    @Transactional(readOnly = true) // Add @Transactional for methods that interact with lazily loaded collections
+    @Transactional(readOnly = true)
     public TrackDetailsResponseDTO findTrack(Long id) {
         // *** OPTIMIZED LINE: Use the custom query to fetch Track with day schedules and karts ***
         Track track = trackRepository.findByIdWithDaySchedulesAndKarts(id).orElse(null);

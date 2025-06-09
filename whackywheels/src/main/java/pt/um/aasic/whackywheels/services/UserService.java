@@ -1,11 +1,15 @@
 package pt.um.aasic.whackywheels.services;
 
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.repositories.UserRepository;
 import pt.um.aasic.whackywheels.repositories.TrackRepository;
+import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
+import java.util.List;
 
 @Service
 public class UserService { // Or create a new service like UserFavoriteTrackService
@@ -45,4 +49,22 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
         }
         userRepository.save(user);
     }
-}
+
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> searchUsersByNameOrEmail(String query) {
+        return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query).stream()
+                .map(this::mapUserToUserResponseDTO) // Assumindo que você tem um método de mapeamento
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::mapUserToUserResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private UserResponseDTO mapUserToUserResponseDTO(User user) {
+        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getUserType()); 
+    }
+}   

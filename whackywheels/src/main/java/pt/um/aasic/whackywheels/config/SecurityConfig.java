@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
+                                "/api/auth/refresh-token",
                                 "/api/tracks",
                                 "/api/tracks/{id}",
                                 "/v3/api-docs/**",
