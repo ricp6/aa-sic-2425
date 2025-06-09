@@ -11,8 +11,7 @@ export class ReservationsComponent implements OnInit {
 
   activeReservations: Reservation[] = []; //
   completedReservations: Reservation[] = []; //
-  selectedTab: 'active' | 'completed' = 'active'; //
-
+  
   constructor() { } //
 
   ngOnInit(): void { //
@@ -93,10 +92,6 @@ export class ReservationsComponent implements OnInit {
       return dateA.getTime() - dateB.getTime();
     });
 
-  }
-
-  selectTab(tab: 'active' | 'completed'): void { //
-    this.selectedTab = tab; //
   }
 
   get todayActiveReservations(): Reservation[] {

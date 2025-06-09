@@ -1,127 +1,142 @@
-<div class="page-layout">
-  <div id="banner-image"></div> <div class="reservations-container">
-  <div class="header-section">
-    <h1>Reservations</h1>
-    <button class="new-reservation-button">+ New Reservation</button>
-  </div>
+<div id="reservations-content">
+  <div id="banner-image"></div>
+  <section id="reservations-container">
 
-  <div class="tabs-section">
-    <button class="tab-button" [class.active]="selectedTab === 'active'" (click)="selectTab('active')">
-      Active
-    </button>
-    <button class="tab-button" [class.active]="selectedTab === 'completed'" (click)="selectTab('completed')">
-      Completed
-    </button>
-  </div>
+    <section id="reservations-header">
+      <h1 id="title">Reservations</h1>
 
-  <div class="reservations-list">
-    <div *ngIf="selectedTab === 'active'">
-      <ng-container *ngIf="todayActiveReservations.length > 0">
-        <h2 class="reservation-group-title">Today</h2>
-        <div class="reservation-card" *ngFor="let reservation of todayActiveReservations">
-          <div class="track-icon">
-            <img [src]="reservation.trackImage" alt="Track Icon">
+      <button mat-stroked-button type="button" id="new-reservation-button">
+        <mat-icon>add</mat-icon>
+        New Reservation
+      </button>
+    </section>
+
+    <mat-tab-group id="sub-navigation" mat-stretch-tabs="false" mat-align-tabs="start">
+      <mat-tab label="Active">
+        <div class="selected-tab">
+          
+          <div *ngIf="todayActiveReservations.length > 0" class="reservation-group">
+            <h2 class="reservation-group-title">Today</h2>
+            
+            <mat-card class="reservation-card" *ngFor="let reservation of todayActiveReservations">
+              <div class="track-image">
+                <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
+              </div>
+
+              <mat-card-content class="reservation-info">
+                <div class="reservation-details">
+                  <span class="track-name">{{ reservation.trackName }}</span>
+                  <span class="reservation-row">
+                    <mat-icon class="reservation-row-icon">group</mat-icon>
+                    {{ reservation.numberOfParticipants }} participants
+                  </span>
+                </div>
+                
+                <div class="reservation-datetime">
+                  <span class="reservation-row">
+                    <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
+                    <span>{{ reservation.date }}</span>
+                  </span>
+                  
+                  <span class="reservation-row">
+                    <mat-icon class="reservation-row-icon">schedule</mat-icon>
+                    <span>{{ reservation.time }}</span>
+                  </span>
+                </div>
+
+                <div class="reservation-status" [class]="reservation.status">
+                  {{ reservation.status | titlecase }}
+                </div>
+              </mat-card-content>
+            </mat-card>
           </div>
-          <div class="reservation-details">
-            <span class="track-name">{{ reservation.trackName }}</span>
-            <div class="info-row">
-              <mat-icon>group</mat-icon>
-              <span>{{ reservation.numberOfParticipants }} participants</span>
-            </div>
+
+          <div *ngIf="futureActiveReservations.length > 0" class="reservation-group">
+            <h2 class="reservation-group-title">Future</h2>
+
+            <mat-card class="reservation-card" *ngFor="let reservation of futureActiveReservations">
+              <div class="track-image">
+                <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
+              </div>
+
+              <mat-card-content class="reservation-info">
+                <div class="reservation-details">
+                  <span class="track-name">{{ reservation.trackName }}</span>
+                  <span class="reservation-row">
+                    <mat-icon class="reservation-row-icon">group</mat-icon>
+                    {{ reservation.numberOfParticipants }} participants
+                  </span>
+                </div>
+                
+                <div class="reservation-datetime">
+                  <span class="reservation-row">
+                    <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
+                    <span>{{ reservation.date }}</span>
+                  </span>
+                  
+                  <span class="reservation-row">
+                    <mat-icon class="reservation-row-icon">schedule</mat-icon>
+                    <span>{{ reservation.time }}</span>
+                  </span>
+                </div>
+
+                <div class="reservation-status" [class]="reservation.status">
+                  {{ reservation.status | titlecase }}
+                </div>
+              </mat-card-content>
+            </mat-card>
           </div>
-          <div class="reservation-datetime">
-            <div class="info-row">
-              <mat-icon>calendar_today</mat-icon>
-              <span>{{ reservation.date }}</span>
-            </div>
-            <div class="info-row">
-              <mat-icon>schedule</mat-icon>
-              <span>{{ reservation.time }}</span>
-            </div>
-          </div>
-          <div class="reservation-status" [class.pending]="reservation.status === 'PENDING'"
-               [class.confirmed]="reservation.status === 'ACCEPTED'"
-               [class.canceled]="reservation.status === 'REJECTED'">
-            {{ reservation.status }}
+
+          <div *ngIf="activeReservations.length === 0" class="no-reservations">
+            No active reservations.
           </div>
         </div>
-      </ng-container>
+      </mat-tab>
 
-      <ng-container *ngIf="futureActiveReservations.length > 0">
-        <h2 class="reservation-group-title">Future</h2>
-        <div class="reservation-card" *ngFor="let reservation of futureActiveReservations">
-          <div class="track-icon">
-            <img [src]="reservation.trackImage" alt="Track Icon">
-          </div>
-          <div class="reservation-details">
-            <span class="track-name">{{ reservation.trackName }}</span>
-            <div class="info-row">
-              <mat-icon>group</mat-icon>
-              <span>{{ reservation.numberOfParticipants }} participants</span>
-            </div>
-          </div>
-          <div class="reservation-datetime">
-            <div class="info-row">
-              <mat-icon>calendar_today</mat-icon>
-              <span>{{ reservation.date }}</span>
-            </div>
-            <div class="info-row">
-              <mat-icon>schedule</mat-icon>
-              <span>{{ reservation.time }}</span>
-            </div>
-          </div>
-          <div class="reservation-status" [class.pending]="reservation.status === 'PENDING'"
-               [class.confirmed]="reservation.status === 'ACCEPTED'"
-               [class.canceled]="reservation.status === 'REJECTED'">
-            {{ reservation.status }}
-          </div>
-        </div>
-      </ng-container>
+      <mat-tab label="Completed">
+        <div class="selected-tab">
 
-      <div *ngIf="activeReservations.length === 0" class="no-reservations">
-        No active reservations.
-      </div>
-    </div>
+          <mat-card class="reservation-card" *ngFor="let reservation of completedReservations">
+            <div class="track-image">
+                <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
+              </div>
 
-    <div *ngIf="selectedTab === 'completed'">
-      <div class="reservation-card" *ngFor="let reservation of completedReservations">
-        <div class="track-icon">
-          <img [src]="reservation.trackImage" alt="Track Icon">
-        </div>
-        <div class="reservation-details">
-          <span class="track-name">{{ reservation.trackName }}</span>
-          <div class="info-row">
-            <mat-icon>group</mat-icon>
-            <span>{{ reservation.numberOfParticipants }} participants</span>
+            <mat-card-content class="reservation-info">
+              <div class="reservation-details">
+                <span class="track-name">{{ reservation.trackName }}</span>
+                <span class="reservation-row">
+                  <mat-icon class="reservation-row-icon">group</mat-icon>
+                  {{ reservation.numberOfParticipants }} participants
+                </span>
+              </div>
+              
+              <div class="reservation-datetime">
+                <span class="reservation-row">
+                  <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
+                  <span>{{ reservation.date }}</span>
+                </span>
+                
+                <span class="reservation-row">
+                  <mat-icon class="reservation-row-icon">schedule</mat-icon>
+                  <span>{{ reservation.time }}</span>
+                </span>
+              </div>
+            
+              <div *ngIf="reservation.status === 'CONCLUDED'" class="reservation-actions">
+                <button mat-stroked-button type="button" class="reservation-action session">Session</button>
+                <button mat-stroked-button type="button" class="reservation-action repeat">Repeat</button>
+              </div>
+              <div *ngIf="reservation.status === 'REJECTED'" class="reservation-status REJECTED">
+                {{ reservation.status | titlecase }}
+              </div>
+            </mat-card-content>
+          </mat-card>
+          
+          <div *ngIf="completedReservations.length === 0" class="no-reservations">
+            No completed reservations.
           </div>
         </div>
-        <div class="reservation-datetime">
-          <div class="info-row">
-            <mat-icon>calendar_today</mat-icon>
-            <span>{{ reservation.date }}</span>
-          </div>
-          <div class="info-row">
-            <mat-icon>schedule</mat-icon>
-            <span>{{ reservation.time }}</span>
-          </div>
-        </div>
-
-        <div class="reservation-actions-or-status">
-          <ng-container *ngIf="reservation.status === 'CONCLUDED'">
-            <button class="action-button view-session">View Session</button>
-            <button class="action-button repeat">Repeat</button>
-          </ng-container>
-          <ng-container *ngIf="reservation.status === 'REJECTED'">
-            <div class="reservation-status canceled">
-              {{ reservation.status }}
-            </div>
-          </ng-container>
-        </div>
-      </div>
-      <div *ngIf="completedReservations.length === 0" class="no-reservations">
-        No completed reservations.
-      </div>
-    </div>
-  </div>
-</div>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
 </div>
