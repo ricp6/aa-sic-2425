@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
-
+import { UserProfile } from '../interfaces/user-profile';
 @Injectable({
   providedIn: 'root'
 })
@@ -72,5 +72,14 @@ export class UserService {
   isFavorite(trackId: number): boolean {
     const user = this.authService.getCurrentUser();
     return user ? user.favoriteTrackIds.includes(trackId) : false;
+  }
+
+  getUserProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.userURL}/me`).pipe( //Cambio el profile x el me
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error loading user profile:', error);
+        return throwError(() => error);
+      })
+    );
   }
 }
