@@ -28,6 +28,20 @@ export class TrackService {
         this.tracksSubject.next(tracks);
       }),
       catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          // If you see 401 here, it means:
+          // 1. No refresh token existed.
+          // 2. Refresh failed.
+          // 3. Refresh succeeded, but the retried request *still* got 401.
+          // In all these cases, the user should already be logged out by the interceptor/auth service.
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+          // You might not even need specific logout here, as the interceptor or authService will do it.
+          // The main goal here is to inform the user.
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the tracks', 'Server error');
+        }
         return throwError(() => error);
       })
     );
@@ -49,6 +63,20 @@ export class TrackService {
   getTracksRecords(): Observable<Records[] | null> {
     return this.http.get<Records[]>(this.tracksURL + '/records').pipe(
       catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          // If you see 401 here, it means:
+          // 1. No refresh token existed.
+          // 2. Refresh failed.
+          // 3. Refresh succeeded, but the retried request *still* got 401.
+          // In all these cases, the user should already be logged out by the interceptor/auth service.
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+          // You might not even need specific logout here, as the interceptor or authService will do it.
+          // The main goal here is to inform the user.
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the tracks records', 'Server error');
+        }
         return throwError(() => error);
       })
     );
@@ -56,14 +84,25 @@ export class TrackService {
 
   // Update the return type to Observable<TrackDetails>
   getTrack(id: number): Observable<TrackDetails> {
-      return this.http.get<TrackDetails>(`${this.tracksURL}/${id}`).pipe(
-          catchError((error: HttpErrorResponse) => {
-              console.error(`Error fetching track details for ID ${id}:`, error);
-              // Optionally, show a user-friendly toast/message here
-              // this.toastr.error('Failed to load track details.', 'Error');
-              return throwError(() => new Error(`Something went wrong fetching track: ${error.message}`));
-          })
-      );
+    return this.http.get<TrackDetails>(`${this.tracksURL}/${id}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          // If you see 401 here, it means:
+          // 1. No refresh token existed.
+          // 2. Refresh failed.
+          // 3. Refresh succeeded, but the retried request *still* got 401.
+          // In all these cases, the user should already be logged out by the interceptor/auth service.
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+          // You might not even need specific logout here, as the interceptor or authService will do it.
+          // The main goal here is to inform the user.
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the track details', 'Server error');
+        }
+        return throwError(() => new Error(`Something went wrong fetching track: ${error.message}`));
+      })
+    );
   }
 
   /*createTrack(data: { track: Track }) {
