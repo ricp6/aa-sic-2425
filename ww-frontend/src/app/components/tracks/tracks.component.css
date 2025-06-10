@@ -61,6 +61,14 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
+  padding-top: 20px;
+}
+
+#track-list-container.simple {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2%;
+  row-gap: 15px;
 }
 
 .track-card {
@@ -69,8 +77,16 @@
   flex-direction: row;
   border: 1px solid #e0e0e0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 10px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+}
+
+.track-card.simple {
+  width: 49%;
+}
+.track-card.complete {
+  width: 100%;
 }
 
 .track-card:hover {
@@ -78,10 +94,12 @@
   transform: translateY(-2px);
 }
 
-.track-image {
-  max-width: 30%;
+.track-image img {
+  height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: 12px !important;
+  border-radius: 12px;
+  background-color: #eee;
 }
 
 .track-info {
@@ -102,7 +120,7 @@
 
 .track-name {
   font-weight: 600;
-  font-size: 1.1em;
+  font-size: 1.3em;
 }
 
 .track-stats {

@@ -79,7 +79,8 @@
 }
 
 .track-image img {
-  max-height: 80px;
+  height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: 12px;
   background-color: #eee;

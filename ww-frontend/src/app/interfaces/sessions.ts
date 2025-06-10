@@ -4,7 +4,7 @@ export interface Session {
   date: string;
   time: string;
   numberOfParticipants: number;
-  bestTime: string;
+  bestTimeUser: string;
   position: number;
   trackImage: string;
 }

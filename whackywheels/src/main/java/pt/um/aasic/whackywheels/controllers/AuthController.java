@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import pt.um.aasic.whackywheels.dtos.LoginRequestDTO;
 import pt.um.aasic.whackywheels.dtos.LoginResponseDTO;
 import pt.um.aasic.whackywheels.dtos.RegisterRequestDTO;
+import pt.um.aasic.whackywheels.dtos.TokenResponseDTO;
 import pt.um.aasic.whackywheels.entities.Owner;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
@@ -123,7 +124,7 @@ public class AuthController {
                 // String newRefreshToken = jwtService.generateRefreshToken(userDetails);
                 // invalidateOldRefreshToken(refreshToken); // Implementar lógica para invalidar refresh token
 
-                return new ResponseEntity<>(newAccessToken, HttpStatus.OK);
+                return new ResponseEntity<>(new TokenResponseDTO(newAccessToken), HttpStatus.OK);
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token.");
         } catch (Exception e) {

@@ -23,9 +23,12 @@
             </section>
         </section>
 
-        <div id="track-list-container">
-            <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)">
-                <img mat-card-image [src]="track.image" [alt]="track.name" class="track-image" />
+        <div id="track-list-container" [class]="isLoggedIn ? 'complete' : 'simple'">
+            <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)"
+            [class]="isLoggedIn ? 'complete' : 'simple'">
+                <div class="track-image">
+                    <img mat-card-image [src]="track.image" [alt]="track.name" />
+                </div>
 
                 <mat-card-content class="track-info">
                     <div class="track-details">

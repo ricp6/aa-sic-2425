@@ -24,7 +24,7 @@ export class SessionsComponent implements OnInit {
         date: '02/02/2025',
         time: '18:00 - 19:00',
         numberOfParticipants: 6,
-        bestTime: '1:13.052',
+        bestTimeUser: '1:13.052',
         position: 1,
         trackImage: '/track1.jpg'
       },
@@ -34,7 +34,7 @@ export class SessionsComponent implements OnInit {
         date: '27/01/2025',
         time: '11:00 - 12:00',
         numberOfParticipants: 9,
-        bestTime: '1:05.971',
+        bestTimeUser: '1:05.971',
         position: 3,
         trackImage: '/track1.jpg'
       },
@@ -44,7 +44,7 @@ export class SessionsComponent implements OnInit {
         date: '14/01/2025',
         time: '09:00 - 10:00',
         numberOfParticipants: 12,
-        bestTime: '1:15.834',
+        bestTimeUser: '1:15.834',
         position: 6,
         trackImage: '/track1.jpg'
       },
@@ -54,7 +54,7 @@ export class SessionsComponent implements OnInit {
         date: '07/01/2025',
         time: '10:00 - 11:00',
         numberOfParticipants: 5,
-        bestTime: '1:19.473',
+        bestTimeUser: '1:19.473',
         position: 2,
         trackImage: '/track1.jpg'
       }

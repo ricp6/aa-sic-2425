@@ -19,7 +19,6 @@ export class UserService {
   addFavorite(trackId: number): Observable<void> {
     return this.http.post<void>(`${this.userURL}/favorites/add/${trackId}`, null).pipe(
       tap(() => {
-        console.log("resposta add"); // This should now appear on success
         const user = this.authService.getCurrentUser();
         if (user) {
           if (!user.favoriteTrackIds.includes(trackId)) {
@@ -30,7 +29,6 @@ export class UserService {
         this.toastr.success("Track added to your favorites!");
       }),
       catchError((error: HttpErrorResponse) => { 
-        console.error('Error adding favorite:', error); // Log the full error
         if (error.status === 401) {
           this.toastr.warning('Unauthorized', 'Failed to add favorite');
         } else if (error.status === 404) {
@@ -55,7 +53,6 @@ export class UserService {
         this.toastr.success("Track removed from your favorites.");
       }),
       catchError((error: HttpErrorResponse) => { 
-        console.error('Error removing favorite:', error); // Log the full error
         if (error.status === 401) {
           this.toastr.warning('Unauthorized', 'Failed to remove favorite');
         } else if (error.status === 404) {

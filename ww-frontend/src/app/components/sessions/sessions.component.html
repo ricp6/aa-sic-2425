@@ -33,6 +33,10 @@
           </div>
 
           <div class="session-result">
+            <div class="session-best-time">
+              My best:
+              <span class="best-time-value">{{ session.bestTimeUser }}</span>
+            </div>
             <div class="session-position">
               <ng-container *ngIf="session.position >= 1 && session.position <= 3; else showPositionNumber">
                 <div class="position-badge" [ngClass]="{
@@ -40,15 +44,13 @@
                   'silver-badge': session.position === 2,
                   'bronze-badge': session.position === 3
                 }">
-                  <mat-icon class="star-icon-filled">star_rate</mat-icon> <span class="position-number-overlay">{{ session.position }}</span>
+                  <mat-icon class="star-icon-filled">star</mat-icon> 
+                  <span class="position-number-overlay">{{ session.position }}</span>
                 </div>
               </ng-container>
               <ng-template #showPositionNumber>
                 <span class="position-number">{{ session.position }}</span>
               </ng-template>
-            </div>
-            <div class="session-best-time">
-              <span>{{ session.bestTime }}</span>
             </div>
           </div>
 
