@@ -130,7 +130,7 @@
 .reservation-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
 }
 
 .reservation-status {
@@ -156,15 +156,6 @@
   transition: all 0.2s ease-in-out;
 }
 
-.session {
-  color: #000;
-  border-color: #333;
-}
-
-.session:hover {
-  background-color: #f0f0f0;
-  border-color: #555;
-}
 
 .repeat {
   background-color: #000;

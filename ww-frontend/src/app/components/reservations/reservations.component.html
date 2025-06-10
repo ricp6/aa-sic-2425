@@ -14,10 +14,10 @@
     <mat-tab-group id="sub-navigation" mat-stretch-tabs="false" mat-align-tabs="start">
       <mat-tab label="Active">
         <div class="selected-tab">
-          
+
           <div *ngIf="todayActiveReservations.length > 0" class="reservation-group">
             <h2 class="reservation-group-title">Today</h2>
-            
+
             <mat-card class="reservation-card" *ngFor="let reservation of todayActiveReservations">
               <div class="track-image">
                 <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
@@ -31,16 +31,16 @@
                     {{ reservation.numberOfParticipants }} participants
                   </span>
                 </div>
-                
+
                 <div class="reservation-datetime">
                   <span class="reservation-row">
                     <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
                     <span>{{ reservation.date }}</span>
                   </span>
-                  
+
                   <span class="reservation-row">
                     <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                    <span>{{ reservation.time }}</span>
+                    <span>{{ reservation.numberOfSlots }} Slots</span>
                   </span>
                 </div>
 
@@ -67,16 +67,16 @@
                     {{ reservation.numberOfParticipants }} participants
                   </span>
                 </div>
-                
+
                 <div class="reservation-datetime">
                   <span class="reservation-row">
                     <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
                     <span>{{ reservation.date }}</span>
                   </span>
-                  
+
                   <span class="reservation-row">
                     <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                    <span>{{ reservation.time }}</span>
+                    <span>{{ reservation.numberOfSlots }} Slots</span>
                   </span>
                 </div>
 
@@ -109,21 +109,20 @@
                   {{ reservation.numberOfParticipants }} participants
                 </span>
               </div>
-              
+
               <div class="reservation-datetime">
                 <span class="reservation-row">
                   <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
                   <span>{{ reservation.date }}</span>
                 </span>
-                
+
                 <span class="reservation-row">
                   <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                  <span>{{ reservation.time }}</span>
+                  <span>{{ reservation.numberOfSlots }} Slots</span>
                 </span>
               </div>
-            
+
               <div *ngIf="reservation.status === 'CONCLUDED'" class="reservation-actions">
-                <button mat-stroked-button type="button" class="reservation-action session">Session</button>
                 <button mat-stroked-button type="button" class="reservation-action repeat">Repeat</button>
               </div>
               <div *ngIf="reservation.status === 'REJECTED'" class="reservation-status REJECTED">
@@ -131,7 +130,7 @@
               </div>
             </mat-card-content>
           </mat-card>
-          
+
           <div *ngIf="completedReservations.length === 0" class="no-reservations">
             No completed reservations.
           </div>
