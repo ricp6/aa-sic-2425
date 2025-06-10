@@ -1,9 +1,11 @@
 package pt.um.aasic.whackywheels.services;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.repositories.UserRepository;
@@ -11,15 +13,20 @@ import pt.um.aasic.whackywheels.repositories.TrackRepository;
 import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
 import java.util.List;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class UserService { // Or create a new service like UserFavoriteTrackService
 
     private final UserRepository userRepository;
     private final TrackRepository trackRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, TrackRepository trackRepository) {
+    public UserService(UserRepository userRepository, TrackRepository trackRepository,  PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.trackRepository = trackRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional // Ensures the entire operation is a single transaction
@@ -51,6 +58,68 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
     }
 
     @Transactional(readOnly = true)
+    public UserProfileDTO getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        // Obtener solo los nombres de los tracks favoritos
+        List<String> favoriteTrackNames = user.getFavoriteTracks()
+                .stream()
+                .map(Track::getName)
+                .collect(Collectors.toList());
+
+        // Determinar rol
+        String role = (user.getUserType() != null) ? user.getUserType() : "USER";
+
+        // Crear y retornar el DTO
+        return new UserProfileDTO(
+                user.getName(),
+                user.getEmail(),
+                role,
+                user.getTotalSessions(),
+                user.getVictories(),
+                user.getTracksVisited(),
+                favoriteTrackNames
+        );
+    }
+
+    @Transactional
+    public void changeUserPassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserProfile(Long userId, String newName, String newEmail) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (newName != null && !newName.trim().isEmpty()) {
+            user.setName(newName.trim());
+        }
+        if (newEmail != null && !newEmail.trim().isEmpty()) {
+            user.setEmail(newEmail.trim());
+        }
+
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        userRepository.delete(user);
+    }
+
+}
     public List<UserResponseDTO> searchUsersByNameOrEmail(String query) {
         return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query).stream()
                 .map(this::mapUserToUserResponseDTO) // Assumindo que você tem um método de mapeamento
