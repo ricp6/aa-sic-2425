@@ -11,7 +11,7 @@ import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users") // A logical base path for user-related operations
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -24,10 +24,6 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<String> addFavoriteTrack(@AuthenticationPrincipal User authenticatedUser, @PathVariable Long trackId) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-            }
-
             userService.addFavoriteTrack(authenticatedUser.getId(), trackId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -42,10 +38,6 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<String> removeFavoriteTrack(@AuthenticationPrincipal User authenticatedUser, @PathVariable Long trackId) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-            }
-
             userService.removeFavoriteTrack(authenticatedUser.getId(), trackId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {

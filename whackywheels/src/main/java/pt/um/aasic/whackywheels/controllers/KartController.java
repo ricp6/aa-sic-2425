@@ -8,7 +8,6 @@ import pt.um.aasic.whackywheels.dtos.KartResponseDTO;
 import pt.um.aasic.whackywheels.services.KartService;
 import pt.um.aasic.whackywheels.dtos.AvailableKartsRequestDTO;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.validation.Valid;
 
@@ -21,6 +20,7 @@ public class KartController {
     public KartController(KartService kartService) {
         this.kartService = kartService;
     }
+
     @GetMapping("/available")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<?> getAvailableKarts(@Valid @ModelAttribute AvailableKartsRequestDTO requestDTO) {

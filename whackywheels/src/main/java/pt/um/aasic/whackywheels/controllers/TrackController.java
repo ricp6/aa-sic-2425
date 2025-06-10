@@ -5,7 +5,6 @@ import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.TrackService;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -32,6 +30,7 @@ public class TrackController {
         try {
             Long ownerId = authenticatedUser.getId();
             Track newTrack = trackService.createTrack(request, ownerId);
+
             return new ResponseEntity<>(newTrack, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -56,9 +55,6 @@ public class TrackController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<List<TrackRecordResponseDTO>> getAllTracksRecords(@AuthenticationPrincipal User authenticatedUser) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
             Long userId = authenticatedUser.getId();
 
             List<TrackRecordResponseDTO> records = trackService.findAllTracksRecords(userId);
@@ -77,7 +73,7 @@ public class TrackController {
                 return new ResponseEntity<>("Track not found.",HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(track, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        }catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }catch (Exception e) {
             e.printStackTrace();

@@ -16,7 +16,7 @@ import java.util.List;
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
-    @Query("SELECT p FROM Participant p JOIN p.reservation r JOIN r.sessions s " + // <-- CORREÇÃO AQUI: JOIN r.sessions s (o plural)
+    @Query("SELECT p FROM Participant p JOIN p.reservation r JOIN r.sessions s " +
             "WHERE r.track.id = :trackId " +
             "AND r.date BETWEEN :startOfDay AND :endOfDay " +
             "AND (" +

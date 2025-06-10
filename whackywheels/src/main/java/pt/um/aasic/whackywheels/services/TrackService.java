@@ -28,6 +28,7 @@ public class TrackService {
         this.kartRepository = kartRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<TrackResponseDTO> findAllTracks() {
         return trackRepository.findAll().stream()
                 .map(track -> new TrackResponseDTO(

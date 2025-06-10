@@ -131,26 +131,4 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error refreshing token: " + e.getMessage());
         }
     }
-
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
-        try {
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header is missing or malformed.");
-            }
-
-            String token = authHeader.substring(7);
-            String email = jwtService.extractUsername(token);
-
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            if (userDetails == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-            }
-
-            return ResponseEntity.ok(userDetails);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user: " + e.getMessage());
-        }
-    }
 }

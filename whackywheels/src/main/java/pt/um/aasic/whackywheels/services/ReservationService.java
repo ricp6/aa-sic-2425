@@ -48,7 +48,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponseDTO  createReservation(ReservationCreateRequestDTO request, Long currentUserId) {
+    public ReservationResponseDTO createReservation(ReservationCreateRequestDTO request, Long currentUserId) {
 
         Track track = trackRepository.findById(request.getTrackId())
                 .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + request.getTrackId()));
@@ -86,9 +86,20 @@ public class ReservationService {
             if (sessionStartTime.isAfter(sessionEndTime) || sessionStartTime.isEqual(sessionEndTime)) {
                 throw new IllegalArgumentException("Session start time must be before end time.");
             }
-            // c) TODO: se quisermos adicionar lógica para garantir que o slot não está ocupado ( apesar de já estar filtrado no frontend)
-            
-
+            // c)garantir que o slot não está ocupado ( apesar de já estar filtrado no frontend)
+            List<Session> existingOccupiedSessions = sessionRepository.findOccupiedSessionsForTrackAndDate(
+                    track.getId(),
+                    reservationDate.atStartOfDay(),
+                    reservationDate.atTime(23, 59, 59),
+                    ReservationStatus.PENDING,
+                    ReservationStatus.ACCEPTED
+            );
+            for (Session existingSession : existingOccupiedSessions) {
+                if (sessionStartTime.toLocalTime().isBefore(existingSession.getEndTime()) &&
+                        sessionEndTime.toLocalTime().isAfter(existingSession.getStartTime())) {
+                throw new IllegalArgumentException("Session times overlap with an existing reservation.");
+                }
+            }
 
             Session session = new Session(sessionStartTime.toLocalTime(), sessionEndTime.toLocalTime(), reservation);
             sessions.add(session);
@@ -108,7 +119,10 @@ public class ReservationService {
                 if (!kart.getTrack().equals(track)) {
                     throw new IllegalArgumentException("Kart with ID " + kart.getId() + " does not belong to this track.");
                 }
-                // TODO: Adicionar ou não verificação para ver se o kart está disponível, isto se já estiver filtrado no frontend n é preciso
+                //ver se o kart está disponível
+                if (!kart.getIsAvailable()) {
+                    throw new IllegalArgumentException("Kart with ID " + kart.getId() + " is not available.");
+                }
 
             }
 
@@ -181,6 +195,7 @@ public class ReservationService {
         );
     }
 
+    @Transactional(readOnly = true)
     public List<ReservationResponseDTO> getReservationsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
@@ -220,7 +235,8 @@ public class ReservationService {
     public ReservationResponseDTO getReservationById(Long reservationId, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
-        // Verifica se o usuário atual é um participante da reserva
+        
+        // Verifica se o utilizador atual é um participante da reserva
         boolean isParticipant = reservation.getParticipants().stream()
                 .anyMatch(participant -> participant.getUser().getId().equals(userId));
         if (!isParticipant) {
@@ -252,10 +268,12 @@ public class ReservationService {
     @Transactional
     public void cancelReservation(Long reservationId, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
+        
         if (!reservation.getCreatedByUserId().equals(userId)) {
                 throw new IllegalArgumentException("Only the user who created the reservation can cancel it.");
         }
-        if (reservation.getStatus() == ReservationStatus.CONCLUDED || reservation.getStatus() == ReservationStatus.CANCELLED) {
+
+        if (reservation.getStatus() != ReservationStatus.PENDING && reservation.getStatus() != ReservationStatus.ACCEPTED) {
                 throw new IllegalArgumentException("Reservation cannot be cancelled as it is already concluded or cancelled.");
         }
         reservation.setStatus(ReservationStatus.CANCELLED);
@@ -273,29 +291,29 @@ public class ReservationService {
         }
     }
 
-        @Transactional
-        public ReservationResponseDTO updateReservation(Long reservationId, ReservationCreateRequestDTO request, Long userId) {
+    @Transactional
+    public ReservationResponseDTO updateReservation(Long reservationId, ReservationCreateRequestDTO request, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
 
-        // Verifica se o utilizador atual é o criador da reserva
         if (!reservation.getCreatedByUserId().equals(userId)) {
                 throw new IllegalArgumentException("Only the user who created the reservation can update it.");
         }
 
-        if (reservation.getStatus() == ReservationStatus.CONCLUDED || reservation.getStatus() == ReservationStatus.CANCELLED) {
-                throw new IllegalArgumentException("Reservation cannot be updated as it is already concluded or cancelled.");
+        if (reservation.getStatus() != ReservationStatus.PENDING) {
+                throw new IllegalArgumentException("Reservation cannot be updated as it is already "+ reservation.getStatus() +".");
         }
 
-        Track track = trackRepository.findById(request.getTrackId())
-                .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + request.getTrackId()));
+        Track track = trackRepository.findById(request.getTrackId()).orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + request.getTrackId()));
+
         if (!track.getIsAvailable()) {
                 throw new IllegalArgumentException("Track is not available.");
-                }
+        }
 
         DayOfWeek reservationDayOfWeek = request.getReservationDateTime().getDayOfWeek();
         DaySchedule trackSchedule = dayScheduleRepository.findByTrackAndDay(track, reservationDayOfWeek)
                 .orElseThrow(() -> new IllegalArgumentException("Track is not open on " + reservationDayOfWeek.name() + "."));
+
         reservation.setTrack(track);
         reservation.setDate(request.getReservationDateTime());
 
@@ -308,17 +326,34 @@ public class ReservationService {
                 // a) Horário da sessão dentro do horário de funcionamento da pista para o dia
                 if (sessionStartTime.toLocalTime().isBefore(trackSchedule.getOpeningTime()) ||
                         sessionEndTime.toLocalTime().isAfter(trackSchedule.getClosingTime())) {
-                throw new IllegalArgumentException("Session times are outside track's operating hours for " + reservationDayOfWeek.name() + ".");
+                        throw new IllegalArgumentException("Session times are outside track's operating hours for " + reservationDayOfWeek.name() + ".");
                 }
                 // b) Hora de início antes da hora de fim
                 if (sessionStartTime.isAfter(sessionEndTime) || sessionStartTime.isEqual(sessionEndTime)) {
-                throw new IllegalArgumentException("Session start time must be before end time.");
+                        throw new IllegalArgumentException("Session start time must be before end time.");
+                }
+
+                // c) Garantir que o slot não está ocupado
+                List<Session> existingOccupiedSessions = sessionRepository.findOccupiedSessionsForTrackAndDate(
+                        track.getId(),
+                        request.getReservationDateTime().toLocalDate().atStartOfDay(),
+                        request.getReservationDateTime().toLocalDate().atTime(23, 59, 59),
+                        ReservationStatus.PENDING,
+                        ReservationStatus.ACCEPTED
+                );
+                for (Session existingSession : existingOccupiedSessions) {
+                        if (sessionStartTime.toLocalTime().isBefore(existingSession.getEndTime()) &&
+                                sessionEndTime.toLocalTime().isAfter(existingSession.getStartTime())) {
+                                throw new IllegalArgumentException("Session times overlap with an existing reservation.");
+                        }
                 }
 
                 Session session = new Session(sessionStartTime.toLocalTime(), sessionEndTime.toLocalTime(), reservation);
                 sessions.add(session);
         }
+
         reservation.setSessions(sessions);
+
         Set<Participant> participants = new HashSet<>();
         for (ParticipantCreateDTO participantDTO : request.getParticipants()) {
                 User user = userRepository.findById(participantDTO.getUserId())
@@ -330,10 +365,15 @@ public class ReservationService {
                         if (!kart.getTrack().equals(track)) {
                                 throw new IllegalArgumentException("Kart with ID " + kart.getId() + " does not belong to this track.");
                         }
+                        // Verifica se o kart está disponível
+                        if (!kart.getIsAvailable()) {
+                                throw new IllegalArgumentException("Kart with ID " + kart.getId() + " is not available.");
+                        }
                 }
                 Participant participant = new Participant(user, kart, reservation);
                 participants.add(participant);
         }
+
         reservation.setParticipants(participants);
         Reservation savedReservation = reservationRepository.save(reservation);
         sessionRepository.saveAll(sessions);
@@ -364,6 +404,7 @@ public class ReservationService {
                 notificationService.createNotification(participantNotificationRequest);
                 }
         }
+
         // Mapear para ReservationResponseDTO
         List<SessionResponseDTO> sessionResponses = savedReservation.getSessions().stream()
                 .map(session -> new SessionResponseDTO(session.getId(), session.getStartTime(), session.getEndTime()))
@@ -388,58 +429,62 @@ public class ReservationService {
         );
         }
 
-        @Transactional(readOnly = true)
-        public List<OccupiedSlotResponseDTO> getOccupiedSlotsForTrackAndDate(Long trackId, LocalDate date) {
-                Track track = trackRepository.findById(trackId)
-                        .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
+    @Transactional(readOnly = true)
+    public List<OccupiedSlotResponseDTO> getOccupiedSlotsForTrackAndDate(Long trackId, LocalDate date) {
+            Track track = trackRepository.findById(trackId)
+                    .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
 
-                DayOfWeek dayOfWeek = date.getDayOfWeek();
-                DaySchedule trackSchedule = dayScheduleRepository.findByTrackAndDay(track, dayOfWeek)
-                        .orElseThrow(() -> new IllegalArgumentException("Track is not open on " + dayOfWeek.name() + "."));
+            if (!track.getIsAvailable()) {
+                    throw new IllegalArgumentException("Track is not available.");
+            }
 
-                LocalTime openingTime = trackSchedule.getOpeningTime();
-                LocalTime closingTime = trackSchedule.getClosingTime();
-                int slotDurationMinutes = track.getSlotDuration();
+            DayOfWeek dayOfWeek = date.getDayOfWeek();
+            DaySchedule trackSchedule = dayScheduleRepository.findByTrackAndDay(track, dayOfWeek)
+                    .orElseThrow(() -> new IllegalArgumentException("Track is not open on " + dayOfWeek.name() + "."));
 
-                List<OccupiedSlotResponseDTO> allPossibleSlots = new ArrayList<>();
-                LocalTime currentSlotTime = openingTime;
+            LocalTime openingTime = trackSchedule.getOpeningTime();
+            LocalTime closingTime = trackSchedule.getClosingTime();
+            int slotDurationMinutes = track.getSlotDuration();
 
-                // Gerar todos os slots possíveis para o dia
-                while (currentSlotTime.isBefore(closingTime)) {
-                    LocalTime slotEndTime = currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes));
-                    if (currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes)).isAfter(closingTime) &&
-                            !currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes)).equals(closingTime)) {
+            List<OccupiedSlotResponseDTO> allPossibleSlots = new ArrayList<>();
+            LocalTime currentSlotTime = openingTime;
+
+            // Gerar todos os slots possíveis para o dia
+            while (currentSlotTime.isBefore(closingTime)) {
+                LocalTime slotEndTime = currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes));
+                if (currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes)).isAfter(closingTime) &&
+                        !currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes)).equals(closingTime)) {
+                    break;
+                }
+
+                allPossibleSlots.add(new OccupiedSlotResponseDTO(currentSlotTime, slotEndTime, true));
+                currentSlotTime = currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes));
+            }
+
+            List<Session> existingOccupiedSessions = sessionRepository.findOccupiedSessionsForTrackAndDate(
+                    track.getId(),
+                    date.atStartOfDay(),
+                    date.atTime(23, 59, 59),
+                    ReservationStatus.PENDING,
+                    ReservationStatus.ACCEPTED
+            );
+
+            List<OccupiedSlotResponseDTO> occupiedSlots = new ArrayList<>();
+
+            for (OccupiedSlotResponseDTO slot : allPossibleSlots) {
+                boolean isOccupied = false;
+                for (Session existingSession : existingOccupiedSessions) {
+                    if (slot.getStartTime().isBefore(existingSession.getEndTime()) &&
+                            slot.getEndTime().isAfter(existingSession.getStartTime())) {
+                        isOccupied = true;
                         break;
                     }
-
-                    allPossibleSlots.add(new OccupiedSlotResponseDTO(currentSlotTime, slotEndTime, true));
-                    currentSlotTime = currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes));
                 }
-
-                List<Session> existingOccupiedSessions = sessionRepository.findOccupiedSessionsForTrackAndDate(
-                        track.getId(),
-                        date.atStartOfDay(),
-                        date.atTime(23, 59, 59),
-                        ReservationStatus.PENDING,
-                        ReservationStatus.ACCEPTED
-                );
-
-                List<OccupiedSlotResponseDTO> occupiedSlots = new ArrayList<>();
-
-                for (OccupiedSlotResponseDTO slot : allPossibleSlots) {
-                    boolean isOccupied = false;
-                    for (Session existingSession : existingOccupiedSessions) {
-                        if (slot.getStartTime().isBefore(existingSession.getEndTime()) &&
-                                slot.getEndTime().isAfter(existingSession.getStartTime())) {
-                            isOccupied = true;
-                            break;
-                        }
-                    }
-                    if (isOccupied) {
-                        occupiedSlots.add(new OccupiedSlotResponseDTO(slot.getStartTime(), slot.getEndTime(), false));
-                    }
+                if (isOccupied) {
+                    occupiedSlots.add(new OccupiedSlotResponseDTO(slot.getStartTime(), slot.getEndTime(), false));
                 }
+            }
 
-                return occupiedSlots;
-        }
+            return occupiedSlots;
+    }
 }

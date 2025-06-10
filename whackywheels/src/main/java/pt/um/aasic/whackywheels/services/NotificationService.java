@@ -45,6 +45,8 @@ public class NotificationService {
                 savedNotification.getCreatedAt()
         );
     }
+
+    @Transactional(readOnly = true)
     public List<NotificationResponseDTO> getAllNotificationsForUser(Long userId) {
         List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
@@ -58,6 +60,7 @@ public class NotificationService {
                 ))
                 .collect(Collectors.toList());
     }
+
     public Long getUnreadNotificationCount(Long userId) {
         return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }

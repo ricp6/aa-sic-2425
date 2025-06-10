@@ -57,7 +57,32 @@ public class KartService {
         Track track = trackRepository.findById(trackId)
                 .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
 
+        if(!track.getIsAvailable()) {
+            throw new IllegalArgumentException("Track is not active.");
+        }
+
+        if (sessionStart == null || sessionEnd == null) {
+            throw new IllegalArgumentException("Session start and end times must be provided.");
+        }
+        if (sessionStart.isAfter(sessionEnd)) {
+            throw new IllegalArgumentException("Session start time cannot be after session end time.");
+        }
+        if (sessionStart.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Session start time cannot be in the past.");
+        }
+        if (sessionEnd.isBefore(sessionStart)) {
+            throw new IllegalArgumentException("Session end time cannot be before session start time.");
+        }
+        if (sessionStart.toLocalDate().isAfter(sessionEnd.toLocalDate())) {
+            throw new IllegalArgumentException("Session start and end times must be on the same day.");
+        }
+
         List<Kart> kartsOnTrackAndAvailable = kartRepository.findByTrackAndIsAvailable(track, true);
+
+        if (kartsOnTrackAndAvailable.isEmpty()) {
+            throw new IllegalArgumentException("No karts available for the specified track.");
+        }
+        
 
         Set<Long> occupiedKartIds = participantRepository
             .findKartsOccupiedBySessionOverlap(
