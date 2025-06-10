@@ -9,8 +9,6 @@ import pt.um.aasic.whackywheels.services.NotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +24,6 @@ public class NotificationController {
     }
 
     @PostMapping
-    //Aqui a role ainda não sei bem quem vai criar notifications
     public ResponseEntity<NotificationResponseDTO> createNotification(@Valid @RequestBody NotificationCreateRequestDTO request) {
         try {
             NotificationResponseDTO newNotification = notificationService.createNotification(request);
@@ -42,9 +39,6 @@ public class NotificationController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<List<NotificationResponseDTO>> getAllNotificationsForUser(@AuthenticationPrincipal User authenticatedUser) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
             Long userId = authenticatedUser.getId();
 
             List<NotificationResponseDTO> notifications = notificationService.getAllNotificationsForUser(userId);
@@ -59,14 +53,11 @@ public class NotificationController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<NotificationResponseDTO> markNotificationAsRead(@PathVariable Long id,@AuthenticationPrincipal User authenticatedUser) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
             Long userId = authenticatedUser.getId();
             NotificationResponseDTO updatedNotification = notificationService.markNotificationAsRead(id, userId);
             return ResponseEntity.ok(updatedNotification);
-        } catch (SecurityException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -79,18 +70,15 @@ public class NotificationController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id, @AuthenticationPrincipal User authenticatedUser) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
             Long userId = authenticatedUser.getId();
 
             boolean deleted = notificationService.deleteNotification(id, userId);
             if (deleted) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (SecurityException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -101,9 +89,6 @@ public class NotificationController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<Void> deleteReadNotifications(@AuthenticationPrincipal User authenticatedUser) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
             Long userId = authenticatedUser.getId();
 
             notificationService.deleteReadNotifications(userId);
@@ -116,11 +101,8 @@ public class NotificationController {
 
     @PutMapping("/mark-all-read")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
-    public ResponseEntity<Void> markAllNotificationsAsRead(@AuthenticationPrincipal User authenticatedUser) { // <<-- NOVO PARAMETRO
+    public ResponseEntity<Void> markAllNotificationsAsRead(@AuthenticationPrincipal User authenticatedUser) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
             Long userId = authenticatedUser.getId();
 
             notificationService.markAllNotificationsAsRead(userId);

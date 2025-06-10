@@ -20,6 +20,9 @@ public class Reservation {
     @Enumerated(EnumType.ORDINAL) // maps the enum value to an int, saves space on the table
     private ReservationStatus status;
 
+    @Column(nullable = false)
+    private Long createdByUserId;
+
     @OneToMany(mappedBy = "reservation")
     private Set<Session> sessions;
 
@@ -78,5 +81,13 @@ public class Reservation {
 
     public void setTrack(Track track) {
         this.track = track;
+    }
+
+    public Long getCreatedByUserId() {
+        return createdByUserId;
+    }
+
+    public void setCreatedByUserId(Long createdByUserId) {
+        this.createdByUserId = createdByUserId;
     }
 }

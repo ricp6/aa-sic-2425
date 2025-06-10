@@ -15,11 +15,13 @@ import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.security.JwtService;
 import pt.um.aasic.whackywheels.services.UserService;
+import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
+import java.util.List;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/users") // A logical base path for user-related operations
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -36,10 +38,6 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<String> addFavoriteTrack(@AuthenticationPrincipal User authenticatedUser, @PathVariable Long trackId) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-            }
-
             userService.addFavoriteTrack(authenticatedUser.getId(), trackId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -54,10 +52,6 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<String> removeFavoriteTrack(@AuthenticationPrincipal User authenticatedUser, @PathVariable Long trackId) {
         try {
-            if (authenticatedUser == null) {
-                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-            }
-
             userService.removeFavoriteTrack(authenticatedUser.getId(), trackId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -67,6 +61,7 @@ public class UserController {
             return new ResponseEntity<>("Error removing track from favorites.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+  
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal User authenticatedUser) {
@@ -133,8 +128,15 @@ public class UserController {
         }
     }
 
-
-
-
-
+    @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
+    public ResponseEntity<List<UserResponseDTO>> searchUsers(@RequestParam(required = false) String query) {
+        List<UserResponseDTO> users;
+        if (query != null && !query.trim().isEmpty()) {
+            users = userService.searchUsersByNameOrEmail(query);
+        } else {
+            users = userService.getAllUsers();
+        }
+        return ResponseEntity.ok(users);
+    }
 }

@@ -11,7 +11,7 @@ export interface Reservation {
   trackName: string;
   numberOfParticipants: number;
   date: string;
-  time: string;
+  numberOfSlots: string;
   status: ReservationStatus;
   trackImage: string;
 }

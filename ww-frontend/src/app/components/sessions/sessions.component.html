@@ -1,1 +1,65 @@
-<p>sessions works!</p>
+<div id="sessions-content">
+  <div id="banner-image"></div>
+  <section id="sessions-container">
+
+    <section id="sessions-header">
+      <h1 id="title">Sessions</h1>
+    </section>
+
+    <div class="sessions-list">
+      <mat-card class="session-card" *ngFor="let session of sessions">
+        <div class="track-image">
+          <img mat-card-image [src]="session.trackImage" alt="Track Icon">
+        </div>
+
+        <mat-card-content class="session-info">
+          <div class="session-details">
+            <span class="track-name">{{ session.trackName }}</span>
+            <span class="session-row">
+              <mat-icon class="session-row-icon">group</mat-icon>
+              {{ session.numberOfParticipants }} participants
+            </span>
+          </div>
+
+          <div class="session-datetime">
+            <span class="session-row">
+              <mat-icon class="session-row-icon">calendar_today</mat-icon>
+              <span>{{ session.date }}</span>
+            </span>
+            <span class="session-row">
+              <mat-icon class="session-row-icon">schedule</mat-icon>
+              <span>{{ session.time }}</span>
+            </span>
+          </div>
+
+          <div class="session-result">
+            <div class="session-best-time">
+              My best:
+              <span class="best-time-value">{{ session.bestTimeUser }}</span>
+            </div>
+            <div class="session-position">
+              <ng-container *ngIf="session.position >= 1 && session.position <= 3; else showPositionNumber">
+                <div class="position-badge" [ngClass]="{
+                  'gold-badge': session.position === 1,
+                  'silver-badge': session.position === 2,
+                  'bronze-badge': session.position === 3
+                }">
+                  <mat-icon class="star-icon-filled">star</mat-icon> 
+                  <span class="position-number-overlay">{{ session.position }}</span>
+                </div>
+              </ng-container>
+              <ng-template #showPositionNumber>
+                <span class="position-number">{{ session.position }}</span>
+              </ng-template>
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <div *ngIf="sessions.length === 0" class="no-sessions">
+        No sessions recorded.
+      </div>
+    </div>
+  </section>
+</div>

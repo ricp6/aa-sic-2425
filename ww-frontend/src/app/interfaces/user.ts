@@ -5,5 +5,10 @@ export interface User {
     userType: 'USER' | 'OWNER', // should match the discriminator column
     unreadNotificationCount: number,
     favoriteTrackIds: number[],
-    token: string;
+    token: string,
+    refreshToken: string,
+}
+
+export interface TokenResponse {
+    accessToken: string;
 }

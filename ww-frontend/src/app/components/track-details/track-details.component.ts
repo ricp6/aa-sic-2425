@@ -15,7 +15,6 @@ import { UserService } from '../../services/user.service';
 export class TrackDetailsComponent implements OnInit {
 
   track!: TrackDetails;
-  activeTab: 'about' | 'rankings' = 'about';
 
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
@@ -54,10 +53,6 @@ export class TrackDetailsComponent implements OnInit {
         this.router.navigate(['/tracks']);
       }
     });
-  }
-
-  setActiveTab(tab: 'about' | 'rankings'): void {
-    this.activeTab = tab;
   }
 
   goBack() {

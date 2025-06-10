@@ -3,10 +3,10 @@
 
     <section id="tracks-container">
 
-        <div id="tracks-header">
+        <section id="tracks-header">
             <h1 id="title">Tracks</h1>
 
-            <div id="tracks-controls">
+            <section id="tracks-controls">
                 <button mat-icon-button type="button" *ngIf="isLoggedIn" id="filter-favs" (click)="toggleFavs()">
                     <mat-icon>{{ onlyFavs ? 'star' : 'star_border' }}</mat-icon>
                 </button>
@@ -20,32 +20,35 @@
                     <mat-icon matPrefix>search</mat-icon>
                     <input matInput placeholder="Search track..." [(ngModel)]="searchTerm" />
                 </mat-form-field>
-            </div>
-        </div>
+            </section>
+        </section>
 
-        <div id="track-list-container">
-            <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)">
-                <img mat-card-image [src]="track.image" [alt]="track.name" class="track-image" />
+        <div id="track-list-container" [class]="isLoggedIn ? 'complete' : 'simple'">
+            <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)"
+            [class]="isLoggedIn ? 'complete' : 'simple'">
+                <div class="track-image">
+                    <img mat-card-image [src]="track.image" [alt]="track.name" />
+                </div>
 
                 <mat-card-content class="track-info">
                     <div class="track-details">
-                        <div class="track-name">{{ track.name }}</div>
-                        <div class="track-location">{{ track.address }}</div>
+                        <span class="track-name">{{ track.name }}</span>
+                        <span class="track-location">{{ track.address }}</span>
                     </div>
 
                     <div class="track-stats" *ngIf="track.personalRecord">
-                        <div class="track-record">
+                        <span class="track-record">
                             Personal Record:
                             <span class="record-value">{{ track.personalRecord }}</span>
-                        </div>
-                        <div class="track-record" *ngIf="track.personalRecord">
+                        </span>
+                        <span class="track-record" *ngIf="track.personalRecord">
                             Track Record:
                             <span class="record-value">{{ track.trackRecord }}</span>
-                        </div>
+                        </span>
                     </div>
 
-                    <div class="star-button-container">
-                        <button mat-icon-button type="button" *ngIf="isLoggedIn" class="star-button"
+                    <div class="star-button-container" *ngIf="isLoggedIn">
+                        <button mat-icon-button type="button" class="star-button"
                             (click)="setFav(track); $event.stopPropagation()">
                             <mat-icon class="star-icon">
                                 {{ isFav(track) ? 'star' : 'star_border' }}

@@ -32,6 +32,7 @@ public class AuthService {
         newUser.setName(request.getName());
         newUser.setEmail(request.getEmail());
         newUser.setProfilePicture(request.getProfilePic());
+        newUser.setUserType("USER");
 
         return userRepository.save(newUser);
     }

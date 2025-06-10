@@ -1,9 +1,4 @@
-.track-detail-container {
-  font-family: Arial, sans-serif;
-  color: #000;
-}
-
-.hero-image-placeholder {
+#hero-image-placeholder {
   position: relative;
   width: 100%;
   height: 300px;
@@ -11,161 +6,127 @@
   background-color: #f0f0f0;
 }
 
-.hero-image {
+#hero-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   filter: brightness(0.8);
 }
 
-.back-button {
+#back-button {
   position: absolute;
   top: 20px;
-  left: 20px;
-  background-color: rgba(0, 0, 0, 0.6);
+  left: 30px;
+  background-color: rgba(0, 0, 0, 0.8);
   color: white;
-  border: none;
-  padding: 10px 15px;
   border-radius: 5px;
-  cursor: pointer;
   font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
-.content-wrapper {
+#content-wrapper {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
 }
 
-.header-section {
+#header-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.header-section h1 {
+#track-name {
   font-size: 2.5em;
   margin: 0;
-  color: #000;
   font-weight: bold;
 }
 
-.actions{
+#actions {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
-.actions button {
-  padding: 10px 20px;
-  border: none;
+#actions button {
   border-radius: 5px;
-  cursor: pointer;
   font-size: 1em;
-  margin-left: 10px;
   background-color: #000;
   color: white;
 }
 
 #set-fav {
-  color: #FFD700;
-  padding: inherit;
+  color: #FFD700 !important;
 }
 
-.view-sessions-button {
-  background-color: #f0f0f0;
-  color: #555;
-  border: 1px solid #ccc;
-}
-
-.book-button {
-  background-color: #8a2be2;
-  color: white;
-}
-
-.sub-navigation {
-  border-bottom: 1px solid #eee;
-  margin-bottom: 30px;
-  display: flex;
-}
-
-.sub-navigation a {
-  text-decoration: none;
-  color: #000;
-  padding: 10px 0;
-  margin-right: 20px;
-  font-weight: bold;
-}
-
-.sub-navigation a.active {
-  color: #8a2be2;
-  border-bottom: 2px solid #8a2be2;
-}
-
-.information-section {
+#information-section {
+  padding-top: 30px;
   display: flex;
   gap: 40px;
   flex-wrap: wrap;
 }
 
-.details-card {
-  flex: 2;
+#details-card {
+  flex: 1;
   min-width: 300px;
-  background-color: #fff;
-  border-radius: 8px;
   padding: 25px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.details-card h2 {
-  font-size: 1.8em;
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #000;
-  font-weight: bold;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .info-row {
   display: flex;
-  margin-bottom: 15px;
   align-items: flex-start;
 }
 
 .info-row .label {
   font-weight: bold;
   flex: 1;
-  color: #000;
-  white-space: nowrap;
 }
 
-.info-row .value,
-.schedule-details,
-.price-details,
-.contact-details {
+.info-row .value {
   flex: 2;
   text-align: left;
 }
 
-.schedule-details p,
-.price-details p,
-.contact-details p {
+#schedule-details p,
+#price-details p,
+#contact-details p {
   margin: 0;
-  line-height: 1.5;
 }
 
-.schedule-details span,
-.price-details span {
-  font-weight: normal;
-  color: #333;
+.schedule-day {
+  display: flex;
 }
 
-.contact-details i {
+.schedule-day span {
+  width: 120px;
+}
+
+#price-details p {
+  display: flex;
+}
+
+#price-details p span {
+  width: 80px;
+}
+
+#contact-details p {
+  display: flex;
+  align-items: center;
+}
+
+#contact-details p:not(:last-child) {
+  margin-bottom: 5px !important;
+}
+
+#contact-details mat-icon {
   margin-right: 8px;
-  color: #8a2be2;
 }
+
 
 .image-gallery {
   flex: 1;
@@ -227,11 +188,6 @@
     height: auto;
   }
 
-}
-
-.sub-navigation a.active {
-  color: #000;
-  border-bottom: 2px solid #000;
 }
 
 
