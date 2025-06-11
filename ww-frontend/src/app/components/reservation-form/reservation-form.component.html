@@ -1,0 +1,152 @@
+<button mat-raised-button id="back-button" (click)="goBack()">
+	<mat-icon>arrow_back</mat-icon>
+	Back
+</button>
+<mat-card class="reservation-form-card">
+	<mat-card-header>
+		<mat-card-title>Create New Reservation</mat-card-title>
+	</mat-card-header>
+
+	<mat-card-content>
+		<mat-stepper orientation="vertical" linear #stepper>
+			
+			<mat-step [stepControl]="trackSelectionFormGroup" label="Select Track">
+				<form [formGroup]="trackSelectionFormGroup">
+					<mat-form-field appearance="fill">
+						<mat-label>Search Track</mat-label>
+					
+						<input type="text" placeholder="Enter track name or location" aria-label="Search Track" matInput
+							formControlName="selectedTrack" [matAutocomplete]="auto">
+					
+						<mat-autocomplete #auto="matAutocomplete" [displayWith]="displayTrackFn">
+							<mat-option *ngFor="let track of filteredTracks | async" [value]="track">
+								{{ track.name }} ({{ track.address }})
+							</mat-option>
+						</mat-autocomplete>
+
+						<mat-error
+							*ngIf="trackSelectionFormGroup.get('selectedTrack')?.hasError('required') && trackSelectionFormGroup.get('selectedTrack')?.touched">
+							Track is required.
+						</mat-error>
+						<mat-error *ngIf="trackSelectionFormGroup.get('selectedTrack')?.touched && !trackSelectionFormGroup.get('selectedTrack')?.value">
+							Please select a track from the list.
+						</mat-error>
+					</mat-form-field>
+					
+					<div>
+						<button mat-button matStepperNext [disabled]="trackSelectionFormGroup.invalid">Next</button>
+					</div>
+				</form>
+			</mat-step>
+
+			<mat-step [stepControl]="dateTimeSelectionFormGroup" label="Select Date & Time">
+				<form [formGroup]="dateTimeSelectionFormGroup">
+					<mat-form-field appearance="fill">
+						<mat-label>Choose a date</mat-label>
+						
+						<input matInput [matDatepicker]="picker" formControlName="selectedDate"
+							(dateChange)="onDateSelected()">
+						
+						<mat-hint>MM/DD/YYYY</mat-hint>
+						<mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+						<mat-datepicker #picker></mat-datepicker>
+						
+						<mat-error *ngIf="dateTimeSelectionFormGroup.get('selectedDate')?.hasError('required')">
+							Date is required.
+						</mat-error>
+					</mat-form-field>
+
+					<ng-container *ngIf="dateTimeSelectionFormGroup.get('selectedDate')?.valid">
+						<mat-label>Available Slots (20 min sessions)</mat-label>
+						
+						<div class="slots-container">
+							<button mat-stroked-button *ngFor="let slot of slots" [disabled]="!slot.isAvailable" [ngClass]="{
+                  'selected-slot': dateTimeSelectionFormGroup.get('selectedSlot')?.value === slot.startTime,
+                  'occupied-slot': !slot.isAvailable
+                }"
+								(click)="dateTimeSelectionFormGroup.get('selectedSlot')?.setValue(slot.startTime); onSlotSelected(slot)">
+						
+								{{ slot.startTime }} - {{ slot.endTime }}
+						
+								<span *ngIf="!slot.isAvailable" class="occupied-text">(Occupied)</span>
+							</button>
+						</div>
+						
+						<mat-error
+							*ngIf="dateTimeSelectionFormGroup.get('selectedSlot')?.hasError('required') && dateTimeSelectionFormGroup.get('selectedSlot')?.touched">
+							Time slot is required.
+						</mat-error>
+					</ng-container>
+
+					<div class="stepper-actions">
+						<button mat-button matStepperPrevious>Back</button>
+						<button mat-button matStepperNext [disabled]="dateTimeSelectionFormGroup.invalid">Next</button>
+					</div>
+				</form>
+			</mat-step>
+
+			<!-- <mat-step [stepControl]="participantsKartsFormGroup" label="Participants & Karts">
+				<form [formGroup]="participantsKartsFormGroup">
+					
+					<div formArrayName="participants">
+						<mat-expansion-panel *ngFor="let participantGroup of participants.controls; let i = index"
+							[formGroupName]="i" class="participant-panel">
+							
+							<mat-expansion-panel-header>
+								<mat-panel-title>
+									Participant {{ i + 1 }}
+									<span *ngIf="participantGroup.get('userName')?.value"> - {{ participantGroup.get('userName')?.value }}</span>
+									<span *ngIf="participantGroup.get('isCurrentUser')?.value" class="current-user-tag">(You)</span>
+								</mat-panel-title>
+								
+								<mat-panel-description>
+									{{ participantGroup.get('kartNumber')?.value || 'Select Kart' }}
+								</mat-panel-description>
+							</mat-expansion-panel-header>
+
+							<div class="participant-fields">
+								<mat-form-field appearance="fill">
+									<mat-label>Email</mat-label>
+									<input matInput formControlName="userEmail" type="email" placeholder="Participant email">
+									
+									<mat-error *ngIf="participantGroup.get('userEmail')?.hasError('required')">Email is
+										required.</mat-error>
+									<mat-error *ngIf="participantGroup.get('userEmail')?.hasError('email')">Invalid email
+										format.</mat-error>
+								</mat-form-field>
+
+								<mat-form-field appearance="fill">
+									<mat-label>Kart Number</mat-label>
+									<mat-select formControlName="kartNumber">
+										<mat-option *ngFor="let kart of mockKarts" [value]="kart">{{ kart }}</mat-option>
+									</mat-select>
+									
+									<mat-error *ngIf="participantGroup.get('kartNumber')?.hasError('required')">Kart is
+										required.</mat-error>
+								</mat-form-field>
+
+								<button mat-icon-button color="warn" *ngIf="!participantGroup.get('isCurrentUser')?.value"
+									(click)="removeParticipant(i)" aria-label="Remove participant">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+						</mat-expansion-panel>
+					</div>
+
+					<button mat-flat-button color="primary" (click)="addParticipant()" [disabled]="participants.length >= 10">
+						<mat-icon>person_add</mat-icon> Add Participant
+					</button>
+
+					<div class="stepper-actions">
+						<button mat-button matStepperPrevious>Back</button>
+						<button mat-flat-button color="accent" (click)="submitReservation()"
+							[disabled]="participantsKartsFormGroup.invalid">
+							Confirm Reservation
+						</button>
+					</div>
+
+				</form>
+			</mat-step> -->
+		</mat-stepper>
+	</mat-card-content>
+</mat-card>

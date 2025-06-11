@@ -6,6 +6,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Reservation, ReservationStatus } from '../interfaces/reservation';
 import { TrackService} from "./track.service";
 import { SimpleTrack } from '../interfaces/track';
+import { Slot } from '../interfaces/slot';
 
 
 interface RawReservation {
@@ -75,6 +76,23 @@ export class ReservationService {
                 trackImage: trackImage
             };
         });
+    }
+
+    getSlots(trackId: number, date: string): Observable<Slot[]> {
+        return this.http.get<Slot[]>(`${this.reservationsURL}/slots/${trackId}/${date}`).pipe(
+        catchError((error: HttpErrorResponse) => {
+            console.log("erro obter slots")
+            console.error(error)
+            if (error.status === 401) {
+                this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+            } else if (error.status === 403) {
+                this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+            } else {
+                this.toastr.error('An error occurred while loading the slots for this day', 'Server error');
+            }
+            return throwError(() => error);
+        })
+        );
     }
 
     private handleError(error: HttpErrorResponse): Observable<never> {

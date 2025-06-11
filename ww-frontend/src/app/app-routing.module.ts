@@ -12,16 +12,9 @@ import { AuthWrapperComponent } from './components/auth-wrapper/auth-wrapper.com
 import { RegisterComponent } from './components/register/register.component';
 import {TrackDetailsComponent} from "./components/track-details/track-details.component";
 import {SessionDetailsComponent} from "./components/session-details/session-details.component";
+import { ReservationFormComponent } from './components/reservation-form/reservation-form.component';
 
 const routes: Routes = [
-  { path: 'home', component: HomeComponent },
-  { path: 'tracks', component: TracksComponent },
-  { path: 'tracks/:id', component: TrackDetailsComponent },
-  { path: 'sessionsDetails/:id', component: SessionDetailsComponent },
-  { path: 'reservations', component: ReservationsComponent },
-  { path: 'sessions', component: SessionsComponent },
-  { path: 'notifications', component: NotificationsComponent },
-  { path: 'profile', component: ProfileComponent },
   {
     path: 'auth',
     component: AuthWrapperComponent,
@@ -31,15 +24,27 @@ const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' }
     ]
   },
-  {
-    path: 'enterprise',
-    children: [
-      { path: 'home', component: EnterpriseHomeComponent },
-      { path: 'tracks', component: EnterpriseHomeComponent },
-      { path: 'reservations', component: EnterpriseHomeComponent },
-      { path: '', redirectTo: 'home', pathMatch: 'full' }
-    ]
-  },
+  
+  { path: 'home', component: HomeComponent },
+  { path: 'notifications', component: NotificationsComponent },
+  { path: 'profile', component: ProfileComponent },
+  
+  { path: 'tracks', component: TracksComponent },
+  { path: 'tracks/:id', component: TrackDetailsComponent },
+  
+  { path: 'reservations', component: ReservationsComponent },
+  //{ path: 'reservations/:id', component: ReservationDetailsComponent },
+  { path: 'reservations/form', component: ReservationFormComponent },
+  { path: 'reservations/form/:id', component: ReservationFormComponent },
+  
+  { path: 'sessions', component: SessionsComponent },
+  { path: 'sessions/:id', component: SessionDetailsComponent },
+  
+  { path: 'enterprise', component: EnterpriseHomeComponent },
+  { path: 'enterprise/home', component: EnterpriseHomeComponent },
+  { path: 'enterprise/tracks', component: EnterpriseHomeComponent },
+  { path: 'enterprise/reservations', component: EnterpriseHomeComponent },
+  
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/home' },
 ];

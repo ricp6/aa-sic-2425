@@ -15,6 +15,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatStepperModule } from '@angular/material/stepper';
 
 import { AppRoutingModule } from './app-routing.module';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -32,9 +36,10 @@ import { AuthWrapperComponent } from './components/auth-wrapper/auth-wrapper.com
 import { RegisterComponent } from './components/register/register.component';
 import { TrackDetailsComponent } from './components/track-details/track-details.component';
 import { SessionDetailsComponent } from './components/session-details/session-details.component';
-
+import { ReservationFormComponent } from './components/reservation-form/reservation-form.component';
 
 import { ToastrModule } from 'ngx-toastr';
+
 
 @NgModule({
   declarations: [
@@ -50,7 +55,8 @@ import { ToastrModule } from 'ngx-toastr';
     AuthWrapperComponent,
     RegisterComponent,
     TrackDetailsComponent,
-    SessionDetailsComponent
+    SessionDetailsComponent,
+    ReservationFormComponent
   ],
   imports: [
     BrowserModule,
@@ -68,6 +74,9 @@ import { ToastrModule } from 'ngx-toastr';
     MatTableModule,
     MatCardModule,
     FormsModule,
+    MatDatepickerModule,
+    MatStepperModule,
+    MatAutocompleteModule,
     ToastrModule.forRoot({
       timeOut: 5000,
       extendedTimeOut: 2000, //Time to close after a user hovers over toast
@@ -83,7 +92,8 @@ import { ToastrModule } from 'ngx-toastr';
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,
       multi: true // multi: true means that HTTP_INTERCEPTORS is an array of providers
-    }
+    },
+    provideNativeDateAdapter()
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
