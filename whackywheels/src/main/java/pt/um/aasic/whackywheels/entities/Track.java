@@ -1,5 +1,6 @@
 package pt.um.aasic.whackywheels.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
@@ -53,6 +54,7 @@ public class Track {
     @OneToMany(mappedBy = "track")
     private Set<Kart> karts;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "favoriteTracks")
     private Set<User> favoritedByUsers;
 

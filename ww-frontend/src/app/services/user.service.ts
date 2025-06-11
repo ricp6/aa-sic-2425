@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
-
+import { UserProfile } from '../interfaces/user-profile';
 @Injectable({
   providedIn: 'root'
 })
@@ -63,7 +63,7 @@ export class UserService {
         if (user) {
           // Filter out the trackId to remove it from the array
           user.favoriteTrackIds = user.favoriteTrackIds.filter(id => id !== trackId);
-          this.authService.updateUser(user); 
+          this.authService.updateUser(user);
         }
         this.toastr.success("Track removed from your favorites.");
       }),
@@ -96,4 +96,30 @@ export class UserService {
     const user = this.authService.getCurrentUser();
     return user ? user.favoriteTrackIds.includes(trackId) : false;
   }
+
+  getUserProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.userURL}/me`).pipe( //Cambio el profile x el me
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error loading user profile:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.post('http://localhost:8080/api/users/change-password', {
+      currentPassword,
+      newPassword
+    });
+  }
+
+  updateProfile(name: string, email: string): Observable<any> {
+    return this.http.put(`${this.userURL}/update-profile`, { name, email });
+  }
+
+  deleteAccount(): Observable<any> {
+    return this.http.delete(`${this.userURL}/delete`);
+  }
+
+
 }
