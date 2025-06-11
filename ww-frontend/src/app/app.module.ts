@@ -39,6 +39,7 @@ import { SessionDetailsComponent } from './components/session-details/session-de
 import { ReservationFormComponent } from './components/reservation-form/reservation-form.component';
 
 import { ToastrModule } from 'ngx-toastr';
+import { ReservationDetailsComponent } from './components/reservation-details/reservation-details.component';
 
 
 @NgModule({
@@ -56,7 +57,8 @@ import { ToastrModule } from 'ngx-toastr';
     RegisterComponent,
     TrackDetailsComponent,
     SessionDetailsComponent,
-    ReservationFormComponent
+    ReservationFormComponent,
+    ReservationDetailsComponent
   ],
   imports: [
     BrowserModule,
