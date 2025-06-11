@@ -2,19 +2,20 @@ package pt.um.aasic.whackywheels.controllers;
 
 import jakarta.validation.Valid;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import pt.um.aasic.whackywheels.dtos.OccupiedSlotResponseDTO;
+import pt.um.aasic.whackywheels.dtos.SlotResponseDTO;
 import pt.um.aasic.whackywheels.dtos.ReservationCreateRequestDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.ReservationService;
 import pt.um.aasic.whackywheels.dtos.ReservationResponseDTO;
-import pt.um.aasic.whackywheels.dtos.OccupiedSlotRequestDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -108,12 +109,12 @@ public class ReservationController {
         }
     }
 
-    @GetMapping("/occupied-slots")
+    @GetMapping("/slots/{trackId}/{date}")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
-    public ResponseEntity<?> getOccupiedSlots(@Valid @RequestBody OccupiedSlotRequestDTO request, @AuthenticationPrincipal User authenticatedUser) {
+    public ResponseEntity<?> getSlots(@PathVariable Long trackId, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, @AuthenticationPrincipal User authenticatedUser) {
         try {
-            List<OccupiedSlotResponseDTO> occupiedSlots = reservationService.getOccupiedSlotsForTrackAndDate(request.getTrackId(), request.getDate());
-            return ResponseEntity.ok(occupiedSlots);
+            List<SlotResponseDTO> slots = reservationService.getSlotsForTrackAndDate(trackId, date);
+            return ResponseEntity.ok(slots);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {

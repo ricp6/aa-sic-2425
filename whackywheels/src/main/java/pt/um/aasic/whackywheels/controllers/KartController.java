@@ -1,15 +1,16 @@
 package pt.um.aasic.whackywheels.controllers;
 
+import jakarta.validation.constraints.NotNull;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pt.um.aasic.whackywheels.dtos.KartResponseDTO;
 import pt.um.aasic.whackywheels.services.KartService;
-import pt.um.aasic.whackywheels.dtos.AvailableKartsRequestDTO;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/karts")
@@ -21,14 +22,16 @@ public class KartController {
         this.kartService = kartService;
     }
 
-    @GetMapping("/available")
+    @GetMapping("/available/{trackId}/{sessionStart}/{sessionEnd}")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
-    public ResponseEntity<?> getAvailableKarts(@Valid @ModelAttribute AvailableKartsRequestDTO requestDTO) {
+    public ResponseEntity<?> getAvailableKarts(@PathVariable @NotNull Long trackId,
+                                               @PathVariable @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime sessionStart,
+                                               @PathVariable @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime sessionEnd) {
         try {
             List<KartResponseDTO> availableKarts = kartService.getAvailableKartsForTrackAndSession(
-                    requestDTO.getTrackId(),
-                    requestDTO.getSessionStart(),
-                    requestDTO.getSessionEnd());
+                    trackId,
+                    sessionStart,
+                    sessionEnd);
             return ResponseEntity.ok(availableKarts);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

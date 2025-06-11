@@ -119,10 +119,9 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
         userRepository.delete(user);
     }
 
-}
     public List<UserResponseDTO> searchUsersByNameOrEmail(String query) {
         return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query).stream()
-                .map(this::mapUserToUserResponseDTO) // Assumindo que você tem um método de mapeamento
+                .map(this::mapUserToUserResponseDTO)
                 .collect(Collectors.toList());
     }
 

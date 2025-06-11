@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-public class OccupiedSlotRequestDTO {
+public class SlotRequestDTO {
     @NotNull(message = "Track ID cannot be null")
     @Positive(message = "Track ID must be a positive number")
     private Long trackId;
@@ -13,10 +13,10 @@ public class OccupiedSlotRequestDTO {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) //ex: 2025-06-09
     private LocalDate date;
 
-    public OccupiedSlotRequestDTO() {
+    public SlotRequestDTO() {
     }
 
-    public OccupiedSlotRequestDTO(Long trackId, LocalDate date) {
+    public SlotRequestDTO(Long trackId, LocalDate date) {
         this.trackId = trackId;
         this.date = date;
     }

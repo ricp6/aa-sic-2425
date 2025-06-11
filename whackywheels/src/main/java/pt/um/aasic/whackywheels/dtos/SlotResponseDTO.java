@@ -2,12 +2,12 @@ package pt.um.aasic.whackywheels.dtos;
 
 import java.time.LocalTime;
 
-public class OccupiedSlotResponseDTO {
+public class SlotResponseDTO {
     private LocalTime startTime;
     private LocalTime endTime;
     private boolean isAvailable;
 
-    public OccupiedSlotResponseDTO(LocalTime startTime, LocalTime endTime, boolean isAvailable) {
+    public SlotResponseDTO(LocalTime startTime, LocalTime endTime, boolean isAvailable) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.isAvailable = isAvailable;

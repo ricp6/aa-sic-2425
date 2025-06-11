@@ -430,7 +430,7 @@ public class ReservationService {
         }
 
     @Transactional(readOnly = true)
-    public List<OccupiedSlotResponseDTO> getOccupiedSlotsForTrackAndDate(Long trackId, LocalDate date) {
+    public List<SlotResponseDTO> getSlotsForTrackAndDate(Long trackId, LocalDate date) {
             Track track = trackRepository.findById(trackId)
                     .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
 
@@ -446,7 +446,7 @@ public class ReservationService {
             LocalTime closingTime = trackSchedule.getClosingTime();
             int slotDurationMinutes = track.getSlotDuration();
 
-            List<OccupiedSlotResponseDTO> allPossibleSlots = new ArrayList<>();
+            List<SlotResponseDTO> allPossibleSlots = new ArrayList<>();
             LocalTime currentSlotTime = openingTime;
 
             // Gerar todos os slots possíveis para o dia
@@ -457,7 +457,7 @@ public class ReservationService {
                     break;
                 }
 
-                allPossibleSlots.add(new OccupiedSlotResponseDTO(currentSlotTime, slotEndTime, true));
+                allPossibleSlots.add(new SlotResponseDTO(currentSlotTime, slotEndTime, true));
                 currentSlotTime = currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes));
             }
 
@@ -469,9 +469,9 @@ public class ReservationService {
                     ReservationStatus.ACCEPTED
             );
 
-            List<OccupiedSlotResponseDTO> occupiedSlots = new ArrayList<>();
+            List<SlotResponseDTO> occupiedSlots = new ArrayList<>();
 
-            for (OccupiedSlotResponseDTO slot : allPossibleSlots) {
+            for (SlotResponseDTO slot : allPossibleSlots) {
                 boolean isOccupied = false;
                 for (Session existingSession : existingOccupiedSessions) {
                     if (slot.getStartTime().isBefore(existingSession.getEndTime()) &&
@@ -480,11 +480,9 @@ public class ReservationService {
                         break;
                     }
                 }
-                if (isOccupied) {
-                    occupiedSlots.add(new OccupiedSlotResponseDTO(slot.getStartTime(), slot.getEndTime(), false));
-                }
+                slot.setAvailable(!isOccupied);
             }
 
-            return occupiedSlots;
+            return allPossibleSlots;
     }
 }
