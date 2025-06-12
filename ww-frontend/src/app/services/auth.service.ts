@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { TokenResponse, User } from '../interfaces/user';
-import { HttpClient, HttpErrorResponse, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 
@@ -89,7 +89,7 @@ export class AuthService {
       }
     ).pipe(
       tap(response => {
-        if (response && response.accessToken) {
+        if (response?.accessToken) {
           localStorage.setItem('token', response.accessToken);
           this.tokenSubject.next(response.accessToken); // Update token subject
 
@@ -105,7 +105,7 @@ export class AuthService {
             localStorage.setItem('user', JSON.stringify(updatedUser));
             this.userSubject.next(updatedUser);
           }
-          // console.log('AuthService: Access token refreshed successfully.');
+          // console.log('AuthService: Access token refreshed successfully.')
         } else {
           // console.log('AuthService: Refresh token response missing accessToken:')
           // console.error(response)
@@ -151,7 +151,7 @@ export class AuthService {
     this.refreshTokenSubject.next(null);
     // Redirect to login page
     this.router.navigate(["auth/login"]);
-    // console.log('AuthService: User logged out.');
+    // console.log('AuthService: User logged out.')
   }
 
   getCurrentUser(): User | null {

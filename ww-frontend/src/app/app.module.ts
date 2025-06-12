@@ -19,6 +19,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { AppRoutingModule } from './app-routing.module';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -77,9 +79,11 @@ import { ToastrModule } from 'ngx-toastr';
     MatDatepickerModule,
     MatStepperModule,
     MatAutocompleteModule,
+    MatSelectModule,
+    MatDividerModule,
     ToastrModule.forRoot({
       timeOut: 5000,
-      extendedTimeOut: 2000, //Time to close after a user hovers over toast
+      extendedTimeOut: 1000, //Time to close after a user hovers over toast
       positionClass: 'toast-top-left',
       progressBar: true,
       preventDuplicates: true

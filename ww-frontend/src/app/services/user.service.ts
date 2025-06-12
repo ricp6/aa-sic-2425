@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
-import { UserProfile } from '../interfaces/user-profile';
+import { SimpleUser, UserProfile } from '../interfaces/user';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -107,7 +108,7 @@ export class UserService {
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
-    return this.http.post('http://localhost:8080/api/users/change-password', {
+    return this.http.post(`${this.userURL}/change-password`, {
       currentPassword,
       newPassword
     });
@@ -121,5 +122,20 @@ export class UserService {
     return this.http.delete(`${this.userURL}/delete`);
   }
 
-
+  getAllUsers(): Observable<SimpleUser[]> {
+    return this.http.get<SimpleUser[]>(`${this.userURL}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.log("erro obter users")
+        console.error(error)
+        if (error.status === 401) {
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the users list', 'Server error');
+        }
+        return throwError(() => error);
+      })
+    );
+  }
 }

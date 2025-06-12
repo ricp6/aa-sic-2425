@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, tap, catchError, throwError, BehaviorSubject, of } from 'rxjs';
-import { Records, SimpleTrack, TrackDetails } from '../interfaces/track';
+import { RecordsDTO, SimpleTrack, TrackDetails } from '../interfaces/track';
 
 @Injectable({
   providedIn: 'root'
@@ -60,8 +60,8 @@ export class TrackService {
     return this.loadTracks();
   }
   
-  getTracksRecords(): Observable<Records[] | null> {
-    return this.http.get<Records[]>(this.tracksURL + '/records').pipe(
+  getTracksRecords(): Observable<RecordsDTO[] | null> {
+    return this.http.get<RecordsDTO[]>(this.tracksURL + '/records').pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           // If you see 401 here, it means:
