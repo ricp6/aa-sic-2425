@@ -12,7 +12,9 @@ export class ReservationsComponent implements OnInit {
   activeReservations: Reservation[] = [];
   completedReservations: Reservation[] = [];
 
-  constructor(private reservationService: ReservationService) { }
+  constructor(
+    private readonly reservationService: ReservationService
+  ) { }
 
   ngOnInit(): void {
     this.loadReservations();

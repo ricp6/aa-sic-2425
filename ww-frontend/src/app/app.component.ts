@@ -67,7 +67,7 @@ export class AppComponent implements OnInit {
     });
 
     // Load tracks once at app start
-    this.tracksService.loadTracks().subscribe();
+    this.tracksService.refreshTracks().subscribe();
 
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))

@@ -92,6 +92,19 @@
   text-align: left;
 }
 
+.status-details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
 #schedule-details p,
 #price-details p,
 #contact-details p {

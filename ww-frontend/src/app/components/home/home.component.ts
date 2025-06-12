@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { SimpleTrack } from '../../interfaces/track';
 import { Router } from '@angular/router';
 import { TrackService } from '../../services/track.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-home',
@@ -14,16 +15,19 @@ export class HomeComponent implements OnInit{
   
   constructor(
     private readonly router: Router,
-    private readonly tracksService: TrackService
+    private readonly tracksService: TrackService,
+    private readonly toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
-    this.tracksService.getAll().subscribe({
+    this.tracksService.getTracksCached().subscribe({
       next: (tracks) => {
-        this.tracks = tracks;
+        // Keep only available tracks
+        this.tracks = tracks.filter(track => track.available);
       },
       error: (err) => {
-        // Optionally handle error, e.g. show a toast
+        console.error(err);
+        this.toastr.warning("Please refresh the page or try again later.", "Sorry! We could not load the tracks.");
       }
     });
   }

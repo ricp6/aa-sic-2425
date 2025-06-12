@@ -60,7 +60,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
   padding-top: 20px;
 }
 
@@ -115,12 +115,31 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
 .track-name {
   font-weight: 600;
   font-size: 1.3em;
+}
+
+.track-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1em;
+}
+
+.track-status-label {
+  font-size: 0.75em;
+  color: #333;
+}
+
+.track-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 .track-stats {

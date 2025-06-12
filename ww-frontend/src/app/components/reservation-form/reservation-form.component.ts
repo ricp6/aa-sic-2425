@@ -1,24 +1,26 @@
 // src/app/components/reservation-form/reservation-form.component.ts
 
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
-import { MatStepper } from '@angular/material/stepper';
-import { map, startWith, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+
+import { MatStepper } from '@angular/material/stepper';
+import { MatCalendar } from '@angular/material/datepicker';
+import { FormBuilder, FormGroup, Validators, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
 
 import { ReservationService } from '../../services/reservation.service';
 import { AuthService } from '../../services/auth.service';
-import { SimpleTrack } from '../../interfaces/track';
-import { Observable } from 'rxjs';
 import { TrackService } from '../../services/track.service';
-import { Location } from '@angular/common';
-import { Slot } from '../../interfaces/slot';
-import { MatCalendar } from '@angular/material/datepicker';
 import { KartService } from '../../services/kart.service';
+import { UserService } from '../../services/user.service';
+import { SimpleTrack } from '../../interfaces/track';
+import { Slot } from '../../interfaces/slot';
 import { Kart } from '../../interfaces/kart';
 import { SimpleUser } from '../../interfaces/user';
-import { UserService } from '../../services/user.service';
-import { Router } from '@angular/router';
+import { format } from 'date-fns';
 
 
 @Component({
@@ -46,9 +48,26 @@ export class ReservationFormComponent implements OnInit {
   users: SimpleUser[] = []
   filteredUsers!: Observable<SimpleUser[]>;
   groupedKarts: { model: string; karts: Kart[] }[] = [];
- 
-  goBack(): void {
-    this.location.back();
+
+  get formatedDate(): string {
+    if(this.selectedDate) {
+      return format(this.selectedDate, 'yyyy-MM-dd');
+    }
+    return '';
+  }
+
+  get formattedSortedSlots(): string {
+    const selectedSlots = this.dateTimeSelectionFormGroup.get('selectedSlots')?.value;
+
+    if (!selectedSlots || selectedSlots.length === 0) return '';
+
+    const sorted = [...selectedSlots].sort((a: Slot, b: Slot) =>
+      a.startTime.localeCompare(b.startTime)
+    );
+
+    return sorted
+      .map((slot: Slot) => `${slot.startTime} - ${slot.endTime}`)
+      .join(' | ');
   }
 
   constructor(
@@ -213,10 +232,16 @@ export class ReservationFormComponent implements OnInit {
   }
 
   resetDateTimeStep(): void {
+    // Reset date part
+    this.selectedDate = null;
+    // Reset slots part
+    this.resetSlotsSubStep();
+  }
+  
+  resetSlotsSubStep(): void {
     // Reset date-time form controls
     this.dateTimeSelectionFormGroup.get('selectedSlots')?.setValue([]);
     // Reset state vars
-    this.selectedDate = null;
     this.slots = [];
     this.slotDuration = 0;
   }
@@ -239,6 +264,7 @@ export class ReservationFormComponent implements OnInit {
   onTrackSelected(): void {
     // Clear next steps if this one changed
     this.resetDateTimeStep();
+    this.resetParticipantsStep();
     // Load karts available for the track
     this.loadKarts();
   }
@@ -249,11 +275,14 @@ export class ReservationFormComponent implements OnInit {
   onDateSelected(): void {
     if (this.selectedDate == null) {
       // Start from step 1
-      this.toastr.warning("Error loading track availability for the selected day", "Please try again");
+      this.toastr.warning("Error selecting the date.", "Please try again");
       this.stepper.reset();
+    } else {
+      // Reset the selected slots
+      this.resetSlotsSubStep();
+      // Load the occupied slots for the selected track and day
+      this.loadSlots();
     }
-    // Load the occupied slots for the selected track and day
-    this.loadSlots();
   }
 
   isSlotSelected(slot: Slot): boolean {
@@ -313,7 +342,9 @@ export class ReservationFormComponent implements OnInit {
 
 
   // --- Final Submission ---
+
   submitReservation(): void {
+    // Validate forms info
     if (
       !this.selectedDate ||
       this.trackSelectionFormGroup.invalid || 
@@ -328,43 +359,78 @@ export class ReservationFormComponent implements OnInit {
       return;
     }
   
-    const selectedTrack = this.trackSelectionFormGroup.get('selectedTrack')!.value;
-    const selectedDate  = this.selectedDate.toISOString().split("T")[0]; // format date
-    const selectedSlots = this.dateTimeSelectionFormGroup.get('selectedSlots')!.value;
-    
-    // Format sessions
-    const sessions = selectedSlots.map((slot: Slot) => ({
-      startTime: slot.startTime, // assume in 'HH:mm:ss' or 'HH:mm'
-      endTime: slot.endTime      // same format
-    }));
-    
-    // Participants
-    const participants = this.participants.controls.map(participantGroup => ({
-      userId: participantGroup.get('user')!.value.id,
-      kartId: participantGroup.get('kart')!.value
-    }));
+    // Get and format all info needed from the forms
+    const selectedTrackId = this.trackSelectionFormGroup.get('selectedTrack')!.value.id; // get id
+    const selectedDate  = this.formatedDate;
+    const mergedSessions = this.formatAndMergeSessions();
+    const formatedParticipants = this.formatParticipants();
     
     // If the current user is not in the participants list throw an alert and 
     // only proceed if the user confirms he is aware and wishes to proceed anyways
-    const userIsIncluded = participants.some(p => p.userId === this.authService.getCurrentUser()?.id);
+    if(!this.checkUserParticipation(formatedParticipants)) {
+      return;
+    }
+    
+    // Gather info in one object
+    const requestPayload = {
+      trackId: selectedTrackId,
+      reservationDate: selectedDate,
+      sessions: mergedSessions,
+      participants: formatedParticipants
+    };
+    this.sendCreateRequest(requestPayload);
+  }
+
+  formatAndMergeSessions(): { startTime: string, endTime: string }[] {
+    const mergedSessions: { startTime: string, endTime: string }[] = [];
+    
+    // Sort the slots 
+    const selectedSlots = this.dateTimeSelectionFormGroup.get('selectedSlots')!.value;
+    const sortedSlots = [...selectedSlots].sort((a: Slot, b: Slot) =>
+      a.startTime.localeCompare(b.startTime)
+    );
+  
+    // Check for consecutives and merge them
+    for (const slot of sortedSlots) {
+      const last = mergedSessions[mergedSessions.length - 1];
+      
+      if (last && last.endTime === slot.startTime) {
+        // Extend the previous session
+        last.endTime = slot.endTime;
+      } else {
+        // Start a new session
+        mergedSessions.push({
+          startTime: slot.startTime,
+          endTime: slot.endTime
+        });
+      }
+    }
+    return mergedSessions;
+  }
+
+  formatParticipants(): { userId: number; kartId: number; }[] {
+    return this.participants.controls.map(participantGroup => ({
+      userId: participantGroup.get('user')!.value.id,
+      kartId: participantGroup.get('kart')!.value
+    }));
+  }
+
+  checkUserParticipation(formatedParticipants: { userId: number; kartId: number; }[]): boolean {
+    const userIsIncluded = formatedParticipants.some(p => p.userId === this.authService.getCurrentUser()?.id);
     if (!userIsIncluded) {
       const proceed = confirm("You are not listed as a participant in this reservation. Do you want to continue?");
       if (!proceed) {
-        return;
+        return false; // User not included and dont want to proceed with the request
       }
     }
+    return true; // User included or wants to proceed without being included
+  }
 
-    const requestPayload = {
-      trackId: selectedTrack.id,
-      reservationDate: selectedDate,
-      sessions: sessions,
-      participants: participants
-    };
-    
+  sendCreateRequest(requestPayload: any): void {
     this.reservationService.createReservation(requestPayload).subscribe({
-      next: () => {
+      next: (reservation) => {
         this.toastr.success("Reservation successfully created!");
-        this.router.navigate(['/reservations']);
+        this.router.navigate([`/reservations/${reservation.id}`]);
       },
       error: (err) => {
         console.error(err);
@@ -372,7 +438,7 @@ export class ReservationFormComponent implements OnInit {
       }
     });
   }
-
+  
 
   // Helpers to fetch data from services
 
@@ -395,10 +461,11 @@ export class ReservationFormComponent implements OnInit {
   }
 
   loadTracks(): void {
-    this.trackService.getAll().subscribe({
+    this.trackService.getTracksCached().subscribe({
       next: (tracks) => {
         if(tracks !== null) {
-          this.tracks = tracks;
+          // Keep only available tracks
+          this.tracks = tracks.filter(track => track.available);
         } else {
           this.toastr.warning("Error loading the tracks information", "Going back!");
           this.goBack();
@@ -413,6 +480,7 @@ export class ReservationFormComponent implements OnInit {
   }
 
   loadKarts(): void {
+    // this.loadKartsMocks();
     this.kartService.getKartsAvailable(
       this.trackSelectionFormGroup.get('selectedTrack')?.value.id,
     ).subscribe({
@@ -436,6 +504,17 @@ export class ReservationFormComponent implements OnInit {
     });
   }
 
+  loadKartsMocks(): void {
+    this.karts = [
+      { id: 1, kartNumber: 4, model: "super fast" },
+      { id: 2, kartNumber: 6, model: "super fast" },
+      { id: 3, kartNumber: 14, model: "goat" },
+      { id: 4, kartNumber: 81, model: "champchamp" },
+      { id: 5, kartNumber: 55, model: "super fast" },
+    ]
+    this.groupKarts();
+  }
+
   groupKarts(): void {
     // Assuming `availableKarts` is already populated
     const groupedMap = new Map<string, Kart[]>();
@@ -454,9 +533,12 @@ export class ReservationFormComponent implements OnInit {
   }
 
   loadSlots(): void {
+    // this.loadSlotsMocks();
+    console.log(this.selectedDate)
+    console.log(this.formatedDate)
     this.reservationService.getSlots(
       this.trackSelectionFormGroup.get('selectedTrack')?.value.id,
-      this.selectedDate!.toISOString().split('T')[0] // e.g. '2025-06-03'
+      this.formatedDate // e.g. '2025-06-03'
     ).subscribe({
       next: (slots) => {
         if(slots != null) {
@@ -476,5 +558,25 @@ export class ReservationFormComponent implements OnInit {
         this.stepper.reset();
       }
     });
+  }
+
+  loadSlotsMocks(): void {
+    this.slots = [
+      { startTime: "10:00", endTime: "10:20", available: true },
+      { startTime: "10:20", endTime: "10:40", available: true },
+      { startTime: "10:40", endTime: "11:00", available: false },
+      { startTime: "11:00", endTime: "11:20", available: true },
+      { startTime: "11:20", endTime: "11:40", available: true },
+      { startTime: "11:40", endTime: "12:00", available: false },
+      { startTime: "12:00", endTime: "12:20", available: false },
+      { startTime: "12:20", endTime: "12:40", available: true },
+      { startTime: "12:40", endTime: "13:00", available: true },
+      { startTime: "13:00", endTime: "13:20", available: true },
+      { startTime: "13:20", endTime: "13:40", available: true },
+    ]
+  }
+  
+  goBack(): void {
+    this.location.back();
   }
 }

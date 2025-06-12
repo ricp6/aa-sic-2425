@@ -1,5 +1,5 @@
 export interface Kart {
     id: number,
-    number: number,
+    kartNumber: number,
     model: string
 }

@@ -1,8 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, tap, catchError, throwError, BehaviorSubject, of } from 'rxjs';
-import { RecordsDTO, SimpleTrack, TrackDetails } from '../interfaces/track';
+import { Observable, tap, catchError, throwError, BehaviorSubject, of, combineLatest, map } from 'rxjs';
+import { RecordsDTO, SimpleTrack, TrackDetails, TrackWithRecords } from '../interfaces/track';
 
 @Injectable({
   providedIn: 'root'
@@ -11,14 +11,14 @@ export class TrackService {
   private readonly tracksURL = "http://localhost:8080/api/tracks";
 
   private tracksCache: SimpleTrack[] | null = null;
-  private readonly tracksSubject = new BehaviorSubject<SimpleTrack[] | null>(null);
+  private readonly tracksSubject = new BehaviorSubject<SimpleTrack[]>([]);
 
   constructor(
     private readonly http: HttpClient,
     private readonly toastr: ToastrService
   ) {}
 
-  loadTracks(): Observable<SimpleTrack[]> {
+  private getTracksBackend(): Observable<SimpleTrack[]> {
     if (this.tracksCache) {
       return of(this.tracksCache);
     }
@@ -47,7 +47,7 @@ export class TrackService {
     );
   }
 
-  getAll(): Observable<SimpleTrack[] | null> {
+  getTracksCached(): Observable<SimpleTrack[]> {
     if (this.tracksCache) {
       return of(this.tracksCache);
     }
@@ -57,10 +57,10 @@ export class TrackService {
   // Optionally, add a method to force refresh
   refreshTracks(): Observable<SimpleTrack[]> {
     this.tracksCache = null;
-    return this.loadTracks();
+    return this.getTracksBackend();
   }
   
-  getTracksRecords(): Observable<RecordsDTO[] | null> {
+  private getTracksRecords(): Observable<RecordsDTO[] | null> {
     return this.http.get<RecordsDTO[]>(this.tracksURL + '/records').pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
@@ -78,6 +78,27 @@ export class TrackService {
           this.toastr.error('An error occurred while loading the tracks records', 'Server error');
         }
         return throwError(() => error);
+      })
+    );
+  }
+
+  getTracksWithRecords(): Observable<TrackWithRecords[]> {
+    return combineLatest([
+      this.getTracksCached(),
+      this.getTracksRecords()
+    ]).pipe(
+      map(([tracks, records]) => {
+        const recordsMap = new Map(records?.map(r => [r.id, r]) ?? []);
+        return (tracks ?? [])
+          .map(track => ({
+            ...track,
+            personalRecord: recordsMap.get(track.id)?.personalRecord ?? null,
+            trackRecord: recordsMap.get(track.id)?.trackRecord ?? null
+          }));
+      }),
+      catchError((err) => {
+        console.error("Failed to load tracks or records", err);
+        return of([]); // fallback to empty array on error
       })
     );
   }

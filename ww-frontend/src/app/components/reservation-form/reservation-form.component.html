@@ -1,6 +1,6 @@
-<button mat-raised-button id="back-button" (click)="goBack()">
-  <mat-icon>arrow_back</mat-icon>
-  Back
+<button mat-raised-button id="back-button" color="warn" (click)="goBack()">
+  <mat-icon>cancel</mat-icon>
+  Cancel
 </button>
 <mat-card class="reservation-form-card">
   <mat-card-header>
@@ -52,15 +52,13 @@
       <mat-step [stepControl]="dateTimeSelectionFormGroup">
         <ng-template matStepLabel>
           Select the date and time
-          <div
-            *ngIf="dateTimeSelectionFormGroup.valid && selectedDate && dateTimeSelectionFormGroup.get('selectedSlots')?.value as slots">
+          <div *ngIf="dateTimeSelectionFormGroup.valid && 
+            selectedDate && dateTimeSelectionFormGroup.get('selectedSlots')?.value as slots">
             <br>
             <small>
-              {{ selectedDate.toISOString().split("T")[0] }} <mat-icon>arrow_right</mat-icon>
-              <ng-container *ngFor="let slot of slots; let i = index">
-                {{ slot.startTime }} - {{ slot.endTime }}
-                <span *ngIf="i < slots.length - 1"> | </span>
-              </ng-container>
+              {{ formatedDate }} 
+              <mat-icon>arrow_right</mat-icon>
+              {{ formattedSortedSlots }}
             </small>
           </div>
         </ng-template>
@@ -79,8 +77,8 @@
               <span *ngIf="slots && slots.length > 0">(Sessions of {{slotDuration}} minutes)</span>
             </mat-label>
             <ng-container class="slots-list" *ngIf="slots && slots.length > 0; else noSlots">
-              <button mat-stroked-button *ngFor="let slot of slots" [disabled]="!slot.isAvailable" [ngClass]="{ 'selected-slot': isSlotSelected(slot),
-											 'occupied-slot': !slot.isAvailable }" (click)="toggleSlotSelection(slot)">
+              <button mat-stroked-button *ngFor="let slot of slots" [disabled]="!slot.available" [ngClass]="{ 'selected-slot': isSlotSelected(slot),
+											 'occupied-slot': !slot.available }" (click)="toggleSlotSelection(slot)">
                 {{ slot.startTime }}
               </button>
             </ng-container>
@@ -139,7 +137,7 @@
                   <ng-container *ngFor="let group of groupedKarts">
                     <mat-optgroup [label]="group.model">
                       <mat-option *ngFor="let kart of group.karts" [value]="kart.id">
-                        Kart {{ kart.number }}
+                        Kart {{ kart.kartNumber }}
                       </mat-option>
                     </mat-optgroup>
                   </ng-container>
@@ -187,7 +185,8 @@
             <button mat-button matStepperPrevious>Back</button>
             <button mat-flat-button color="accent" (click)="submitReservation()"
               [disabled]="participantsKartsFormGroup.invalid">
-              Confirm Reservation
+              <mat-icon>save</mat-icon>
+              Create Reservation
             </button>
           </div>
         </form>

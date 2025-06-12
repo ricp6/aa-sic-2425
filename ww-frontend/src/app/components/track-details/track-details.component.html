@@ -25,6 +25,17 @@
         <div id="information-section">
           <mat-card id="details-card">
             <div class="info-row">
+              <span class="label">Track Status</span>
+              <span class="value status-details">
+                <span class="status-label">
+                  {{ track.isAvailable ? 'Operational' : 'Not Operational' }}
+                </span>
+                <span class="status-dot" 
+                  [ngStyle]="{ 'background-color': track.isAvailable ? 'green' : 'red' }">
+                </span>
+              </span>
+            </div>
+            <div class="info-row">
               <span class="label">Address</span>
               <span class="value">{{ track.address }}</span>
             </div>

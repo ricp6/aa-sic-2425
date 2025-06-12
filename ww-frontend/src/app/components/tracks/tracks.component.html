@@ -34,6 +34,14 @@
                     <div class="track-details">
                         <span class="track-name">{{ track.name }}</span>
                         <span class="track-location">{{ track.address }}</span>
+                        <span class="track-status">
+                            <span class="track-status-dot" 
+                                [ngStyle]="{ 'background-color': track.available ? 'green' : 'red' }">
+                            </span>
+                            <span class="track-status-label">
+                                {{ track.available ? 'Operational' : 'Not Operational' }}
+                            </span>
+                        </span>
                     </div>
 
                     <div class="track-stats" *ngIf="track.personalRecord">

@@ -38,22 +38,14 @@ export class TracksComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.isLoggedIn) {
-      combineLatest(
-        this.tracksService.getAll(),
-        this.tracksService.getTracksRecords()
-      ).subscribe({
-        next: ([tracks, records]) => {
-          const recordsMap = new Map(records!.map(r => [r.id, r]));
-          this.tracks = (tracks ?? []).map(track => ({
-            ...track,
-            personalRecord: recordsMap.get(track.id)?.personalRecord ?? null,
-            trackRecord: recordsMap.get(track.id)?.trackRecord ?? null
-          }));
+      this.tracksService.getTracksWithRecords().subscribe({
+        next: (tracks) => {
+          this.tracks = tracks;
         },
         error: () => { this.tracks = []; }
       });
     } else {
-      this.tracksService.getAll().subscribe({
+      this.tracksService.getTracksCached().subscribe({
         next: (tracks) => { this.tracks = tracks as TrackWithRecords[]; },
         error: () => { this.tracks = []; }
       });

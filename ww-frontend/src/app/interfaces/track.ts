@@ -3,7 +3,7 @@ export interface SimpleTrack {
     name: string,
     address: string,
     image: string,
-    isAvailable: boolean
+    available: boolean
 }
 
 export interface TrackWithRecords extends SimpleTrack {

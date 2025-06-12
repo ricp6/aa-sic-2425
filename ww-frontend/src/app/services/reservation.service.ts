@@ -35,8 +35,8 @@ export class ReservationService {
 
   getReservations(): Observable<Reservation[]> {
     return combineLatest([
-      this.http.get<any[]>(this.reservationsURL),
-      this.trackService.loadTracks()
+      this.getRawReservations(),
+      this.trackService.getTracksCached()
     ]).pipe(
       map(([rawReservations, tracks]) => {
         const mappedReservations = this.mapRawReservationsToReservations(rawReservations, tracks);
@@ -80,6 +80,12 @@ export class ReservationService {
     });
   }
 
+  private getRawReservations(): Observable<RawReservation[]> {
+    return this.http.get<RawReservation[]>(`${this.reservationsURL}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   getSlots(trackId: number, date: string): Observable<Slot[]> {
     return this.http.get<Slot[]>(`${this.reservationsURL}/slots/${trackId}/${date}`).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -115,8 +121,7 @@ export class ReservationService {
   }
   
   getReservationDetails(id: number): Observable<ReservationDetails> {
-    const detailUrl = `${this.reservationsURL}/${id}`;
-    return this.http.get<ReservationDetails>(detailUrl).pipe(
+    return this.http.get<ReservationDetails>(`${this.reservationsURL}/${id}`).pipe(
       catchError(this.handleError)
     );
   }

@@ -14,8 +14,8 @@ export class SessionDetailsComponent implements OnInit {
   podiumEntries: PodiumEntry[] = [];
 
   constructor(
-    private route: ActivatedRoute,
-    private sessionService: SessionService
+    private readonly route: ActivatedRoute,
+    private readonly sessionService: SessionService
   ) { }
 
   ngOnInit(): void {
@@ -24,7 +24,7 @@ export class SessionDetailsComponent implements OnInit {
 
   getSessionDetails(): void {
     this.sessionService.getSession(1)
-      .subscribe((sessionData: any) => {
+      .subscribe((sessionData) => {
         this.session = sessionData;
         if (this.session) {
           this.podiumEntries = this.sessionService.getPodiumEntries(this.session.classifications);

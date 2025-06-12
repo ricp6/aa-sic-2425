@@ -14,6 +14,8 @@ import {TrackDetailsComponent} from "./components/track-details/track-details.co
 import {SessionDetailsComponent} from "./components/session-details/session-details.component";
 import { ReservationFormComponent } from './components/reservation-form/reservation-form.component';
 import { ReservationDetailsComponent } from './components/reservation-details/reservation-details.component';
+import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
 
 
 const routes: Routes = [
@@ -28,24 +30,39 @@ const routes: Routes = [
   },
 
   { path: 'home', component: HomeComponent },
-  { path: 'notifications', component: NotificationsComponent },
-  { path: 'profile', component: ProfileComponent },
+  { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
 
   { path: 'tracks', component: TracksComponent },
   { path: 'tracks/:id', component: TrackDetailsComponent },
 
-  { path: 'reservations', component: ReservationsComponent },
-  { path: 'reservations/:id', component: ReservationDetailsComponent },
-  { path: 'reservations/form', component: ReservationFormComponent },
-  { path: 'reservations/form/:id', component: ReservationFormComponent },
+  { path: 'reservations', component: ReservationsComponent, canActivate: [AuthGuard] },
+  { path: 'reservations/form', component: ReservationFormComponent, canActivate: [AuthGuard] },
+  { path: 'reservations/:id', component: ReservationDetailsComponent, canActivate: [AuthGuard] },
+  // { path: 'reservations/form/:id', component: ReservationFormComponent, canActivate: [AuthGuard] },
 
-  { path: 'sessions', component: SessionsComponent },
-  { path: 'sessions/:id', component: SessionDetailsComponent },
+  { path: 'sessions', component: SessionsComponent, canActivate: [AuthGuard] },
+  { path: 'sessions/:id', component: SessionDetailsComponent, canActivate: [AuthGuard] },
 
-  { path: 'enterprise', component: EnterpriseHomeComponent },
-  { path: 'enterprise/home', component: EnterpriseHomeComponent },
-  { path: 'enterprise/tracks', component: EnterpriseHomeComponent },
-  { path: 'enterprise/reservations', component: EnterpriseHomeComponent },
+  { path: 'enterprise', redirectTo: 'enterprise/home' },
+  { 
+    path: 'enterprise/home', 
+    component: EnterpriseHomeComponent, 
+    canActivate: [AuthGuard, RoleGuard], 
+    data: { role: 'OWNER' } 
+  },
+  { 
+    path: 'enterprise/tracks', 
+    component: EnterpriseHomeComponent, 
+    canActivate: [AuthGuard, RoleGuard], 
+    data: { role: 'OWNER' } 
+  },
+  { 
+    path: 'enterprise/reservations', 
+    component: EnterpriseHomeComponent, 
+    canActivate: [AuthGuard, RoleGuard], 
+    data: { role: 'OWNER' } 
+  },
 
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/home' },
