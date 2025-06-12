@@ -1,4 +1,3 @@
-
 export enum ReservationStatus {
   PENDING = 'PENDING',
   ACCEPTED = 'ACCEPTED',

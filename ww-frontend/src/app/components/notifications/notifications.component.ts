@@ -3,6 +3,7 @@ import { NotificationService } from '../../services/notification.service';
 import { Notification } from '../../interfaces/notification';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
@@ -19,7 +20,8 @@ export class NotificationsComponent implements OnInit {
   constructor(
     private notificationService: NotificationService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+  private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -41,7 +43,7 @@ export class NotificationsComponent implements OnInit {
   }
 
   markNotificationAsRead(notification: Notification): void {
-    if (notification.isRead) { // Usa 'notification.read'
+    if (notification.isRead) {
       return;
     }
     this.notificationService.markNotificationAsRead(notification.id).subscribe({
@@ -78,7 +80,6 @@ export class NotificationsComponent implements OnInit {
       this.snackBar.open('No notification to delete.', 'Close', { duration: 2000 });
       return;
     }
-    // ... (restante do código igual) ...
     this.notificationService.deleteReadNotifications().subscribe({
       next: () => {
         this.snackBar.open('Every notification has been deleted.', 'Close', { duration: 2000 });

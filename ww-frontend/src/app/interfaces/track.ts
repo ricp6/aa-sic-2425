@@ -11,7 +11,7 @@ export interface TrackWithRecords extends SimpleTrack {
     trackRecord?: string | null;
 }
 
-export interface Records {
+export interface RecordsDTO {
     id: number;
     personalRecord?: string | null;
     trackRecord?: string | null;

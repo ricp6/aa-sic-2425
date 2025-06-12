@@ -1,0 +1,69 @@
+<div id="reservation-details-container">
+  <section id="reservation-details-header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 id="title">Reservation Details</h1>
+  </section>
+
+  <div *ngIf="reservation" class="details-card">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title class="track-name-display">{{ reservation.trackName }}</mat-card-title>
+        <mat-card-subtitle class="reservation-id-display">Reservation #{{ reservation.id }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="detail-row">
+          <mat-icon class="detail-icon">event</mat-icon>
+          <span>Date: {{ formatDate(reservation.reservationDateTime) }}</span>
+        </div>
+        <div class="detail-row">
+          <mat-icon class="detail-icon">info</mat-icon>
+          <span>Status: <span class="status-{{ reservation.status }}">{{ reservation.status | titlecase }}</span></span>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <h3 class="group-title">Participants ({{ reservation.participants.length }})</h3>
+        <div class="participants-list">
+          <div *ngIf="reservation.participants.length === 0" class="no-data">No participants for this reservation.</div>
+          <div *ngFor="let participant of reservation.participants" class="participant-item">
+            <mat-icon>person</mat-icon>
+            <span>{{ participant.userName }} (Kart #{{ participant.kartNumber }})</span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <h3 class="group-title">Sessions ({{ reservation.sessions.length }})</h3>
+        <div class="sessions-list">
+          <div *ngIf="reservation.sessions.length === 0" class="no-data">No sessions for this reservation.</div>
+          <div *ngFor="let session of reservation.sessions" class="session-item">
+            <span class="session-time">
+              {{ formatTime(session.startTime) }} - {{ formatTime(session.endTime) }}
+            </span>
+            <button mat-icon-button (click)="navigateToSessionDetails(session.id)" class="view-session-button" matTooltip="View Session Details">
+              <mat-icon>launch</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end" class="detail-actions">
+        <button mat-stroked-button color="primary" (click)="editReservation()">
+          <mat-icon>edit</mat-icon>
+          Alterar
+        </button>
+        <button mat-flat-button color="warn" (click)="cancelReservation()">
+          <mat-icon>cancel</mat-icon>
+          Cancelar Reserva
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!reservation" class="loading-message">
+    Loading reservation details...
+  </div>
+</div>

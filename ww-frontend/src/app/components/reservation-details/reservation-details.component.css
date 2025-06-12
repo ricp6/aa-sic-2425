@@ -1,0 +1,189 @@
+#reservation-details-container {
+  padding: 30px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#reservation-details-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#title {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0 0 0 10px;
+}
+
+.details-card {
+  margin-top: 20px;
+}
+
+mat-card {
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+mat-card-header {
+  padding-bottom: 10px;
+}
+
+.track-name-display {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.reservation-id-display {
+  font-size: 16px;
+  color: #777;
+}
+
+mat-card-content {
+  padding-top: 20px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.detail-icon {
+  margin-right: 8px;
+  color: #555;
+}
+
+.status-PENDING { color: #ff9800; font-weight: bold; }
+.status-ACCEPTED { color: #4caf50; font-weight: bold; }
+.status-REJECTED { color: #f44336; font-weight: bold; }
+.status-CONCLUDED { color: blue; font-weight: bold; }
+
+.group-title {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 1.4em;
+  font-weight: 700;
+  color: #333;
+  text-align: left;
+}
+
+.participants-list,
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.participant-item,
+.session-item {
+  display: flex;
+  align-items: center;
+  background-color: #f8f8f8;
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid #eee;
+}
+
+.participant-item mat-icon,
+.session-item mat-icon {
+  margin-right: 8px;
+  color: #666;
+}
+
+.session-item {
+  justify-content: space-between;
+}
+
+.session-time {
+  font-weight: 500;
+  color: #444;
+}
+
+.view-session-button {
+  color: #007bff;
+}
+
+.view-session-button:hover {
+  background-color: #e0f0ff;
+}
+
+.no-data {
+  color: #777;
+  font-style: italic;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.detail-actions button {
+  border-radius: 5px;
+  font-size: 0.8em;
+  transition: all 0.2s ease-in-out;
+}
+
+.detail-actions button mat-icon {
+  margin-right: 5px;
+  font-size: 18px;
+}
+
+
+.detail-actions button[color="primary"] {
+  background-color: #000;
+  color: white;
+  border-color: #000;
+}
+
+.detail-actions button[color="primary"]:hover {
+  background-color: #333;
+  border-color: #333;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 50px;
+  color: #777;
+  font-size: 1.2em;
+}
+
+@media (max-width: 768px) {
+  #reservation-details-container {
+    padding: 20px 15px;
+  }
+
+  #title {
+    font-size: 24px;
+  }
+
+  .track-name-display {
+    font-size: 24px;
+  }
+
+  .reservation-id-display {
+    font-size: 14px;
+  }
+
+  .detail-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detail-actions button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
