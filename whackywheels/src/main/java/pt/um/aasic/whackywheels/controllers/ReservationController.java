@@ -13,6 +13,7 @@ import pt.um.aasic.whackywheels.dtos.SlotResponseDTO;
 import pt.um.aasic.whackywheels.dtos.ReservationCreateRequestDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.ReservationService;
+import pt.um.aasic.whackywheels.dtos.ReservationDetailsResponseDTO;
 import pt.um.aasic.whackywheels.dtos.ReservationResponseDTO;
 
 import java.time.LocalDate;
@@ -34,7 +35,7 @@ public class ReservationController {
         Long userId = authenticatedUser.getId();
 
         try {
-            ReservationResponseDTO newReservationResponse = reservationService.createReservation(request, userId);
+            ReservationDetailsResponseDTO newReservationResponse = reservationService.createReservation(request, userId);
             return new ResponseEntity<>(newReservationResponse, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -50,7 +51,7 @@ public class ReservationController {
         Long userId = authenticatedUser.getId();
 
         try {
-            ReservationResponseDTO reservationResponse = reservationService.getReservationById(reservationId, userId);
+            ReservationDetailsResponseDTO reservationResponse = reservationService.getReservationById(reservationId, userId);
             if (reservationResponse == null) {
                 return new ResponseEntity<>("Reservation not found or you do not have access to it.", HttpStatus.NOT_FOUND);
             }
@@ -99,7 +100,7 @@ public class ReservationController {
         Long userId = authenticatedUser.getId();
 
         try {
-            ReservationResponseDTO updatedReservationResponse = reservationService.updateReservation(reservationId, request, userId);
+            ReservationDetailsResponseDTO updatedReservationResponse = reservationService.updateReservation(reservationId, request, userId);
             return new ResponseEntity<>(updatedReservationResponse, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -118,7 +119,7 @@ public class ReservationController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

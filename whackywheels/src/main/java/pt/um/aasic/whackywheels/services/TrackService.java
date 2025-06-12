@@ -88,7 +88,12 @@ public class TrackService {
 
         // 1. Get available karts count
         // Now 'track.getKarts()' is already initialized because of JOIN FETCH
-        Integer availableKartsCount = track.getKarts() != null ? track.getKarts().size() : 0;
+        Integer availableKartsCount = 0;
+        if (track.getKarts() != null) {
+            availableKartsCount = (int) track.getKarts().stream()
+                    .filter(Kart::getIsAvailable)
+                    .count();
+        }
 
         // 2. Map DaySchedule entities to DayScheduleDTOs
         // 'track.getDaySchedules()' is also initialized

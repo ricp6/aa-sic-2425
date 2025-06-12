@@ -2,43 +2,80 @@ package pt.um.aasic.whackywheels.dtos;
 
 import pt.um.aasic.whackywheels.entities.ReservationStatus;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDate;
 
 public class ReservationResponseDTO {
     private Long id;
-    private LocalDateTime reservationDateTime;
+    private LocalDate reservationDate;
     private ReservationStatus status;
-    private Long trackId;
     private String trackName;
-    private List<SessionResponseDTO> sessions;
-    private List<ParticipantResponseDTO> participants;
+    private Integer numSessions;
+    private Integer numParticipants;
+    private String trackImage;
+    private Long createdByUserId;
 
     public ReservationResponseDTO() {}
 
-    public ReservationResponseDTO(Long id, LocalDateTime reservationDateTime, ReservationStatus status, Long trackId, String trackName, List<SessionResponseDTO> sessions, List<ParticipantResponseDTO> participants) {
+    public ReservationResponseDTO(Long id, LocalDate reservationDate, ReservationStatus status, String trackName, String trackImage, Integer numSessions, Integer numParticipants, Long createdByUserId) {
         this.id = id;
-        this.reservationDateTime = reservationDateTime;
+        this.reservationDate = reservationDate;
         this.status = status;
-        this.trackId = trackId;
         this.trackName = trackName;
-        this.sessions = sessions;
-        this.participants = participants;
+        this.trackImage = trackImage;
+        this.numSessions = numSessions;
+        this.numParticipants = numParticipants;
+        this.createdByUserId = createdByUserId;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public LocalDateTime getReservationDateTime() { return reservationDateTime; }
-    public void setReservationDateTime(LocalDateTime reservationDateTime) { this.reservationDateTime = reservationDateTime; }
-    public ReservationStatus getStatus() { return status; }
-    public void setStatus(ReservationStatus status) { this.status = status; }
-    public Long getTrackId() { return trackId; }
-    public void setTrackId(Long trackId) { this.trackId = trackId; }
-    public String getTrackName() { return trackName; }
-    public void setTrackName(String trackName) { this.trackName = trackName; }
-    public List<SessionResponseDTO> getSessions() { return sessions; }
-    public void setSessions(List<SessionResponseDTO> sessions) { this.sessions = sessions; }
-    public List<ParticipantResponseDTO> getParticipants() { return participants; }
-    public void setParticipants(List<ParticipantResponseDTO> participants) { this.participants = participants; }
-}
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public LocalDate getReservationDate() {
+        return reservationDate;
+    }
+    public void setReservationDate(LocalDate reservationDate) {
+        this.reservationDate = reservationDate;
+    }
+    public ReservationStatus getStatus() {
+        return status;
+    }
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
+    public String getTrackName() {
+        return trackName;
+    }
+    public void setTrackName(String trackName) {
+        this.trackName = trackName;
+    }
+    public String getTrackImage() {
+        return trackImage;
+    }
+    public void setTrackImage(String trackImage) {
+        this.trackImage = trackImage;
+    }
+    public Integer getNumSessions() {
+        return numSessions;
+    }
+    public void setNumSessions(Integer numSessions) {
+        this.numSessions = numSessions;
+    }
+    public Integer getNumParticipants() {
+        return numParticipants;
+    }
+    public void setNumParticipants(Integer numParticipants) {
+        this.numParticipants = numParticipants;
+    }
 
+    public Long getCreatedByUserId() {
+        return createdByUserId;
+    }
+    public void setCreatedByUserId(Long createdByUserId) {
+        this.createdByUserId = createdByUserId;
+    }
+
+
+}

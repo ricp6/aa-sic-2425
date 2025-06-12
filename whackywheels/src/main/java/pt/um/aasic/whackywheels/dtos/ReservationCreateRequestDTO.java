@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ReservationCreateRequestDTO {
@@ -14,8 +14,8 @@ public class ReservationCreateRequestDTO {
 
     @NotNull(message = "Reservation date and time is mandatory")
     @Future(message = "Reservation date and time must be in the future")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime reservationDateTime;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate reservationDate;
 
     @Valid
     @Size(min = 1, message = "At least one session is required for a reservation")
@@ -30,8 +30,8 @@ public class ReservationCreateRequestDTO {
 
     public Long getTrackId() { return trackId; }
     public void setTrackId(Long trackId) { this.trackId = trackId; }
-    public LocalDateTime getReservationDateTime() { return reservationDateTime; }
-    public void setReservationDateTime(LocalDateTime reservationDateTime) { this.reservationDateTime = reservationDateTime; }
+    public LocalDate getReservationDate() { return reservationDate; }
+    public void setReservationDate(LocalDate reservationDate) { this.reservationDate = reservationDate; }
     public List<SessionCreateDTO> getSessions() { return sessions; }
     public void setSessions(List<SessionCreateDTO> sessions) { this.sessions = sessions; }
     public List<ParticipantCreateDTO> getParticipants() { return participants; }

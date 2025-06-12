@@ -70,6 +70,7 @@ public class SecurityConfig {
                                 "/api/auth/refresh-token",
                                 "/api/tracks",
                                 "/api/tracks/{id}",
+                                "/api/sessions/{sessionId}/{participantId}/{lapTime}",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"

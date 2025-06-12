@@ -2,6 +2,7 @@ package pt.um.aasic.whackywheels.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -10,10 +11,12 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private LocalTime bookedStartTime;
+    private LocalTime bookedEndTime;
+    private LocalTime actualStartTime;
+    private LocalTime actualEndTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 
@@ -25,10 +28,13 @@ public class Session {
 
     public Session() {}
 
-    public Session(LocalTime startTime, LocalTime endTime, Reservation reservation) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+    public Session(LocalTime bookedStartTime, LocalTime bookedEndTime, Reservation reservation) {
+        this.bookedStartTime = bookedStartTime;
+        this.bookedEndTime = bookedEndTime;
         this.reservation = reservation;
+
+        this.timePerLaps = new HashSet<>();
+        this.classifications = new HashSet<>();
     }
 
     public Long getId() {
@@ -39,20 +45,20 @@ public class Session {
         this.id = id;
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
+    public LocalTime getBookedStartTime() {
+        return bookedStartTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
+    public void setBookedStartTime(LocalTime bookedStartTime) {
+        this.bookedStartTime = bookedStartTime;
     }
 
-    public LocalTime getEndTime() {
-        return endTime;
+    public LocalTime getBookedEndTime() {
+        return bookedEndTime;
     }
 
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
+    public void setBookedEndTime(LocalTime bookedEndTime) {
+        this.bookedEndTime = bookedEndTime;
     }
 
     public Reservation getReservation() {
@@ -77,5 +83,21 @@ public class Session {
 
     public void setClassifications(Set<Classification> classifications) {
         this.classifications = classifications;
+    }
+
+    public LocalTime getActualStartTime() {
+        return actualStartTime;
+    }
+
+    public void setActualStartTime(LocalTime actualStartTime) {
+        this.actualStartTime = actualStartTime;
+    }
+
+    public LocalTime getActualEndTime() {
+        return actualEndTime;
+    }
+
+    public void setActualEndTime(LocalTime actualEndTime) {
+        this.actualEndTime = actualEndTime;
     }
 }

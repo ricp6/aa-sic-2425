@@ -3,7 +3,7 @@ package pt.um.aasic.whackywheels.entities;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,7 +14,7 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    private LocalDateTime date;
+    private LocalDate date;
 
     @NonNull
     @Enumerated(EnumType.ORDINAL) // maps the enum value to an int, saves space on the table
@@ -43,11 +43,11 @@ public class Reservation {
         this.id = id;
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

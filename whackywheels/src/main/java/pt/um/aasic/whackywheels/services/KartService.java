@@ -4,13 +4,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pt.um.aasic.whackywheels.dtos.KartResponseDTO;
 import pt.um.aasic.whackywheels.entities.Kart;
-import pt.um.aasic.whackywheels.entities.ReservationStatus;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.repositories.KartRepository;
-import pt.um.aasic.whackywheels.repositories.ParticipantRepository;
 import pt.um.aasic.whackywheels.repositories.TrackRepository;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,12 +18,10 @@ public class KartService {
 
     private final KartRepository kartRepository;
     private final TrackRepository trackRepository;
-    private final ParticipantRepository participantRepository;
 
-    public KartService(KartRepository kartRepository, TrackRepository trackRepository, ParticipantRepository participantRepository) {
+    public KartService(KartRepository kartRepository, TrackRepository trackRepository) {
         this.kartRepository = kartRepository;
         this.trackRepository = trackRepository;
-        this.participantRepository = participantRepository;
     }
 
     @Transactional(readOnly = true)
@@ -52,55 +48,22 @@ public class KartService {
     }
 
     @Transactional(readOnly = true)
-    public List<KartResponseDTO> getAvailableKartsForTrackAndSession(Long trackId, LocalDateTime sessionStart, LocalDateTime sessionEnd) {
-      
+    public List<KartResponseDTO> getAvailableKarts(Long trackId) {
+
         Track track = trackRepository.findById(trackId)
                 .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
 
-        if(!track.getIsAvailable()) {
-            throw new IllegalArgumentException("Track is not active.");
-        }
-
-        if (sessionStart == null || sessionEnd == null) {
-            throw new IllegalArgumentException("Session start and end times must be provided.");
-        }
-        if (sessionStart.isAfter(sessionEnd)) {
-            throw new IllegalArgumentException("Session start time cannot be after session end time.");
-        }
-        if (sessionStart.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Session start time cannot be in the past.");
-        }
-        if (sessionEnd.isBefore(sessionStart)) {
-            throw new IllegalArgumentException("Session end time cannot be before session start time.");
-        }
-        if (sessionStart.toLocalDate().isAfter(sessionEnd.toLocalDate())) {
-            throw new IllegalArgumentException("Session start and end times must be on the same day.");
+        if (!track.getIsAvailable()) {
+            throw new IllegalArgumentException("Track is not available.");
         }
 
         List<Kart> kartsOnTrackAndAvailable = kartRepository.findByTrackAndIsAvailable(track, true);
 
         if (kartsOnTrackAndAvailable.isEmpty()) {
-            throw new IllegalArgumentException("No karts available for the specified track.");
+            return null;
         }
-        
-
-        Set<Long> occupiedKartIds = participantRepository
-            .findKartsOccupiedBySessionOverlap(
-                track.getId(), // Passa o ID da pista
-                sessionStart.toLocalDate().atStartOfDay(), // Início do dia da sessão
-                sessionStart.toLocalDate().atTime(23, 59, 59), // Fim do dia da sessão
-                sessionStart.toLocalTime(), // Hora de início da sessão 
-                sessionEnd.toLocalTime(),   // Hora de fim da sessão 
-                ReservationStatus.PENDING, 
-                ReservationStatus.ACCEPTED 
-            )
-            .stream()
-            .filter(participant -> participant.getKart() != null)
-            .map(participant -> participant.getKart().getId())
-            .collect(Collectors.toSet());
 
         return kartsOnTrackAndAvailable.stream()
-                .filter(kart -> !occupiedKartIds.contains(kart.getId()))
                 .map(this::mapKartToKartResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -109,10 +72,7 @@ public class KartService {
         return new KartResponseDTO(
                 kart.getId(),
                 kart.getKartNumber(),
-                kart.getModel(),
-                kart.getIsAvailable(),
-                kart.getTrack().getId(),
-                kart.getTrack().getName()
+                kart.getModel()
         );
     }
 }

@@ -48,7 +48,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponseDTO createReservation(ReservationCreateRequestDTO request, Long currentUserId) {
+    public ReservationDetailsResponseDTO createReservation(ReservationCreateRequestDTO request, Long currentUserId) {
 
         Track track = trackRepository.findById(request.getTrackId())
                 .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + request.getTrackId()));
@@ -58,18 +58,18 @@ public class ReservationService {
         }
 
 
-        DayOfWeek reservationDayOfWeek = request.getReservationDateTime().getDayOfWeek();
+        DayOfWeek reservationDayOfWeek = request.getReservationDate().getDayOfWeek();
         DaySchedule trackSchedule = dayScheduleRepository.findByTrackAndDay(track, reservationDayOfWeek)
                 .orElseThrow(() -> new IllegalArgumentException("Track is not open on " + reservationDayOfWeek.name() + "."));
 
 
         Reservation reservation = new Reservation();
-        reservation.setDate(request.getReservationDateTime());
+        reservation.setDate(request.getReservationDate());
         reservation.setTrack(track);
         reservation.setStatus(ReservationStatus.PENDING);
         reservation.setCreatedByUserId(currentUserId);
 
-        LocalDate reservationDate = request.getReservationDateTime().toLocalDate();
+        LocalDate reservationDate = request.getReservationDate();
 
         Set<Session> sessions = new HashSet<>();
         for (SessionCreateDTO sessionDTO : request.getSessions()) {
@@ -89,14 +89,13 @@ public class ReservationService {
             // c)garantir que o slot não está ocupado ( apesar de já estar filtrado no frontend)
             List<Session> existingOccupiedSessions = sessionRepository.findOccupiedSessionsForTrackAndDate(
                     track.getId(),
-                    reservationDate.atStartOfDay(),
-                    reservationDate.atTime(23, 59, 59),
+                    reservationDate,
                     ReservationStatus.PENDING,
                     ReservationStatus.ACCEPTED
             );
             for (Session existingSession : existingOccupiedSessions) {
-                if (sessionStartTime.toLocalTime().isBefore(existingSession.getEndTime()) &&
-                        sessionEndTime.toLocalTime().isAfter(existingSession.getStartTime())) {
+                if (sessionStartTime.toLocalTime().isBefore(existingSession.getBookedEndTime()) &&
+                        sessionEndTime.toLocalTime().isAfter(existingSession.getBookedStartTime())) {
                 throw new IllegalArgumentException("Session times overlap with an existing reservation.");
                 }
             }
@@ -144,7 +143,7 @@ public class ReservationService {
         String notificationTitle = "Reservation #" + savedReservation.getId() + " created";
         String notificationBody = String.format("Your reservation on track '%s' to %s is %s.",
                 track.getName(),
-                request.getReservationDateTime().toLocalDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE),
+                request.getReservationDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE),
                 savedReservation.getStatus().name());
 
         NotificationCreateRequestDTO bookingNotificationRequest = new NotificationCreateRequestDTO();
@@ -159,7 +158,7 @@ public class ReservationService {
                 String participantNotificationBody = String.format("You've been added to the reservation %s in the track '%s' to %s.",
                         savedReservation.getId(),
                         track.getName(),
-                        request.getReservationDateTime().toLocalDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
+                        request.getReservationDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
 
                 NotificationCreateRequestDTO participantNotificationRequest = new NotificationCreateRequestDTO();
                 participantNotificationRequest.setUserId(participant.getUser().getId());
@@ -171,7 +170,7 @@ public class ReservationService {
 
         // 8. Mapear para ReservationResponseDTO
         List<SessionResponseDTO> sessionResponses = savedReservation.getSessions().stream()
-                .map(session -> new SessionResponseDTO(session.getId(), session.getStartTime(), session.getEndTime()))
+                .map(session -> new SessionResponseDTO(session.getId(), session.getBookedStartTime(), session.getBookedEndTime()))
                 .collect(Collectors.toList());
 
         List<ParticipantResponseDTO> participantResponses = savedReservation.getParticipants().stream()
@@ -184,7 +183,7 @@ public class ReservationService {
                 ))
                 .collect(Collectors.toList());
 
-        return new ReservationResponseDTO(
+        return new ReservationDetailsResponseDTO(
                 savedReservation.getId(),
                 savedReservation.getDate(),
                 savedReservation.getStatus(),
@@ -197,42 +196,27 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<ReservationResponseDTO> getReservationsByUserId(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
-
-        List<Reservation> reservations = reservationRepository.findByParticipants_User(user);
-
+        List<Reservation> reservations = reservationRepository.findByParticipants_UserId(userId);
         return reservations.stream()
                 .map(reservation -> {
-                    List<SessionResponseDTO> sessionResponses = reservation.getSessions().stream()
-                            .map(session -> new SessionResponseDTO(session.getId(), session.getStartTime(), session.getEndTime()))
-                            .collect(Collectors.toList());
-
-                    List<ParticipantResponseDTO> participantResponses = reservation.getParticipants().stream()
-                            .map(participant -> new ParticipantResponseDTO(
-                                    participant.getId(),
-                                    participant.getUser().getId(),
-                                    participant.getUser().getName(),
-                                    participant.getKart() != null ? participant.getKart().getId() : null,
-                                    participant.getKart() != null ? participant.getKart().getKartNumber() : null
-                            ))
-                            .collect(Collectors.toList());
-
+                    Integer numSessions = reservation.getSessions().size() != 0 ? (int) reservation.getSessions().size() : 0;
+                    Integer numParticipants = reservation.getParticipants().size() != 0 ? (int) reservation.getParticipants().size() : 0;
                     return new ReservationResponseDTO(
                             reservation.getId(),
                             reservation.getDate(),
                             reservation.getStatus(),
-                            reservation.getTrack().getId(),
                             reservation.getTrack().getName(),
-                            sessionResponses,
-                            participantResponses
+                            reservation.getTrack().getBannerImage(),
+                            numSessions,
+                            numParticipants,
+                            reservation.getCreatedByUserId()
                     );
                 })
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public ReservationResponseDTO getReservationById(Long reservationId, Long userId) {
+    public ReservationDetailsResponseDTO getReservationById(Long reservationId, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
         
@@ -243,7 +227,7 @@ public class ReservationService {
             throw new IllegalArgumentException("User does not have access to this reservation.");
         }
         List<SessionResponseDTO> sessionResponses = reservation.getSessions().stream()
-                .map(session -> new SessionResponseDTO(session.getId(), session.getStartTime(), session.getEndTime()))
+                .map(session -> new SessionResponseDTO(session.getId(), session.getBookedStartTime(), session.getBookedEndTime()))
                 .collect(Collectors.toList());
         List<ParticipantResponseDTO> participantResponses = reservation.getParticipants().stream()
                 .map(participant -> new ParticipantResponseDTO(
@@ -254,7 +238,7 @@ public class ReservationService {
                         participant.getKart() != null ? participant.getKart().getKartNumber() : null
                 ))
                 .collect(Collectors.toList());
-        return new ReservationResponseDTO(
+        return new ReservationDetailsResponseDTO(
                 reservation.getId(),
                 reservation.getDate(),
                 reservation.getStatus(),
@@ -282,7 +266,7 @@ public class ReservationService {
                 String participantNotificationTitle = "Reservation #" + reservation.getId() + " cancelled";
                 String participantNotificationBody = String.format("The reservation on track '%s' to %s has been cancelled.",
                         reservation.getTrack().getName(),
-                        reservation.getDate().toLocalDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
+                        reservation.getDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
                 NotificationCreateRequestDTO participantNotificationRequest = new NotificationCreateRequestDTO();
                 participantNotificationRequest.setUserId(participant.getUser().getId());
                 participantNotificationRequest.setTitle(participantNotificationTitle);
@@ -292,7 +276,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponseDTO updateReservation(Long reservationId, ReservationCreateRequestDTO request, Long userId) {
+    public ReservationDetailsResponseDTO updateReservation(Long reservationId, ReservationCreateRequestDTO request, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
 
@@ -310,17 +294,17 @@ public class ReservationService {
                 throw new IllegalArgumentException("Track is not available.");
         }
 
-        DayOfWeek reservationDayOfWeek = request.getReservationDateTime().getDayOfWeek();
+        DayOfWeek reservationDayOfWeek = request.getReservationDate().getDayOfWeek();
         DaySchedule trackSchedule = dayScheduleRepository.findByTrackAndDay(track, reservationDayOfWeek)
                 .orElseThrow(() -> new IllegalArgumentException("Track is not open on " + reservationDayOfWeek.name() + "."));
 
         reservation.setTrack(track);
-        reservation.setDate(request.getReservationDateTime());
+        reservation.setDate(request.getReservationDate());
 
         Set<Session> sessions = new HashSet<>();
         for (SessionCreateDTO sessionDTO : request.getSessions()) {
-                LocalDateTime sessionStartTime = LocalDateTime.of(request.getReservationDateTime().toLocalDate(), sessionDTO.getStartTime());
-                LocalDateTime sessionEndTime = LocalDateTime.of(request.getReservationDateTime().toLocalDate(), sessionDTO.getEndTime());
+                LocalDateTime sessionStartTime = LocalDateTime.of(request.getReservationDate(), sessionDTO.getStartTime());
+                LocalDateTime sessionEndTime = LocalDateTime.of(request.getReservationDate(), sessionDTO.getEndTime());
 
                 // Validações de horário da sessão:
                 // a) Horário da sessão dentro do horário de funcionamento da pista para o dia
@@ -336,14 +320,14 @@ public class ReservationService {
                 // c) Garantir que o slot não está ocupado
                 List<Session> existingOccupiedSessions = sessionRepository.findOccupiedSessionsForTrackAndDate(
                         track.getId(),
-                        request.getReservationDateTime().toLocalDate().atStartOfDay(),
-                        request.getReservationDateTime().toLocalDate().atTime(23, 59, 59),
+                        request.getReservationDate(),
                         ReservationStatus.PENDING,
                         ReservationStatus.ACCEPTED
                 );
+                
                 for (Session existingSession : existingOccupiedSessions) {
-                        if (sessionStartTime.toLocalTime().isBefore(existingSession.getEndTime()) &&
-                                sessionEndTime.toLocalTime().isAfter(existingSession.getStartTime())) {
+                        if (sessionStartTime.toLocalTime().isBefore(existingSession.getBookedEndTime()) &&
+                                sessionEndTime.toLocalTime().isAfter(existingSession.getBookedStartTime())) {
                                 throw new IllegalArgumentException("Session times overlap with an existing reservation.");
                         }
                 }
@@ -385,7 +369,7 @@ public class ReservationService {
         String notificationTitle = "Reservation #" + savedReservation.getId() + " updated";
         String notificationBody = String.format("Your reservation on track '%s' to %s has been updated.",
                 track.getName(),
-                request.getReservationDateTime().toLocalDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
+                request.getReservationDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
         NotificationCreateRequestDTO bookingNotificationRequest = new NotificationCreateRequestDTO();
         bookingNotificationRequest.setUserId(bookingUser.getId());
         bookingNotificationRequest.setTitle(notificationTitle);
@@ -396,7 +380,7 @@ public class ReservationService {
                 String participantNotificationTitle = "Reservation #" + savedReservation.getId() + " updated";
                 String participantNotificationBody = String.format("Your participation in the reservation on track '%s' to %s has been updated.",
                         track.getName(),
-                        request.getReservationDateTime().toLocalDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
+                        request.getReservationDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
                 NotificationCreateRequestDTO participantNotificationRequest = new NotificationCreateRequestDTO();
                 participantNotificationRequest.setUserId(participant.getUser().getId());
                 participantNotificationRequest.setTitle(participantNotificationTitle);
@@ -407,7 +391,7 @@ public class ReservationService {
 
         // Mapear para ReservationResponseDTO
         List<SessionResponseDTO> sessionResponses = savedReservation.getSessions().stream()
-                .map(session -> new SessionResponseDTO(session.getId(), session.getStartTime(), session.getEndTime()))
+                .map(session -> new SessionResponseDTO(session.getId(), session.getBookedStartTime(), session.getBookedEndTime()))
                 .collect(Collectors.toList());
         List<ParticipantResponseDTO> participantResponses = savedReservation.getParticipants().stream()
                 .map(participant -> new ParticipantResponseDTO(
@@ -418,7 +402,7 @@ public class ReservationService {
                         participant.getKart() != null ? participant.getKart().getKartNumber() : null
                 ))
                 .collect(Collectors.toList());
-        return new ReservationResponseDTO(
+        return new ReservationDetailsResponseDTO(
                 savedReservation.getId(),
                 savedReservation.getDate(),
                 savedReservation.getStatus(),
@@ -463,19 +447,16 @@ public class ReservationService {
 
             List<Session> existingOccupiedSessions = sessionRepository.findOccupiedSessionsForTrackAndDate(
                     track.getId(),
-                    date.atStartOfDay(),
-                    date.atTime(23, 59, 59),
+                    date,
                     ReservationStatus.PENDING,
                     ReservationStatus.ACCEPTED
             );
 
-            List<SlotResponseDTO> occupiedSlots = new ArrayList<>();
-
             for (SlotResponseDTO slot : allPossibleSlots) {
                 boolean isOccupied = false;
                 for (Session existingSession : existingOccupiedSessions) {
-                    if (slot.getStartTime().isBefore(existingSession.getEndTime()) &&
-                            slot.getEndTime().isAfter(existingSession.getStartTime())) {
+                    if (slot.getStartTime().isBefore(existingSession.getBookedEndTime()) &&
+                            slot.getEndTime().isAfter(existingSession.getBookedStartTime())) {
                         isOccupied = true;
                         break;
                     }

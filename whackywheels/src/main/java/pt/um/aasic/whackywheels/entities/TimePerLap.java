@@ -21,6 +21,13 @@ public class TimePerLap {
 
     protected TimePerLap() {}
 
+    public TimePerLap(int lap, Double lapTime, Participant participant, Session session) {
+        this.lap = lap;
+        this.lapTime = lapTime;
+        this.participant = participant;
+        this.session = session;
+    }
+
     public Long getId() {
         return id;
     }

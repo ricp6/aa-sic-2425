@@ -1,6 +1,5 @@
 package pt.um.aasic.whackywheels.services;
 
-import pt.um.aasic.whackywheels.dtos.LoginRequestDTO;
 import pt.um.aasic.whackywheels.dtos.RegisterRequestDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.repositories.UserRepository;
@@ -20,21 +19,18 @@ public class AuthService {
     }
 
     @Transactional
-    public User registerNewUser(RegisterRequestDTO request) {
+    public void registerNewUser(RegisterRequestDTO request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalStateException("Email in use");
         }
 
         User newUser = new User();
         newUser.setName(request.getName());
-
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUser.setName(request.getName());
         newUser.setEmail(request.getEmail());
         newUser.setProfilePicture(request.getProfilePic());
         newUser.setUserType("USER");
-
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
     }
 
     @Transactional(readOnly = true)

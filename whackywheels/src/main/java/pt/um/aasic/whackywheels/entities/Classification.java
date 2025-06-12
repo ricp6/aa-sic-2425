@@ -17,7 +17,19 @@ public class Classification {
     @JoinColumn(name = "session_id")
     private Session session;
 
-    protected Classification() {}
+    @ManyToOne
+    @JoinColumn(name = "participant_id")
+    private Participant participant;
+
+    public  Classification() {}
+
+    public Classification(Double position, Double averageTime, Double bestLapTime, Session session, Participant participant) {
+        this.position = position;
+        this.averageTime = averageTime;
+        this.bestLapTime = bestLapTime;
+        this.session = session;
+        this.participant = participant;
+    }
 
     public Long getId() {
         return id;
@@ -57,5 +69,13 @@ public class Classification {
 
     public void setSession(Session session) {
         this.session = session;
+    }
+
+    public Participant getParticipant() {
+        return participant;
+    }
+
+    public void setParticipant(Participant participant) {
+        this.participant = participant;
     }
 }
