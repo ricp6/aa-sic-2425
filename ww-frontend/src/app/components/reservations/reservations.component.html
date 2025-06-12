@@ -18,7 +18,7 @@
           <div *ngIf="todayActiveReservations.length > 0" class="reservation-group">
             <h2 class="reservation-group-title">Today</h2>
 
-            <mat-card class="reservation-card" *ngFor="let reservation of todayActiveReservations">
+            <mat-card class="reservation-card" *ngFor="let reservation of todayActiveReservations" [routerLink]="['/reservations', reservation.id]">
               <div class="track-image">
                 <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
               </div>
@@ -54,7 +54,7 @@
           <div *ngIf="futureActiveReservations.length > 0" class="reservation-group">
             <h2 class="reservation-group-title">Future</h2>
 
-            <mat-card class="reservation-card" *ngFor="let reservation of futureActiveReservations">
+            <mat-card class="reservation-card" *ngFor="let reservation of futureActiveReservations" [routerLink]="['/reservations', reservation.id]">
               <div class="track-image">
                 <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
               </div>
@@ -96,7 +96,7 @@
       <mat-tab label="Completed">
         <div class="selected-tab">
 
-          <mat-card class="reservation-card" *ngFor="let reservation of completedReservations">
+          <mat-card class="reservation-card" *ngFor="let reservation of completedReservations" [routerLink]="['/reservations', reservation.id]">
             <div class="track-image">
                 <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
               </div>

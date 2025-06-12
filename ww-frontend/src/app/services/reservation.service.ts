@@ -4,6 +4,8 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable, throwError, combineLatest } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Reservation, ReservationStatus } from '../interfaces/reservation';
+import { ReservationDetails, Session, Participant } from '../interfaces/reservation-details';
+
 import { TrackService } from "./track.service";
 import { SimpleTrack } from '../interfaces/track';
 import { Slot } from '../interfaces/slot';
@@ -33,7 +35,7 @@ export class ReservationService {
 
   getReservations(): Observable<Reservation[]> {
     return combineLatest([
-      this.http.get<RawReservation[]>(this.reservationsURL),
+      this.http.get<any[]>(this.reservationsURL),
       this.trackService.loadTracks()
     ]).pipe(
       map(([rawReservations, tracks]) => {
@@ -109,6 +111,22 @@ export class ReservationService {
         }
         return throwError(() => error);
       })
+    );
+  }
+  
+  getReservationDetails(id: number): Observable<ReservationDetails> {
+    const detailUrl = `${this.reservationsURL}/${id}`;
+    return this.http.get<ReservationDetails>(detailUrl).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  cancelReservation(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.reservationsURL}/${id}`).pipe(
+      map(() => {
+        this.toastr.success('Reservation cancelled successfully.', 'Success');
+      }),
+      catchError(this.handleError)
     );
   }
 
