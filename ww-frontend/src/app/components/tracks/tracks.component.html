@@ -1,72 +1,98 @@
 <div id="tracks-content">
-    <div id="banner-image"></div>
+  <div id="banner-image"></div>
 
-    <section id="tracks-container">
+  <section id="tracks-container">
 
-        <section id="tracks-header">
-            <h1 id="title">Tracks</h1>
+    <section id="tracks-header">
+      <h1 id="title">Tracks</h1>
 
-            <section id="tracks-controls">
-                <button mat-icon-button type="button" *ngIf="isLoggedIn" id="filter-favs" (click)="toggleFavs()">
-                    <mat-icon>{{ onlyFavs ? 'star' : 'star_border' }}</mat-icon>
-                </button>
+      <section id="tracks-controls">
+        <button mat-icon-button type="button" *ngIf="isLoggedIn" id="filter-favs" (click)="toggleFavs()">
+          <mat-icon>{{ onlyFavs ? 'star' : 'star_border' }}</mat-icon>
+        </button>
 
-                <button mat-stroked-button type="button" id="filter-options">
-                    <mat-icon>filter_list</mat-icon>
-                    Filters
-                </button>
+        <mat-slide-toggle
+          [checked]="showOperationalOnly"
+          (change)="toggleOperational()"
+          color="primary"
+          class="operational-toggle"
+        >
+          Show Operational
+        </mat-slide-toggle>
 
-                <mat-form-field appearance="outline" id="search-field">
-                    <mat-icon matPrefix>search</mat-icon>
-                    <input matInput placeholder="Search track..." [(ngModel)]="searchTerm" />
-                </mat-form-field>
-            </section>
-        </section>
+        <mat-form-field appearance="outline" id="search-field">
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput placeholder="Search track..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
+        </mat-form-field>
+      </section>
+    </section>
 
-        <div id="track-list-container" [class]="isLoggedIn ? 'complete' : 'simple'">
-            <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)"
-            [class]="isLoggedIn ? 'complete' : 'simple'">
-                <div class="track-image">
-                    <img mat-card-image [src]="track.image" [alt]="track.name" />
-                </div>
+    <mat-accordion class="filter-accordion">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>filter_list</mat-icon> Advanced Filters
+          </mat-panel-title>
+        </mat-expansion-panel-header>
 
-                <mat-card-content class="track-info">
-                    <div class="track-details">
-                        <span class="track-name">{{ track.name }}</span>
-                        <span class="track-location">{{ track.address }}</span>
-                        <span class="track-status">
-                            <span class="track-status-dot" 
-                                [ngStyle]="{ 'background-color': track.available ? 'green' : 'red' }">
-                            </span>
-                            <span class="track-status-label">
-                                {{ track.available ? 'Operational' : 'Not Operational' }}
-                            </span>
+        <div class="filter-panel-content">
+          <mat-form-field class="city-filter-field">
+            <mat-label>Filter by City</mat-label>
+            <input
+              type="text"
+              placeholder="Select cities"
+              matInput
+              [formControl]="cityFilterControl"
+              [matAutocomplete]="cityAuto"
+              #cityInput
+            >
+            <mat-autocomplete #cityAuto="matAutocomplete" (optionSelected)="selected($event)">
+              <mat-option *ngFor="let city of filteredCityOptions | async" [value]="city">
+                {{ city }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-chip-listbox aria-label="City selection" *ngIf="selectedCities.length > 0" class="selected-cities-chips">
+            <mat-chip-row *ngFor="let city of selectedCities" (removed)="remove(city)">
+              {{ city }}
+              <button matChipRemove [attr.aria-label]="'remove ' + city">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          </mat-chip-listbox>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+
+    <div id="track-list-container" [class]="isLoggedIn ? 'complete' : 'simple'"> <mat-card class="track-card" *ngFor="let track of filteredTracks()" (click)="showTrack(track)"
+                                                                                           [class]="isLoggedIn ? 'complete' : 'simple'"> <div class="track-image">
+      <img mat-card-image [src]="track.image" [alt]="track.name" /> </div>
+
+      <mat-card-content class="track-info"> <div class="track-details"> <span class="track-name">{{ track.name }}</span> <span class="track-location">{{ track.address }}</span> <span class="track-status"> <span class="track-status-dot"
+                                                                                                                                                                                                                   [ngStyle]="{ 'background-color': track.available ? 'green' : 'red' }"> </span>
+                            <span class="track-status-label"> {{ track.available ? 'Operational' : 'Not Operational' }} </span>
                         </span>
-                    </div>
+      </div>
 
-                    <div class="track-stats" *ngIf="track.personalRecord">
-                        <span class="track-record">
+        <div class="track-stats" *ngIf="isLoggedIn && (track.personalRecord || track.trackRecord)"> <span class="track-record" *ngIf="track.personalRecord">
                             Personal Record:
                             <span class="record-value">{{ track.personalRecord }}</span>
                         </span>
-                        <span class="track-record" *ngIf="track.personalRecord">
+          <span class="track-record" *ngIf="track.trackRecord">
                             Track Record:
                             <span class="record-value">{{ track.trackRecord }}</span>
                         </span>
-                    </div>
-
-                    <div class="star-button-container" *ngIf="isLoggedIn">
-                        <button mat-icon-button type="button" class="star-button"
-                            (click)="setFav(track); $event.stopPropagation()">
-                            <mat-icon class="star-icon">
-                                {{ isFav(track) ? 'star' : 'star_border' }}
-                            </mat-icon>
-                        </button>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-
-            <p *ngIf="!filteredTracks() || filteredTracks()!.length === 0" id="no-tracks">No results found.</p>
         </div>
-    </section>
+
+        <div class="star-button-container" *ngIf="isLoggedIn"> <button mat-icon-button type="button" class="star-button"
+                                                                       (click)="setFav(track); $event.stopPropagation()"> <mat-icon class="star-icon"> {{ isFav(track) ? 'star' : 'star_border' }} </mat-icon>
+        </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+      <p *ngIf="!filteredTracks() || filteredTracks()!.length === 0" id="no-tracks">No results found.</p> </div>
+  </section>
 </div>

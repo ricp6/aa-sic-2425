@@ -12,11 +12,10 @@
         <mat-card-title class="track-name-display">{{ reservation.trackName }}</mat-card-title>
         <mat-card-subtitle class="reservation-id-display">Reservation #{{ reservation.id }}</mat-card-subtitle>
       </mat-card-header>
-
       <mat-card-content>
         <div class="detail-row">
           <mat-icon class="detail-icon">event</mat-icon>
-          <span>Date: {{ formatDate(reservation.reservationDateTime) }}</span>
+          <span>Date: {{ formatDate(reservation.reservationDate) }}</span>
         </div>
         <div class="detail-row">
           <mat-icon class="detail-icon">info</mat-icon>

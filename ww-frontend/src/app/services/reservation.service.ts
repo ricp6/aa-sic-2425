@@ -5,20 +5,17 @@ import { Observable, throwError, combineLatest } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Reservation, ReservationStatus } from '../interfaces/reservation';
 import { ReservationDetails, Session, Participant } from '../interfaces/reservation-details';
-
-import { TrackService } from "./track.service";
-import { SimpleTrack } from '../interfaces/track';
 import { Slot } from '../interfaces/slot';
 
 
 interface RawReservation {
   id: number;
-  reservationDateTime: string;
+  reservationDate: string;
   status: string;
-  trackId: number;
   trackName: string;
-  sessions: { id: number; startTime: string; endTime: string }[];
-  participants: { id: number; userId: number; userName: string; kartId: number; kartNumber: number }[];
+  numSessions: number;
+  numParticipants: number;
+  trackImage: string;
 }
 
 @Injectable({
@@ -30,16 +27,12 @@ export class ReservationService {
   constructor(
     private readonly http: HttpClient,
     private readonly toastr: ToastrService,
-    private readonly trackService: TrackService
   ) { }
 
   getReservations(): Observable<Reservation[]> {
-    return combineLatest([
-      this.getRawReservations(),
-      this.trackService.getTracksCached()
-    ]).pipe(
-      map(([rawReservations, tracks]) => {
-        const mappedReservations = this.mapRawReservationsToReservations(rawReservations, tracks);
+    return this.getRawReservations().pipe(
+      map(rawReservations => {
+        const mappedReservations = this.mapRawReservationsToReservations(rawReservations);
 
         mappedReservations.sort((a, b) => {
           const [dayA, monthA, yearA] = a.date.split('/').map(Number);
@@ -57,25 +50,19 @@ export class ReservationService {
     );
   }
 
-  private mapRawReservationsToReservations(rawReservations: RawReservation[], tracks: SimpleTrack[]): Reservation[] {
+  private mapRawReservationsToReservations(rawReservations: RawReservation[]): Reservation[] {
     return rawReservations.map(raw => {
-      const reservationDate = new Date(raw.reservationDateTime);
+      const reservationDate = new Date(raw.reservationDate);
       const date = reservationDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-      const numberOfParticipants = raw.participants.length;
-      const numberOfSlots = raw.sessions.length.toString();
-
-      const track = tracks.find(t => t.id === raw.trackId);
-      const trackImage = track ? track.image : '/track1.jpg';
 
       return {
         id: raw.id,
         trackName: raw.trackName,
-        numberOfParticipants: numberOfParticipants,
+        numberOfParticipants: raw.numParticipants,
         date: date,
-        numberOfSlots: numberOfSlots,
+        numberOfSlots: raw.numSessions.toString(),
         status: raw.status as ReservationStatus,
-        trackImage: trackImage
+        trackImage: raw.trackImage
       };
     });
   }
@@ -119,7 +106,7 @@ export class ReservationService {
       })
     );
   }
-  
+
   getReservationDetails(id: number): Observable<ReservationDetails> {
     return this.http.get<ReservationDetails>(`${this.reservationsURL}/${id}`).pipe(
       catchError(this.handleError)

@@ -21,7 +21,7 @@ export interface Participant {
 
 export interface ReservationDetails {
   id: number;
-  reservationDateTime: string;
+  reservationDate: string;
   status: ReservationStatus;
   trackId: number;
   trackName: string;

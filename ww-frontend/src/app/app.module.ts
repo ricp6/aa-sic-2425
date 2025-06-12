@@ -43,6 +43,10 @@ import { ReservationFormComponent } from './components/reservation-form/reservat
 import { ToastrModule } from 'ngx-toastr';
 import { ReservationDetailsComponent } from './components/reservation-details/reservation-details.component';
 
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
+
 
 @NgModule({
   declarations: [
@@ -83,9 +87,14 @@ import { ReservationDetailsComponent } from './components/reservation-details/re
     MatAutocompleteModule,
     MatSelectModule,
     MatDividerModule,
+    ReactiveFormsModule,
+    MatSlideToggleModule,
+    MatChipsModule,
+    MatExpansionModule,
+
     ToastrModule.forRoot({
       timeOut: 5000,
-      extendedTimeOut: 1000, //Time to close after a user hovers over toast
+      extendedTimeOut: 1000,
       positionClass: 'toast-top-left',
       progressBar: true,
       preventDuplicates: true
