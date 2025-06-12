@@ -70,7 +70,7 @@ public class SessionController {
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<?> endSession(@PathVariable Long sessionId, @AuthenticationPrincipal User authenticatedUser) {
         try {
-            //.endSession(sessionId);
+            sessionService.endSession(sessionId);
             return ResponseEntity.ok("Session " + sessionId + " ended and classifications calculated successfully.");
         } catch (IllegalArgumentException | IllegalStateException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
