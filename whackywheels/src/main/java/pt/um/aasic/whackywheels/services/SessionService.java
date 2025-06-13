@@ -83,7 +83,7 @@ public class SessionService {
     }
 
     @Transactional(readOnly = true)
-    public SessionsDetailsResponseDTO getSessionDetailsBySessionId(Long sessionId) {
+    public SessionsDetailsResponseDTO getSessionDetailsBySessionId(Long sessionId, Long userId) {
         if (sessionId == null) {
             throw new IllegalArgumentException("Session ID cannot be null.");
         }
@@ -95,6 +95,11 @@ public class SessionService {
         Reservation reservation = session.getReservation();
         if (reservation == null) {
             throw new IllegalArgumentException("Session has no associated reservation.");
+        }
+        
+        if(!reservation.getCreatedByUserId().equals(userId) && !reservation.getParticipants().stream()
+                .anyMatch(participant -> participant.getUser() != null && participant.getUser().getId().equals(userId))) {
+            throw new IllegalArgumentException("You do not have access to this session's details.");
         }
 
         // Ensure the reservation is completed for showing details
@@ -120,8 +125,6 @@ public class SessionService {
                 duration = duration.plusDays(1); // Assuming sessions don't span more than 24 hours
             }
 
-            totalSessionDurationMinutes = duration.toMinutes();
-
             long minutes = duration.toMinutes();
             long seconds = duration.toSecondsPart();
             sessionDurationFormatted = String.format("%dm %ds", minutes, seconds);
@@ -131,13 +134,10 @@ public class SessionService {
             if (duration.isNegative()) {
                 duration = duration.plusDays(1);
             }
-            totalSessionDurationMinutes = duration.toMinutes();
             long minutes = duration.toMinutes();
             long seconds = duration.toSecondsPart();
             sessionDurationFormatted = String.format("%dm %ds (booked)", minutes, seconds);
         }
-
-        Double sessionCost = calculateSessionCost(reservation, totalSessionDurationMinutes);
 
         List<DriverClassificationDTO> driverClassifications = session.getClassifications().stream()
             .map(classification -> {
@@ -173,7 +173,6 @@ public class SessionService {
             date,
             (int) kartsUsed,
             sessionDurationFormatted,
-            sessionCost,
             driverClassifications
         );
     }
@@ -195,6 +194,8 @@ public class SessionService {
             throw new IllegalStateException("Session " + sessionId + " cannot be started. Reservation is not accepted or does not exist.");
         }
 
+        // AQUI SERIA A LOGICA DE MANDAR A INFO PARA O KART
+
         session.setActualStartTime(LocalTime.now());
         sessionRepository.save(session);
     }
@@ -206,6 +207,18 @@ public class SessionService {
 
         if (session.getActualStartTime() == null || session.getActualEndTime() != null) {
             throw new IllegalStateException("Session " + sessionId + " is not in progress.");
+        }
+
+        if (participantId == null) {
+            throw new IllegalArgumentException("Participant ID cannot be null.");
+        }
+
+        if (lapTime == null || lapTime <= 0) {
+            throw new IllegalArgumentException("Lap time must be a positive number.");
+        }
+
+        if (session.getReservation() == null || session.getReservation().getStatus() != ReservationStatus.ACCEPTED) {
+            throw new IllegalStateException("Session " + sessionId + " cannot record lap time. Reservation is not accepted or does not exist.");
         }
 
         Participant participant = session.getReservation().getParticipants().stream()
@@ -224,7 +237,7 @@ public class SessionService {
 
     @Transactional
     public void endSession(Long sessionId) {
-        Session session = sessionRepository.findByIdWithAllDetails(sessionId)
+        Session session = sessionRepository.findByIdForEndingSession(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + sessionId));
 
         if (session.getActualStartTime() == null) {
@@ -232,6 +245,10 @@ public class SessionService {
         }
         if (session.getActualEndTime() != null) {
             throw new IllegalStateException("Session " + sessionId + " has already been completed.");
+        }
+
+        if (session.getReservation() == null || session.getReservation().getStatus() != ReservationStatus.ACCEPTED) {
+            throw new IllegalStateException("Session " + sessionId + " cannot be ended. Reservation is not accepted or does not exist.");
         }
 
         session.setActualEndTime(LocalTime.now());
@@ -302,7 +319,7 @@ public class SessionService {
             newClassifications.get(i).setPosition((double) (i + 1));
         }
 
-        session.setClassifications(new HashSet<>(newClassifications));
+        session.getClassifications().addAll(newClassifications);
         sessionRepository.save(session);
     }
 
@@ -325,21 +342,8 @@ public class SessionService {
             try {
                 endSession(session.getId());
             } catch (Exception e) {
-                return;
+                System.err.println("Failed to auto-end session " + session.getId());
             }
         }
-    }
-
-    private Double calculateSessionCost(Reservation reservation, long totalSessionDurationMinutes) {
-        if (reservation.getTrack() == null || reservation.getTrack().getSlotPrice() == null || reservation.getTrack().getSlotDuration() == null || reservation.getTrack().getSlotDuration() <= 0) {
-            return 0.0;
-        }
-
-        BigDecimal slotPrice = reservation.getTrack().getSlotPrice();
-        Integer slotDuration = reservation.getTrack().getSlotDuration();
-
-        double numberOfSlotsUsed = Math.ceil((double) totalSessionDurationMinutes / slotDuration);
-
-        return slotPrice.multiply(BigDecimal.valueOf(numberOfSlotsUsed)).doubleValue();
     }
 }

@@ -80,4 +80,33 @@ public class TrackController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    //OWNER
+    @GetMapping("/owned")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<List<TrackResponseDTO>> getOwnedTracks(@AuthenticationPrincipal User authenticatedUser) {
+        try {
+            Long ownerId = authenticatedUser.getId();
+            List<TrackResponseDTO> ownedTracks = trackService.findOwnedTracks(ownerId);
+            return new ResponseEntity<>(ownedTracks, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/changeAvailability/{trackId}")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<?> setTrackAvailability(@PathVariable Long trackId, @AuthenticationPrincipal User authenticatedUser) {
+        try {
+            Long ownerId = authenticatedUser.getId();
+            trackService.setTrackAvailability(trackId, ownerId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Failed to update track availability: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
