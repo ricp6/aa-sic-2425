@@ -42,15 +42,28 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     Optional<Session> findByIdWithAllDetails(@Param("sessionId") Long sessionId);
 
     @Query("SELECT s FROM Session s " +
-            "JOIN s.reservation r " +
-            "JOIN r.participants p " +
+            "JOIN FETCH s.reservation r " +
+            "LEFT JOIN FETCH r.track " + // Fetch the track
+            "LEFT JOIN FETCH r.participants p " + // Fetch participants
+            "LEFT JOIN FETCH p.user " + // Fetch participant users
             "WHERE p.user.id = :userId AND r.status = :status")
     List<Session> findSessionsByUserId(@Param("userId") Long userId, @Param("status") ReservationStatus status);
 
-    @Query("SELECT s FROM Session s JOIN s.reservation r " +
+    @Query("SELECT s FROM Session s JOIN FETCH s.reservation r LEFT JOIN FETCH r.sessions " +
             "WHERE r.date = :date " +
             "AND s.bookedEndTime <= :currentTime " +
             "AND s.actualStartTime IS NOT NULL " +
             "AND s.actualEndTime IS NULL")
     List<Session> findSessionsToEnd(@Param("date") LocalDate date, @Param("currentTime") LocalTime currentTime);
+
+    @Query("SELECT s FROM Session s " +
+            "LEFT JOIN FETCH s.reservation r " +
+            "LEFT JOIN FETCH r.sessions rs " +
+            "LEFT JOIN FETCH r.participants rp " +
+            "LEFT JOIN FETCH rp.timePerLaps rptpl " +
+            "LEFT JOIN FETCH s.classifications sc " +
+            "WHERE s.id = :sessionId")
+    Optional<Session> findByIdForEndingSession(@Param("sessionId") Long sessionId);
+
+
 }

@@ -139,6 +139,48 @@ public class TrackService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public List<TrackResponseDTO> findOwnedTracks(Long ownerId) {
+        User user = userRepository.findById(ownerId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID " + ownerId + " not found."));
+
+        if (!(user instanceof Owner)) {
+            throw new IllegalArgumentException("User with ID " + ownerId + " is not an Owner and cannot have tracks.");
+        }
+        Owner owner = (Owner) user;
+
+        return owner.getTracks().stream()
+                .map(track -> new TrackResponseDTO(
+                        track.getId(),
+                        track.getName(),
+                        track.getCity(),
+                        track.getBannerImage(),
+                        track.getIsAvailable()
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public void setTrackAvailability(Long trackId, Long ownerId) {
+        User user = userRepository.findById(ownerId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID " + ownerId + " not found."));
+
+        if (!(user instanceof Owner)) {
+            throw new IllegalArgumentException("User with ID " + ownerId + " is not an Owner and cannot update track availability.");
+        }
+        Owner owner = (Owner) user;
+
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new IllegalArgumentException("Track with ID " + trackId + " not found."));
+
+        if (!track.getOwner().equals(owner)) {
+            throw new IllegalArgumentException("Track with ID " + trackId + " does not belong to Owner with ID " + ownerId + ".");
+        }
+
+        track.setIsAvailable(!track.getIsAvailable()); // Toggle availability
+        trackRepository.save(track);
+    }
+    
     @Transactional
     public Track createTrack(TrackCreateRequestDTO request, Long ownerId) {
         User user = userRepository.findById(ownerId)

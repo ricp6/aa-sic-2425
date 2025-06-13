@@ -11,10 +11,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,6 +64,7 @@ public class ReservationService {
         reservation.setDate(request.getReservationDate());
         reservation.setTrack(track);
         reservation.setStatus(ReservationStatus.PENDING);
+
         reservation.setCreatedByUserId(currentUserId);
 
         LocalDate reservationDate = request.getReservationDate();
@@ -106,10 +104,13 @@ public class ReservationService {
         reservation.setSessions(sessions);
 
         Set<Participant> participants = new HashSet<>();
+        boolean currentUserIdIsParticipant = false;
         for (ParticipantCreateDTO participantDTO : request.getParticipants()) {
             User user = userRepository.findById(participantDTO.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found for participant with ID: " + participantDTO.getUserId()));
-
+                if (user.getId().equals(currentUserId)) {
+                currentUserIdIsParticipant = true;
+            }
             Kart kart = null;
             if (participantDTO.getKartId() != null) {
                 kart = kartRepository.findById(participantDTO.getKartId())
@@ -127,6 +128,9 @@ public class ReservationService {
 
             Participant participant = new Participant(user, kart, reservation);
             participants.add(participant);
+        }
+        if (!track.getOwner().getId().equals(currentUserId) && !currentUserIdIsParticipant) {
+                throw new IllegalArgumentException("Current user is not a participant in this reservation.");
         }
         reservation.setParticipants(participants);
 
@@ -214,18 +218,16 @@ public class ReservationService {
                 })
                 .collect(Collectors.toList());
     }
-
+    
     @Transactional(readOnly = true)
     public ReservationDetailsResponseDTO getReservationById(Long reservationId, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
         
-        // Verifica se o utilizador atual é um participante da reserva
-        boolean isParticipant = reservation.getParticipants().stream()
-                .anyMatch(participant -> participant.getUser().getId().equals(userId));
-        if (!isParticipant) {
-            throw new IllegalArgumentException("User does not have access to this reservation.");
+        if(!reservation.getCreatedByUserId().equals(userId) && !reservation.getTrack().getOwner().getId().equals(userId)) {
+                throw new IllegalArgumentException("Only the user who created the reservation or the track owner can access it.");
         }
+
         List<SessionResponseDTO> sessionResponses = reservation.getSessions().stream()
                 .map(session -> new SessionResponseDTO(session.getId(), session.getBookedStartTime(), session.getBookedEndTime()))
                 .collect(Collectors.toList());
@@ -411,7 +413,69 @@ public class ReservationService {
                 sessionResponses,
                 participantResponses
         );
+    }
+    
+    @Transactional(readOnly = true)
+    public List<ReservationResponseDTO> getAcceptedAndPendingReservationsByTrackId(Long trackId, Long ownerId) {
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
+
+        if (!track.getOwner().getId().equals(ownerId)) {
+            throw new IllegalArgumentException("Only the owner can view reservations for this track.");
         }
+
+        List<ReservationStatus> targetStatuses = Arrays.asList(ReservationStatus.ACCEPTED, ReservationStatus.PENDING);
+
+        List<Reservation> reservations = reservationRepository.findByTrackIdAndTrackOwnerIdAndStatuses(
+                trackId, ownerId, targetStatuses);
+        return reservations.stream()
+                .map(reservation -> {
+                    Integer numSessions = reservation.getSessions().size() != 0 ? (int) reservation.getSessions().size() : 0;
+                    Integer numParticipants = reservation.getParticipants().size() != 0 ? (int) reservation.getParticipants().size() : 0;
+                    return new ReservationResponseDTO(
+                            reservation.getId(),
+                            reservation.getDate(),
+                            reservation.getStatus(),
+                            reservation.getTrack().getName(),
+                            reservation.getTrack().getBannerImage(),
+                            numSessions,
+                            numParticipants,
+                            reservation.getCreatedByUserId()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationResponseDTO> getConcludedReservationsByTrackId(Long trackId, Long ownerId) {
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
+        
+        if (!track.getOwner().getId().equals(ownerId)) {
+            throw new IllegalArgumentException("Only the owner can view reservations for this track.");
+        }
+
+        List<ReservationStatus> targetStatuses = Arrays.asList(ReservationStatus.CONCLUDED);
+
+        List<Reservation> reservations = reservationRepository.findByTrackIdAndTrackOwnerIdAndStatuses(
+                trackId, ownerId, targetStatuses);
+        return reservations.stream()
+                .map(reservation -> {
+                    Integer numSessions = reservation.getSessions().size() != 0 ? (int) reservation.getSessions().size() : 0;
+                    Integer numParticipants = reservation.getParticipants().size() != 0 ? (int) reservation.getParticipants().size() : 0;
+                    return new ReservationResponseDTO(
+                            reservation.getId(),
+                            reservation.getDate(),
+                            reservation.getStatus(),
+                            reservation.getTrack().getName(),
+                            reservation.getTrack().getBannerImage(),
+                            numSessions,
+                            numParticipants,
+                            reservation.getCreatedByUserId()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     public List<SlotResponseDTO> getSlotsForTrackAndDate(Long trackId, LocalDate date) {

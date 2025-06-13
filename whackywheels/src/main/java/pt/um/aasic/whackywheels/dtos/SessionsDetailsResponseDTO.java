@@ -9,16 +9,14 @@ public class SessionsDetailsResponseDTO {
     private LocalDate date;
     private Integer kartsUsed;
     private String sessionDuration;
-    private Double sessionCost;
     private List<DriverClassificationDTO> classifications;
 
-    public SessionsDetailsResponseDTO(Long sessionId, String trackName, LocalDate date, Integer kartsUsed, String sessionDuration, Double sessionCost, List<DriverClassificationDTO> classifications) {
+    public SessionsDetailsResponseDTO(Long sessionId, String trackName, LocalDate date, Integer kartsUsed, String sessionDuration, List<DriverClassificationDTO> classifications) {
         this.sessionId = sessionId;
         this.trackName = trackName;
         this.date = date;
         this.kartsUsed = kartsUsed;
         this.sessionDuration = sessionDuration;
-        this.sessionCost = sessionCost;
         this.classifications = classifications;
     }
 
@@ -40,10 +38,6 @@ public class SessionsDetailsResponseDTO {
 
     public String getSessionDuration() {
         return sessionDuration;
-    }
-
-    public Double getSessionCost() {
-        return sessionCost;
     }
 
     public List<DriverClassificationDTO> getClassifications() {
@@ -68,10 +62,6 @@ public class SessionsDetailsResponseDTO {
 
     public void setSessionDuration(String sessionDuration) {
         this.sessionDuration = sessionDuration;
-    }
-
-    public void setSessionCost(Double sessionCost) {
-        this.sessionCost = sessionCost;
     }
 
     public void setClassifications(List<DriverClassificationDTO> classifications) {

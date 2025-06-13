@@ -1,6 +1,6 @@
 package pt.um.aasic.whackywheels.dtos;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,7 +13,7 @@ public class ReservationCreateRequestDTO {
     private Long trackId;
 
     @NotNull(message = "Reservation date and time is mandatory")
-    @Future(message = "Reservation date and time must be in the future")
+    @FutureOrPresent(message = "Reservation date and time must be today or in the future")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate reservationDate;
 
