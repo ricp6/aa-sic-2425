@@ -114,7 +114,7 @@
                 <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayUserFn">
                   <mat-option *ngFor="let user of filteredUsers | async" [value]="user">
                     {{ user.username }} - {{ user.email }}
-                    <span *ngIf="authService.getCurrentUser()?.id === user.id" class="current-user-tag">(You)</span>
+                    <span *ngIf="currentUser?.id === user.id" class="current-user-tag">(You)</span>
                   </mat-option>
                 </mat-autocomplete>
               </div>

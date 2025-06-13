@@ -2,7 +2,7 @@
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
@@ -19,7 +19,7 @@ import { UserService } from '../../services/user.service';
 import { SimpleTrack, TrackDetails } from '../../interfaces/track';
 import { Slot } from '../../interfaces/slot';
 import { Kart } from '../../interfaces/kart';
-import { SimpleUser } from '../../interfaces/user';
+import { SimpleUser, User } from '../../interfaces/user';
 import { format } from 'date-fns';
 import { ViewService } from '../../services/view.service';
 
@@ -55,6 +55,10 @@ export class ReservationFormComponent implements OnInit {
   filteredUsers!: Observable<SimpleUser[]>;
   groupedKarts: { model: string; karts: Kart[] }[] = [];
 
+  get currentUser(): User | null {
+    return this.authService.getCurrentUser();
+  }
+
   get formatedDate(): string {
     if(this.selectedDate) {
       return format(this.selectedDate, 'yyyy-MM-dd');
@@ -80,13 +84,13 @@ export class ReservationFormComponent implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly location: Location,
-    private readonly route: ActivatedRoute,
     private readonly formBuilder: FormBuilder,
     private readonly reservationService: ReservationService,
     private readonly userService: UserService,
     private readonly trackService: TrackService,
     private readonly kartService: KartService,
-    protected readonly authService: AuthService,
+    private readonly authService: AuthService,
+    private readonly viewService: ViewService,
     private readonly toastr: ToastrService
   ) {
     // Save state if present
