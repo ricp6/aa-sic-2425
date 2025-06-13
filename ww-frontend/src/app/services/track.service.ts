@@ -19,9 +19,6 @@ export class TrackService {
   ) {}
 
   private getTracksBackend(): Observable<SimpleTrack[]> {
-    if (this.tracksCache) {
-      return of(this.tracksCache);
-    }
     return this.http.get<SimpleTrack[]>(this.tracksURL).pipe(
       tap(tracks => {
         this.tracksCache = tracks;
@@ -29,14 +26,7 @@ export class TrackService {
       }),
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          // If you see 401 here, it means:
-          // 1. No refresh token existed.
-          // 2. Refresh failed.
-          // 3. Refresh succeeded, but the retried request *still* got 401.
-          // In all these cases, the user should already be logged out by the interceptor/auth service.
           this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-          // You might not even need specific logout here, as the interceptor or authService will do it.
-          // The main goal here is to inform the user.
         } else if (error.status === 403) {
           this.toastr.warning('You dont have permission to execute this action', 'Permission required');
         } else {
@@ -64,14 +54,7 @@ export class TrackService {
     return this.http.get<RecordsDTO[]>(this.tracksURL + '/records').pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          // If you see 401 here, it means:
-          // 1. No refresh token existed.
-          // 2. Refresh failed.
-          // 3. Refresh succeeded, but the retried request *still* got 401.
-          // In all these cases, the user should already be logged out by the interceptor/auth service.
           this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-          // You might not even need specific logout here, as the interceptor or authService will do it.
-          // The main goal here is to inform the user.
         } else if (error.status === 403) {
           this.toastr.warning('You dont have permission to execute this action', 'Permission required');
         } else {
@@ -103,19 +86,11 @@ export class TrackService {
     );
   }
 
-  // Update the return type to Observable<TrackDetails>
   getTrack(id: number): Observable<TrackDetails> {
     return this.http.get<TrackDetails>(`${this.tracksURL}/${id}`).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          // If you see 401 here, it means:
-          // 1. No refresh token existed.
-          // 2. Refresh failed.
-          // 3. Refresh succeeded, but the retried request *still* got 401.
-          // In all these cases, the user should already be logged out by the interceptor/auth service.
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-          // You might not even need specific logout here, as the interceptor or authService will do it.
-          // The main goal here is to inform the user.
+         this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
         } else if (error.status === 403) {
           this.toastr.warning('You dont have permission to execute this action', 'Permission required');
         } else {
@@ -125,6 +100,37 @@ export class TrackService {
       })
     );
   }
+
+  getOwnedTracks(): Observable<SimpleTrack[]> {
+    return this.http.get<SimpleTrack[]>(`${this.tracksURL}/owned`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the tracks', 'Server error');
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  setOperationalState(trackId: number): Observable<void> {
+    return this.http.put<void>(`${this.tracksURL}/changeAvailability/${trackId}`, {}).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+         this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while changing the state of the track', 'Server error');
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
 
   /*createTrack(data: { track: Track }) {
     return this.http.post<Track>(this.tracksURL, data).pipe(

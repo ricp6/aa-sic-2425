@@ -63,7 +63,7 @@ public class ReservationController {
             return new ResponseEntity<>("Failed to retrieve reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<?> getUserReservations(@AuthenticationPrincipal User authenticatedUser) {
@@ -122,4 +122,38 @@ public class ReservationController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    //OWNER
+    @GetMapping("/track/active/{trackId}")
+    @PreAuthorize("hasAnyRole('OWNER')")
+    public ResponseEntity<?> getAcceptedAndPendingReservationsByTrack(@PathVariable Long trackId, @AuthenticationPrincipal User authenticatedUser) {
+        Long ownerId = authenticatedUser.getId();
+
+        try {
+            List<ReservationResponseDTO> reservations = reservationService.getAcceptedAndPendingReservationsByTrackId(trackId, ownerId);
+            return new ResponseEntity<>(reservations, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Failed to retrieve reservations: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/track/concluded/{trackId}")
+    @PreAuthorize("hasAnyRole('OWNER')")
+    public ResponseEntity<?> getConcludedReservationsByTrack(@PathVariable Long trackId, @AuthenticationPrincipal User authenticatedUser) {
+        Long ownerId = authenticatedUser.getId();
+
+        try {
+            List<ReservationResponseDTO> reservations = reservationService.getConcludedReservationsByTrackId(trackId, ownerId);
+            return new ResponseEntity<>(reservations, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Failed to retrieve reservations: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

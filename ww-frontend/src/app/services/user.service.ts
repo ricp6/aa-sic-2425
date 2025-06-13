@@ -30,21 +30,8 @@ export class UserService {
         this.toastr.success("Track added to the favorites!");
       }),
       catchError((error: HttpErrorResponse) => { 
-        // This catchError will now receive the *final* error.
-        // If the interceptor handled a refresh and a retry, and the retry also failed,
-        // this `error` will be the one from the *second* failed attempt,
-        // after `authService.logout()` would have been called in the interceptor or auth service.
-        // console.log("erro add favorite: ")
-        // console.error(error)
         if (error.status === 401) {
-          // If you see 401 here, it means:
-          // 1. No refresh token existed.
-          // 2. Refresh failed.
-          // 3. Refresh succeeded, but the retried request *still* got 401.
-          // In all these cases, the user should already be logged out by the interceptor/auth service.
           this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-          // You might not even need specific logout here, as the interceptor or authService will do it.
-          // The main goal here is to inform the user.
         } else if (error.status === 403) {
           this.toastr.warning('You dont have permission to execute this action', 'Permission required');
         } else if (error.status === 404) {

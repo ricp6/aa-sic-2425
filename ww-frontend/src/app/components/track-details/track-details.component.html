@@ -10,23 +10,43 @@
   <div id="content-wrapper">
     <section id="header-section">
       <h1 id="track-name">{{ track.name }}</h1>
-      <div id="actions" *ngIf="isLoggedIn">
+
+      <!-- CLIENT VIEW ACTIONS -->
+      <div id="actions" *ngIf="isLoggedIn && !isEnterpriseView">
         <button mat-icon-button type="button" id="set-fav" (click)="setFav()">
           <mat-icon>{{ isFav ? 'star' : 'star_border' }}</mat-icon>
         </button>
+
         <button mat-stroked-button id="view-sessions-button" [routerLink]="['/sessions']">
           My Sessions
         </button>
+
         <button mat-stroked-button id="book-button" (click)="goToCreateReservation()">
           New Reservation
         </button>
       </div>
+
+      <!-- ENTERPRISE VIEW ACTIONS -->
+      <div id="actions" *ngIf="isEnterpriseView">
+        <button mat-stroked-button color="warn" (click)="toggleOperational()">
+          {{ track.isAvailable ? 'Set as Not Operational' : 'Set as Operational' }}
+        </button>
+
+        <button mat-stroked-button color="primary" disabled>
+          Edit Details
+        </button>
+
+        <button mat-stroked-button color="accent" (click)="goToCreateReservation()">
+          Create Reservation
+        </button>
+      </div>
     </section>
+
 
     <mat-tab-group id="sub-navigation" mat-stretch-tabs="false" mat-align-tabs="start">
 
-      <mat-tab label="About">
-        <div id="information-section">
+      <mat-tab label="Details">
+        <div id="details-section">
           <mat-card id="details-card">
             <div class="info-row">
               <span class="label">Track Status</span>

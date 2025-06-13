@@ -1,7 +1,7 @@
 <nav mat-tab-nav-bar [tabPanel]="tabPanel" *ngIf="!isAuthPage">
 
   <!-- Left content -->
-  <div id="nav-home-container" [routerLink]="isEnterpriseView ? 'enterprise/home' : 'home'">
+  <div id="nav-home-container" [routerLink]="isEnterpriseView ? 'enterprise' : 'home'">
     <img id="nav-home-logo" src="logo.png" alt="Logo">
     <h3 id="nav-home-title"> {{ isEnterpriseView ? "WW" : "WACKY WHEELS" }} </h3>
     <h4 id="nav-home-subtitle"> {{ isEnterpriseView ? "Enterprise" : "" }} </h4>
@@ -27,13 +27,9 @@
       </a>
       
       <!-- Entreprise links -->
-      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home"
+      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/tracks"
         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
         My Tracks 
-      </a>
-      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/home"
-        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
-        Reservations 
       </a>
     </div>
     

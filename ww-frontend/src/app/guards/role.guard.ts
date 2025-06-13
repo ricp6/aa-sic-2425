@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
+import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -12,11 +12,10 @@ export class RoleGuard implements CanActivate {
     private readonly toastr: ToastrService, 
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot): boolean {
-    const expectedRole = route.data['role'] as string;
+  canActivate(): boolean {
     const user = this.authService.getCurrentUser();
 
-    if (user && user.userType === expectedRole) {
+    if (user && user.userType === 'OWNER') {
       return true;
     }
 

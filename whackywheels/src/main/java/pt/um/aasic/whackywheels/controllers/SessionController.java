@@ -41,7 +41,8 @@ public class SessionController {
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
     public ResponseEntity<?> getSessionDetails(@PathVariable Long sessionId, @AuthenticationPrincipal User authenticatedUser) {
         try {
-            SessionsDetailsResponseDTO sessionDetails = sessionService.getSessionDetailsBySessionId(sessionId);
+            Long userId = authenticatedUser.getId();
+            SessionsDetailsResponseDTO sessionDetails = sessionService.getSessionDetailsBySessionId(sessionId, userId);
             if (sessionDetails == null) {
                 return new ResponseEntity<>("Session not found or you do not have access to it.", HttpStatus.NOT_FOUND);
             }

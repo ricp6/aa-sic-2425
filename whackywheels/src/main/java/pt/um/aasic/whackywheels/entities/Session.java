@@ -23,7 +23,7 @@ public class Session {
     @OneToMany(mappedBy = "session")
     private Set<TimePerLap> timePerLaps;
 
-    @OneToMany(mappedBy = "session")
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Classification> classifications;
 
     public Session() {}
