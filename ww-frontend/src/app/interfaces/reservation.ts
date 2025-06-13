@@ -2,15 +2,16 @@ export enum ReservationStatus {
   PENDING = 'PENDING',
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
-  CONCLUDED = 'CONCLUDED'
+  CONCLUDED = 'CONCLUDED',
+  CANCELLED = 'CANCELLED'
 }
 
 export interface Reservation {
   id: number;
   trackName: string;
-  numberOfParticipants: number;
+  numParticipants: number;
   date: string;
-  numberOfSlots: string;
+  numSessions: number;
   status: ReservationStatus;
   trackImage: string;
 }

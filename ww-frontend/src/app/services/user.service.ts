@@ -27,7 +27,7 @@ export class UserService {
             this.authService.updateUser(user);
           }
         }
-        this.toastr.success("Track added to your favorites!");
+        this.toastr.success("Track added to the favorites!");
       }),
       catchError((error: HttpErrorResponse) => { 
         // This catchError will now receive the *final* error.
@@ -66,7 +66,7 @@ export class UserService {
           user.favoriteTrackIds = user.favoriteTrackIds.filter(id => id !== trackId);
           this.authService.updateUser(user);
         }
-        this.toastr.success("Track removed from your favorites.");
+        this.toastr.info("Track removed from the favorites.");
       }),
       catchError((error: HttpErrorResponse) => { 
         // console.log("erro remove favorite: ")

@@ -28,19 +28,19 @@
                   <span class="track-name">{{ reservation.trackName }}</span>
                   <span class="reservation-row">
                     <mat-icon class="reservation-row-icon">group</mat-icon>
-                    {{ reservation.numberOfParticipants }} participants
+                    {{ reservation.numParticipants }} {{reservation.numParticipants === 1 ? 'participant' : 'participants'}}
                   </span>
                 </div>
 
                 <div class="reservation-datetime">
                   <span class="reservation-row">
-                    <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
+                    <mat-icon class="reservation-row-icon">event</mat-icon>
                     <span>{{ reservation.date }}</span>
                   </span>
 
                   <span class="reservation-row">
                     <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                    <span>{{ reservation.numberOfSlots }} Slots</span>
+                    <span>{{ reservation.numSessions }} {{reservation.numSessions === 1 ? 'session' : 'sessions'}}</span>
                   </span>
                 </div>
 
@@ -64,19 +64,19 @@
                   <span class="track-name">{{ reservation.trackName }}</span>
                   <span class="reservation-row">
                     <mat-icon class="reservation-row-icon">group</mat-icon>
-                    {{ reservation.numberOfParticipants }} participants
+                    {{ reservation.numParticipants }} {{reservation.numParticipants === 1 ? 'participant' : 'participants'}}
                   </span>
                 </div>
 
                 <div class="reservation-datetime">
                   <span class="reservation-row">
-                    <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
+                    <mat-icon class="reservation-row-icon">event</mat-icon>
                     <span>{{ reservation.date }}</span>
                   </span>
 
                   <span class="reservation-row">
                     <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                    <span>{{ reservation.numberOfSlots }} Slots</span>
+                    <span>{{ reservation.numSessions }} {{reservation.numSessions === 1 ? 'session' : 'sessions'}}</span>
                   </span>
                 </div>
 
@@ -94,7 +94,7 @@
       </mat-tab>
 
       <mat-tab label="Completed">
-        <div class="selected-tab">
+        <div class="selected-tab" id="completed-tab">
 
           <mat-card class="reservation-card" *ngFor="let reservation of completedReservations" [routerLink]="['/reservations', reservation.id]">
             <div class="track-image">
@@ -106,26 +106,27 @@
                 <span class="track-name">{{ reservation.trackName }}</span>
                 <span class="reservation-row">
                   <mat-icon class="reservation-row-icon">group</mat-icon>
-                  {{ reservation.numberOfParticipants }} participants
+                  {{ reservation.numParticipants }} {{reservation.numParticipants === 1 ? 'participant' : 'participants'}}
                 </span>
               </div>
 
               <div class="reservation-datetime">
                 <span class="reservation-row">
-                  <mat-icon class="reservation-row-icon">calendar_today</mat-icon>
+                  <mat-icon class="reservation-row-icon">event</mat-icon>
                   <span>{{ reservation.date }}</span>
                 </span>
 
                 <span class="reservation-row">
                   <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                  <span>{{ reservation.numberOfSlots }} Slots</span>
+                  <span>{{ reservation.numSessions }} {{reservation.numSessions === 1 ? 'session' : 'sessions'}}</span>
                 </span>
               </div>
 
               <div *ngIf="reservation.status === 'CONCLUDED'" class="reservation-actions">
-                <button mat-stroked-button type="button" class="reservation-action repeat">Repeat</button>
+                <button mat-stroked-button type="button" class="reservation-action repeat" [routerLink]="['reservations/form']">Repeat</button>
               </div>
-              <div *ngIf="reservation.status === 'REJECTED'" class="reservation-status REJECTED">
+              <div *ngIf="reservation.status === 'REJECTED' || reservation.status === 'CANCELLED'" 
+                class="reservation-status" [class]="reservation.status">
                 {{ reservation.status | titlecase }}
               </div>
             </mat-card-content>

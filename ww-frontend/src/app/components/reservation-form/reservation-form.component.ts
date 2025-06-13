@@ -16,7 +16,7 @@ import { AuthService } from '../../services/auth.service';
 import { TrackService } from '../../services/track.service';
 import { KartService } from '../../services/kart.service';
 import { UserService } from '../../services/user.service';
-import { SimpleTrack } from '../../interfaces/track';
+import { SimpleTrack, TrackDetails } from '../../interfaces/track';
 import { Slot } from '../../interfaces/slot';
 import { Kart } from '../../interfaces/kart';
 import { SimpleUser } from '../../interfaces/user';
@@ -37,6 +37,8 @@ export class ReservationFormComponent implements OnInit {
   dateTimeSelectionFormGroup!: FormGroup;
   participantsKartsFormGroup!: FormGroup;
 
+  trackFromState: TrackDetails | null = null;
+
   tracks: SimpleTrack[] = [];
   filteredTracks!: Observable<SimpleTrack[]>;
   karts: Kart[] = [];
@@ -48,6 +50,7 @@ export class ReservationFormComponent implements OnInit {
   users: SimpleUser[] = []
   filteredUsers!: Observable<SimpleUser[]>;
   groupedKarts: { model: string; karts: Kart[] }[] = [];
+
 
   get formatedDate(): string {
     if(this.selectedDate) {
@@ -66,9 +69,10 @@ export class ReservationFormComponent implements OnInit {
     );
 
     return sorted
-      .map((slot: Slot) => `${slot.startTime} - ${slot.endTime}`)
+      .map((slot: Slot) => `${this.formatTime(slot.startTime)} - ${this.formatTime(slot.endTime)}`)
       .join(' | ');
   }
+
 
   constructor(
     private readonly router: Router,
@@ -80,14 +84,19 @@ export class ReservationFormComponent implements OnInit {
     private readonly kartService: KartService,
     private readonly authService: AuthService,
     private readonly toastr: ToastrService
-  ) {}
+  ) {
+    // Save state if present
+    this.trackFromState = this.router.getCurrentNavigation()?.extras?.state?.['track'] ?? null;
+  }
 
   ngOnInit(): void {
-    this.createFormGroups();
 
+    // Initialize the forms
+    this.createFormGroups();
+        
     // Setup data filtering observables
     this.setTracksFiltering();
-
+    
     // Load initial data
     this.loadUsers();
     this.loadTracks();
@@ -156,6 +165,20 @@ export class ReservationFormComponent implements OnInit {
 
     return null;
   }
+    
+  validateUserInput(control: AbstractControl) {
+    const value = control.value;
+    const existingErrors = control.errors || {};
+
+    // If the input is not from the options list
+    if (typeof value !== 'object' || value === null) {
+      control.setErrors({ ...existingErrors, invalidOption: true });
+    } else {
+      // If it's valid, clear the error
+      delete existingErrors['invalidOption'];
+      control.setErrors(Object.keys(existingErrors).length ? existingErrors : null);
+    }
+  }
 
   setTracksFiltering(): void {
     // Set the filtered tracks observable
@@ -205,20 +228,6 @@ export class ReservationFormComponent implements OnInit {
       .normalize('NFD') // decompose letters and diacritics (acentos/til/...)
       .replace(/[\u0300-\u036f]/g, ''); // remove diacritics
   }
-  
-  validateUserInput(control: AbstractControl) {
-    const value = control.value;
-    const existingErrors = control.errors || {};
-
-    // If the input is not from the options list
-    if (typeof value !== 'object' || value === null) {
-      control.setErrors({ ...existingErrors, invalidOption: true });
-    } else {
-      // If it's valid, clear the error
-      delete existingErrors['invalidOption'];
-      control.setErrors(Object.keys(existingErrors).length ? existingErrors : null);
-    }
-  }
 
 
   resetTrackStep(): void {
@@ -261,10 +270,22 @@ export class ReservationFormComponent implements OnInit {
     return track ? `${track.name} (${track.address})` : '';
   }
 
+  preselectTrack(track: SimpleTrack): void {
+    setTimeout(() => {
+      this.trackSelectionFormGroup.patchValue({
+        selectedTrack: track
+      });
+
+      this.onTrackSelected();
+      this.stepper.next();
+    });
+  }
+
   onTrackSelected(): void {
     // Clear next steps if this one changed
     this.resetDateTimeStep();
     this.resetParticipantsStep();
+
     // Load karts available for the track
     this.loadKarts();
   }
@@ -277,9 +298,11 @@ export class ReservationFormComponent implements OnInit {
       // Start from step 1
       this.toastr.warning("Error selecting the date.", "Please try again");
       this.stepper.reset();
+
     } else {
       // Reset the selected slots
       this.resetSlotsSubStep();
+
       // Load the occupied slots for the selected track and day
       this.loadSlots();
     }
@@ -444,7 +467,7 @@ export class ReservationFormComponent implements OnInit {
 
   loadUsers(): void {
     this.userService.getAllUsers().subscribe({
-      next: (users) => {
+      next: (users: SimpleUser[]) => {
         if(users != null) {
           this.users = users;
         } else {
@@ -462,10 +485,14 @@ export class ReservationFormComponent implements OnInit {
 
   loadTracks(): void {
     this.trackService.getTracksCached().subscribe({
-      next: (tracks) => {
+      next: (tracks: SimpleTrack[]) => {
         if(tracks !== null) {
           // Keep only available tracks
           this.tracks = tracks.filter(track => track.available);
+
+          // Check if there is a track in router state and preselect it if found
+          this.checkStateForSelectedTrack();
+
         } else {
           this.toastr.warning("Error loading the tracks information", "Going back!");
           this.goBack();
@@ -479,12 +506,22 @@ export class ReservationFormComponent implements OnInit {
     });
   }
 
+  checkStateForSelectedTrack(): void {
+    if (this.trackFromState) {
+      const matchingTrack = this.tracks.find(t => t.id === this.trackFromState?.id);
+      if (matchingTrack) {
+        this.preselectTrack(matchingTrack);
+      } else {
+        this.toastr.warning("The track you're trying to use is not available", "Please select a different one.");
+      }
+    }
+  }
+
   loadKarts(): void {
-    // this.loadKartsMocks();
     this.kartService.getKartsAvailable(
       this.trackSelectionFormGroup.get('selectedTrack')?.value.id,
     ).subscribe({
-      next: (karts) => {
+      next: (karts: Kart[]) => {
         if(karts !== null) {
           this.karts = karts;
           this.groupKarts();
@@ -504,19 +541,7 @@ export class ReservationFormComponent implements OnInit {
     });
   }
 
-  loadKartsMocks(): void {
-    this.karts = [
-      { id: 1, kartNumber: 4, model: "super fast" },
-      { id: 2, kartNumber: 6, model: "super fast" },
-      { id: 3, kartNumber: 14, model: "goat" },
-      { id: 4, kartNumber: 81, model: "champchamp" },
-      { id: 5, kartNumber: 55, model: "super fast" },
-    ]
-    this.groupKarts();
-  }
-
   groupKarts(): void {
-    // Assuming `availableKarts` is already populated
     const groupedMap = new Map<string, Kart[]>();
 
     this.karts.forEach(kart => {
@@ -526,24 +551,22 @@ export class ReservationFormComponent implements OnInit {
       groupedMap.get(kart.model)!.push(kart);
     });
 
-    this.groupedKarts = Array.from(groupedMap.entries()).map(([model, karts]) => ({
-      model,
-      karts
-    }));
+    this.groupedKarts = Array.from(groupedMap.entries())
+      .map(([model, karts]) => ({
+        model,
+        karts
+      }));
   }
 
   loadSlots(): void {
-    // this.loadSlotsMocks();
-    console.log(this.selectedDate)
-    console.log(this.formatedDate)
     this.reservationService.getSlots(
       this.trackSelectionFormGroup.get('selectedTrack')?.value.id,
       this.formatedDate // e.g. '2025-06-03'
     ).subscribe({
-      next: (slots) => {
+      next: (slots: Slot[]) => {
         if(slots != null) {
           this.slots = slots;
-          this.slotDuration = ~slots[0].endTime - ~slots[0].startTime;  
+          this.slotDuration = this.getMinutesDifference(slots[0]);  
         } else {
           console.log("error loading slots: ", slots)
           // Restart from step 2
@@ -560,22 +583,17 @@ export class ReservationFormComponent implements OnInit {
     });
   }
 
-  loadSlotsMocks(): void {
-    this.slots = [
-      { startTime: "10:00", endTime: "10:20", available: true },
-      { startTime: "10:20", endTime: "10:40", available: true },
-      { startTime: "10:40", endTime: "11:00", available: false },
-      { startTime: "11:00", endTime: "11:20", available: true },
-      { startTime: "11:20", endTime: "11:40", available: true },
-      { startTime: "11:40", endTime: "12:00", available: false },
-      { startTime: "12:00", endTime: "12:20", available: false },
-      { startTime: "12:20", endTime: "12:40", available: true },
-      { startTime: "12:40", endTime: "13:00", available: true },
-      { startTime: "13:00", endTime: "13:20", available: true },
-      { startTime: "13:20", endTime: "13:40", available: true },
-    ]
+  getMinutesDifference(slot: Slot): number {
+    const [sh, sm] = slot.startTime.split(':').map(Number);
+    const [eh, em] = slot.endTime.split(':').map(Number);
+
+    return (eh * 60 + em) - (sh * 60 + sm);
   }
   
+  formatTime(time: string): string {
+    return time.slice(0, 5); // Assumes time format is 'HH:mm:ss'
+  }
+
   goBack(): void {
     this.location.back();
   }

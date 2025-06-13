@@ -1,10 +1,10 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, throwError, combineLatest } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Reservation, ReservationStatus } from '../interfaces/reservation';
-import { ReservationDetails, Session, Participant } from '../interfaces/reservation-details';
+import { ReservationDetails } from '../interfaces/reservation-details';
 import { Slot } from '../interfaces/slot';
 
 
@@ -26,7 +26,7 @@ export class ReservationService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly toastr: ToastrService,
+    private readonly toastr: ToastrService
   ) { }
 
   getReservations(): Observable<Reservation[]> {
@@ -58,9 +58,9 @@ export class ReservationService {
       return {
         id: raw.id,
         trackName: raw.trackName,
-        numberOfParticipants: raw.numParticipants,
+        numParticipants: raw.numParticipants,
         date: date,
-        numberOfSlots: raw.numSessions.toString(),
+        numSessions: raw.numSessions,
         status: raw.status as ReservationStatus,
         trackImage: raw.trackImage
       };
@@ -113,11 +113,8 @@ export class ReservationService {
     );
   }
 
-  cancelReservation(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.reservationsURL}/${id}`).pipe(
-      map(() => {
-        this.toastr.success('Reservation cancelled successfully.', 'Success');
-      }),
+  cancelReservation(id: number): Observable<string> {
+    return this.http.put(`${this.reservationsURL}/cancel/${id}`, {}, { responseType: 'text' }).pipe(
       catchError(this.handleError)
     );
   }

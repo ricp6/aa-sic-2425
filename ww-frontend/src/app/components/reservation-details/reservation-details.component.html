@@ -49,8 +49,8 @@
         </div>
       </mat-card-content>
 
-      <mat-card-actions align="end" class="detail-actions">
-        <button mat-stroked-button color="primary" (click)="editReservation()">
+      <mat-card-actions align="end" class="detail-actions" *ngIf="isActive()">
+        <button mat-stroked-button color="primary" (click)="editReservation()" disabled>
           <mat-icon>edit</mat-icon>
           Alterar
         </button>

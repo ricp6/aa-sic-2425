@@ -17,13 +17,13 @@
             <span class="track-name">{{ session.trackName }}</span>
             <span class="session-row">
               <mat-icon class="session-row-icon">group</mat-icon>
-              {{ session.numberOfParticipants }} participants
+              {{ session.numberOfParticipants }} {{session.numberOfParticipants === 1 ? 'participant' : 'participants'}}
             </span>
           </div>
 
           <div class="session-datetime">
             <span class="session-row">
-              <mat-icon class="session-row-icon">calendar_today</mat-icon>
+              <mat-icon class="session-row-icon">event</mat-icon>
               <span>{{ session.date }}</span>
             </span>
             <span class="session-row">

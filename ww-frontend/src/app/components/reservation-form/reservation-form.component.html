@@ -79,7 +79,7 @@
             <ng-container class="slots-list" *ngIf="slots && slots.length > 0; else noSlots">
               <button mat-stroked-button *ngFor="let slot of slots" [disabled]="!slot.available" [ngClass]="{ 'selected-slot': isSlotSelected(slot),
 											 'occupied-slot': !slot.available }" (click)="toggleSlotSelection(slot)">
-                {{ slot.startTime }}
+                {{ formatTime(slot.startTime) }}
               </button>
             </ng-container>
             <ng-template #noSlots>

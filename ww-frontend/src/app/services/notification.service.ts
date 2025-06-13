@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs'; // Importar BehaviorSubject e tap
+import { BehaviorSubject, catchError, interval, Observable, of, Subscription, switchMap, tap, throwError } from 'rxjs'; // Importar BehaviorSubject e tap
 import { Notification } from '../interfaces/notification';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from './auth.service'; // Importar AuthService
@@ -10,47 +10,82 @@ import { AuthService } from './auth.service'; // Importar AuthService
 })
 export class NotificationService {
   private readonly apiUrl = 'http://localhost:8080/api/notifications';
-  private _unreadNotificationCount = new BehaviorSubject<number>(0); // Inicializar com 0
+  private readonly POLLING_INTERVAL_MS = 10000;
+
+  private readonly _unreadNotificationCount = new BehaviorSubject<number>(0); // Inicializar com 0
   public unreadNotificationCount$ = this._unreadNotificationCount.asObservable();
+
+  private readonly _notifications = new BehaviorSubject<Notification[]>([]);
+  public notifications$ = this._notifications.asObservable();
+
+  private pollingSubscription?: Subscription;
 
   constructor(
     private readonly http: HttpClient,
     private readonly toastr: ToastrService,
-    private readonly authService: AuthService // Injetar AuthService
+    private readonly authService: AuthService
   ) {
-    // Subscrever a alterações no utilizador para inicializar a contagem
+    // Start polling if user is logged in
     this.authService.user$.subscribe(user => {
       if (user) {
         this._unreadNotificationCount.next(user.unreadNotificationCount);
+        this.startPolling();
       } else {
-        this._unreadNotificationCount.next(0); // Resetar se o utilizador não estiver logado
+        // Stop polling and reset count if he is not
+        this.stopPolling();
+        this._unreadNotificationCount.next(0);
+        this._notifications.next([]);
       }
     });
+  }
+
+  private startPolling(): void {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+    }
+
+    this.pollingSubscription = interval(this.POLLING_INTERVAL_MS)
+      .pipe(
+        switchMap(() => this.getNotifications().pipe(
+          catchError(error => {
+            console.error('Polling error:', error);
+            return of([]);
+          })
+        ))
+      )
+      .subscribe(newNotifications => {
+        const current = this._notifications.value;
+        const currentIds = new Set(current.map(n => n.id));
+        const hasNew = newNotifications.some(n => !currentIds.has(n.id));
+
+        if (hasNew) {
+          this.toastr.info('You have new notifications!', 'New Notification');
+        }
+
+        this._notifications.next(newNotifications);
+      });
+  }
+
+  private stopPolling(): void {
+    this.pollingSubscription?.unsubscribe();
+    this.pollingSubscription = undefined;
+  }
+
+  setUnreadNotificationCount(count: number): void {
+    this._unreadNotificationCount.next(count);
   }
 
   getNotifications(): Observable<Notification[]> {
     return this.http.get<Notification[]>(this.apiUrl).pipe(
       tap(notifications => {
-        // Atualiza a contagem de não lidas com base nas notificações recebidas
         const unreadCount = notifications.filter(n => !n.isRead).length;
         this.setUnreadNotificationCount(unreadCount);
       }),
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the notifications', 'Server error');
-        }
+        this.handleError(error, 'loading the notifications');
         return throwError(() => error);
       })
     );
-  }
-
-  // Renomeado para setUnreadNotificationCount para clareza
-  setUnreadNotificationCount(count: number): void {
-    this._unreadNotificationCount.next(count);
   }
 
   markNotificationAsRead(id: number): Observable<Notification> {
@@ -60,15 +95,10 @@ export class NotificationService {
         if (currentCount > 0) {
           this.setUnreadNotificationCount(currentCount - 1);
         }
+        this.refreshNotifications(); // ensure UI reflects the change
       }),
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while marking the notification as read', 'Server error');
-        }
+        this.handleError(error, 'marking the notification as read');
         return throwError(() => error);
       })
     );
@@ -76,35 +106,22 @@ export class NotificationService {
 
   deleteNotification(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
-      // Não diminuímos a contagem aqui diretamente, pois o loadNotifications() irá recarregar e atualizar.
-      // Poderíamos adicionar lógica para verificar se a notificação eliminada era não lida, mas
-      // carregar novamente as notificações é mais robusto para garantir a consistência.
+      tap(() => this.refreshNotifications()),
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while deleting the notification', 'Server error');
-        }
+        this.handleError(error, 'deleting the notification');
         return throwError(() => error);
       })
     );
   }
 
-  markAllNotificationsAsRead(): Observable<void> {
+   markAllNotificationsAsRead(): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/mark-all-read`, {}).pipe(
       tap(() => {
-        this.setUnreadNotificationCount(0); // Todas as notificações são marcadas como lidas
+        this.setUnreadNotificationCount(0);
+        this.refreshNotifications();
       }),
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while marking all notifications as read', 'Server error');
-        }
+        this.handleError(error, 'marking all notifications as read');
         return throwError(() => error);
       })
     );
@@ -112,17 +129,28 @@ export class NotificationService {
 
   deleteReadNotifications(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/read`).pipe(
-      // Não precisamos de atualizar a contagem aqui, pois só afeta as notificações lidas.
+      tap(() => this.refreshNotifications()),
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while deleting all notifications', 'Server error');
-        }
+        this.handleError(error, 'deleting all read notifications');
         return throwError(() => error);
       })
     );
+  }
+
+  refreshNotifications(): void {
+    this.getNotifications().subscribe({
+      next: (data) => this._notifications.next(data),
+      error: () => {} // errors already handled in getNotifications()
+    });
+  }
+
+  private handleError(error: HttpErrorResponse, context: string): void {
+    if (error.status === 401) {
+      this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+    } else if (error.status === 403) {
+      this.toastr.warning('You don’t have permission to execute this action', 'Permission Required');
+    } else {
+      this.toastr.error(`An error occurred while ${context}`, 'Server Error');
+    }
   }
 }

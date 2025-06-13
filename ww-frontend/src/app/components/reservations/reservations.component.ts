@@ -36,7 +36,7 @@ export class ReservationsComponent implements OnInit {
         });
 
         this.completedReservations = reservations.filter(res =>
-          res.status === ReservationStatus.REJECTED || res.status === ReservationStatus.CONCLUDED
+          res.status === ReservationStatus.REJECTED || res.status === ReservationStatus.CONCLUDED || res.status === ReservationStatus.CANCELLED
         );
       },
       error: (err) => {

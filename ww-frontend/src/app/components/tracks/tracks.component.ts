@@ -144,32 +144,11 @@ export class TracksComponent implements OnInit, OnDestroy {
   }
 
   setFav(track: TrackWithRecords): void {
+    // Toastrs handled by the service
     if (!this.isFav(track)) {
-      this.userService.addFavorite(track.id).subscribe({
-        next: () => {
-          if (this.user) {
-            this.user.favoriteTrackIds.push(track.id);
-          }
-          this.toastr.success('Track added to favorites!');
-        },
-        error: (err) => {
-          console.error('Failed to add favorite', err);
-          this.toastr.error('Could not add track to favorites.');
-        }
-      });
+      this.userService.addFavorite(track.id).subscribe();
     } else {
-      this.userService.removeFavorite(track.id).subscribe({ //
-        next: () => {
-          if (this.user) {
-            this.user.favoriteTrackIds = this.user.favoriteTrackIds.filter(id => id !== track.id);
-          }
-          this.toastr.info('Track removed from favorites.');
-        },
-        error: (err) => {
-          console.error('Failed to remove favorite', err);
-          this.toastr.error('Could not remove track from favorites.');
-        }
-      });
+      this.userService.removeFavorite(track.id).subscribe();
     }
   }
 

@@ -14,8 +14,12 @@
         <button mat-icon-button type="button" id="set-fav" (click)="setFav()">
           <mat-icon>{{ isFav ? 'star' : 'star_border' }}</mat-icon>
         </button>
-        <button mat-stroked-button id="view-sessions-button">My Sessions</button>
-        <button mat-stroked-button id="book-button">New Reservation</button>
+        <button mat-stroked-button id="view-sessions-button" [routerLink]="['/sessions']">
+          My Sessions
+        </button>
+        <button mat-stroked-button id="book-button" (click)="goToCreateReservation()">
+          New Reservation
+        </button>
       </div>
     </section>
 

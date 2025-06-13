@@ -55,15 +55,21 @@ export class TrackDetailsComponent implements OnInit {
     });
   }
 
-  goBack() {
-    this.location.back();
-  }
-
   setFav(): void {
     if (!this.isFav) {
       this.userService.addFavorite(this.track.id).subscribe();
     } else {
       this.userService.removeFavorite(this.track.id).subscribe();
     }
+  }
+
+  goBack() {
+    this.location.back();
+  }
+
+  goToCreateReservation(): void {
+    this.router.navigate(['reservations/form'], {
+      state: { track: this.track }
+    })
   }
 }
