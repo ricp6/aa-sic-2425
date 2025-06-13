@@ -21,11 +21,15 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDialogModule } from '@angular/material/dialog';
 
+import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 
-import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { SessionsComponent } from './components/sessions/sessions.component';
@@ -38,13 +42,12 @@ import { RegisterComponent } from './components/register/register.component';
 import { TrackDetailsComponent } from './components/track-details/track-details.component';
 import { SessionDetailsComponent } from './components/session-details/session-details.component';
 import { ReservationFormComponent } from './components/reservation-form/reservation-form.component';
+import { ReservationDetailsComponent } from './components/reservation-details/reservation-details.component';
+import { ReservationCardComponent } from './components/reservation-card/reservation-card.component';
+import { MessageDialogComponent } from './components/message-dialog/message-dialog.component';
 
 import { ToastrModule } from 'ngx-toastr';
-import { ReservationDetailsComponent } from './components/reservation-details/reservation-details.component';
 
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatExpansionModule } from '@angular/material/expansion';
 
 
 @NgModule({
@@ -62,7 +65,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
     TrackDetailsComponent,
     SessionDetailsComponent,
     ReservationFormComponent,
-    ReservationDetailsComponent
+    ReservationDetailsComponent,
+    ReservationCardComponent,
+    MessageDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -89,6 +94,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatSlideToggleModule,
     MatChipsModule,
     MatExpansionModule,
+    MatDialogModule,
 
     ToastrModule.forRoot({
       timeOut: 5000,

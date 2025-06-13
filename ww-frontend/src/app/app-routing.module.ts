@@ -93,10 +93,6 @@ const routes: Routes = [
 
   // AUTHORIZATION AND OWNER ACCOUNT REQUIRED, SEEN AS ENTERPRISE VIEW
   { 
-    path: 'enterprise', 
-    redirectTo: 'enterprise/tracks'
-  },
-  { 
     path: 'enterprise/tracks', 
     component: TracksComponent, 
     canActivate: [AuthGuard, RoleGuard], 
@@ -113,6 +109,16 @@ const routes: Routes = [
     component: ReservationFormComponent, 
     canActivate: [AuthGuard, RoleGuard], 
     data: { view: 'enterprise' } 
+  },
+  { 
+    path: 'enterprise/reservations/:id', 
+    component: ReservationDetailsComponent, 
+    canActivate: [AuthGuard, RoleGuard], 
+    data: { view: 'enterprise' } 
+  },
+  { 
+    path: 'enterprise', 
+    redirectTo: 'enterprise/tracks'
   },
 
   // AUTHORIZATION REQUIRED, CAN BE SEEN AS BOTH VIEWS

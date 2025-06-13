@@ -43,7 +43,8 @@
     </section>
 
 
-    <mat-tab-group id="sub-navigation" mat-stretch-tabs="false" mat-align-tabs="start">
+    <mat-tab-group id="sub-navigation" mat-stretch-tabs="false" mat-align-tabs="start"
+      (selectedTabChange)="onTabChange($event)">
 
       <mat-tab label="Details">
         <div id="details-section">
@@ -111,7 +112,7 @@
         </div>
       </mat-tab>
 
-      <mat-tab label="Rankings">
+      <mat-tab label="Rankings" *ngIf="!isEnterpriseView">
         <div class="rankings-section">
           <table class="rankings-table" *ngIf="track.rankings && track.rankings.length > 0; else noRankings">
             <thead>
@@ -144,6 +145,42 @@
           </ng-template>
           <div class="load-more" *ngIf="track.rankings && track.rankings.length === 20">
             <mat-icon>keyboard_arrow_down</mat-icon>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Active Reservations" *ngIf="isEnterpriseView">
+        <div class="selected-tab">
+          <div *ngIf="todayActiveReservations.length > 0" class="reservation-group">
+            <h2 class="reservation-group-title">Today</h2>
+
+            <app-reservation-card *ngFor="let reservation of todayActiveReservations" class="reservation-card" 
+              [reservation]="reservation" [isEnterpriseView]="true">
+            </app-reservation-card>
+          </div>
+
+          <div *ngIf="futureActiveReservations.length > 0" class="reservation-group">
+            <h2 class="reservation-group-title">Future</h2>
+
+            <app-reservation-card *ngFor="let reservation of futureActiveReservations" class="reservation-card"
+              [reservation]="reservation" [isEnterpriseView]="true">
+            </app-reservation-card>
+          </div>
+
+          <div *ngIf="trackActiveReservations?.length === 0" class="no-reservations">
+            No active reservations.
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Completed Reservations" *ngIf="isEnterpriseView">
+        <div class="selected-tab" id="completed-tab">
+          <app-reservation-card *ngFor="let reservation of trackConcludedReservations" class="reservation-card"
+            [reservation]="reservation" [isEnterpriseView]="true">
+          </app-reservation-card>
+
+          <div *ngIf="trackConcludedReservations?.length === 0" class="no-reservations">
+            No completed reservations.
           </div>
         </div>
       </mat-tab>

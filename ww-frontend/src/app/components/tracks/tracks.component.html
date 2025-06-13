@@ -4,7 +4,7 @@
   <section id="tracks-container">
 
     <section id="tracks-header">
-      <h1 id="title">Tracks</h1>
+      <h1 id="title">{{ isEnterpriseView ? 'My Tracks' : 'Tracks'}}</h1>
 
       <section id="tracks-controls">
         <button mat-icon-button type="button" *ngIf="showAdvancedInfo" id="filter-favs" (click)="toggleFavs()">

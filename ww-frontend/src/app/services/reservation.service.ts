@@ -141,6 +141,18 @@ export class ReservationService {
     );
   }
 
+  acceptReservation(id: number, message: string): Observable<string> {
+    return this.http.put(`${this.reservationsURL}/accept/${id}`, { message }, { responseType: 'text' }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  rejectReservation(id: number, message: string): Observable<string> {
+    return this.http.put(`${this.reservationsURL}/reject/${id}`, { message }, { responseType: 'text' }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     if (error.status === 401) {
       this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');

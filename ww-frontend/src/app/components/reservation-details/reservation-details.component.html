@@ -50,14 +50,29 @@
       </mat-card-content>
 
       <mat-card-actions align="end" class="detail-actions" *ngIf="isActive()">
-        <button mat-stroked-button color="primary" (click)="editReservation()" disabled>
-          <mat-icon>edit</mat-icon>
-          Alterar
-        </button>
-        <button mat-flat-button color="warn" (click)="cancelReservation()">
-          <mat-icon>cancel</mat-icon>
-          Cancelar Reserva
-        </button>
+         <!-- CLIENT VIEW -->
+        <ng-container *ngIf="!isEnterpriseView">
+          <button mat-stroked-button color="primary" (click)="editReservation()" disabled>
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button mat-flat-button color="warn" (click)="cancelReservation()">
+            <mat-icon>cancel</mat-icon>
+            Cancel Reservation
+          </button>
+        </ng-container>
+
+        <!-- ENTERPRISE VIEW -->
+        <ng-container *ngIf="isEnterpriseView">
+          <button mat-stroked-button color="primary" (click)="acceptReservation()">
+            <mat-icon>check_circle</mat-icon>
+            Accept
+          </button>
+          <button mat-flat-button color="warn" (click)="rejectReservation()">
+            <mat-icon>cancel</mat-icon>
+            Reject
+          </button>
+        </ng-container>
       </mat-card-actions>
     </mat-card>
   </div>

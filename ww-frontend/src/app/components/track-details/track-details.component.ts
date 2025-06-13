@@ -8,6 +8,9 @@ import { User } from '../../interfaces/user';
 import { UserService } from '../../services/user.service';
 import { ViewService } from '../../services/view.service';
 import { ToastrService } from 'ngx-toastr';
+import { Reservation } from '../../interfaces/reservation';
+import { ReservationService } from '../../services/reservation.service';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-track-details',
@@ -19,6 +22,9 @@ export class TrackDetailsComponent implements OnInit {
   isEnterpriseView: boolean = false;
   track!: TrackDetails;
 
+  trackActiveReservations: Reservation[] | null = null;
+  trackConcludedReservations: Reservation[] | null = null;
+  
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
@@ -39,6 +45,7 @@ export class TrackDetailsComponent implements OnInit {
     private readonly trackService: TrackService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly reservationService: ReservationService,
     private readonly toastr: ToastrService
   ) { }
 
@@ -93,5 +100,58 @@ export class TrackDetailsComponent implements OnInit {
     this.router.navigate([nextRoute], {
       state: { track: this.track }
     })
+  }
+
+  // Load the reservations only when is needed
+  onTabChange(event: MatTabChangeEvent): void {
+    const label = event.tab.textLabel;
+
+    if (label === 'Active Reservations' && this.trackActiveReservations === null) {
+      this.reservationService.getTrackActiveReservations(this.track.id).subscribe({
+        next: res => this.trackActiveReservations = res,
+        error: err => console.error('Failed to load active reservations', err)
+      });
+    }
+
+    if (label === 'Completed Reservations' && this.trackConcludedReservations === null) {
+      this.reservationService.getTrackConcludedReservations(this.track.id).subscribe({
+        next: res => this.trackConcludedReservations = res,
+        error: err => console.error('Failed to load completed reservations', err)
+      });
+    }
+  }
+
+  get todayActiveReservations(): Reservation[] {
+    if(!this.trackActiveReservations) {
+      return [];
+    }
+
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+
+    return this.trackActiveReservations.filter(res => {
+      const [day, month, year] = res.date.split('/').map(Number);
+      const reservationDate = new Date(year, month - 1, day);
+      reservationDate.setHours(12, 0, 0, 0);
+
+      return reservationDate.getTime() === today.getTime();
+    });
+  }
+
+  get futureActiveReservations(): Reservation[] {
+    if(!this.trackActiveReservations) {
+      return [];
+    }
+
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+
+    return this.trackActiveReservations.filter(res => {
+      const [day, month, year] = res.date.split('/').map(Number);
+      const reservationDate = new Date(year, month - 1, day);
+      reservationDate.setHours(12, 0, 0, 0);
+
+      return reservationDate.getTime() > today.getTime();
+    });
   }
 }

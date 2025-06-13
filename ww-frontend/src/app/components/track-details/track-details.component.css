@@ -55,9 +55,18 @@
   color: white;
 }
 
+#actions button:hover {
+  background-color: #333;
+}
+
 #set-fav {
   color: #FFD700 !important;
 }
+
+
+
+/* DETAILS TAB */
+
 
 #details-section {
   padding-top: 30px;
@@ -140,7 +149,6 @@
   margin-right: 8px;
 }
 
-
 .image-gallery {
   flex: 1;
   display: grid;
@@ -162,6 +170,49 @@
 
 .image-gallery img:not(:first-child) {
   height: 150px;
+}
+
+
+
+/* RESERVATIONS TABS */
+
+.selected-tab {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#completed-tab {
+  padding-top: 40px;
+}
+
+.reservation-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.reservation-group-title {
+  width: 100%;
+  margin: 0;
+  font-size: 1.4em;
+  font-weight: 700;
+  text-align: left;
+}
+
+.reservation-card {
+  width: 100%;
+}
+
+.no-reservations {
+  text-align: center;
+  color: #777;
+  padding: 50px 0;
+  font-size: 1.2em;
 }
 
 

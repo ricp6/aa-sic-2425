@@ -18,73 +18,17 @@
           <div *ngIf="todayActiveReservations.length > 0" class="reservation-group">
             <h2 class="reservation-group-title">Today</h2>
 
-            <mat-card class="reservation-card" *ngFor="let reservation of todayActiveReservations" [routerLink]="['/reservations', reservation.id]">
-              <div class="track-image">
-                <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
-              </div>
-
-              <mat-card-content class="reservation-info">
-                <div class="reservation-details">
-                  <span class="track-name">{{ reservation.trackName }}</span>
-                  <span class="reservation-row">
-                    <mat-icon class="reservation-row-icon">group</mat-icon>
-                    {{ reservation.numParticipants }} {{reservation.numParticipants === 1 ? 'participant' : 'participants'}}
-                  </span>
-                </div>
-
-                <div class="reservation-datetime">
-                  <span class="reservation-row">
-                    <mat-icon class="reservation-row-icon">event</mat-icon>
-                    <span>{{ reservation.date }}</span>
-                  </span>
-
-                  <span class="reservation-row">
-                    <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                    <span>{{ reservation.numSessions }} {{reservation.numSessions === 1 ? 'session' : 'sessions'}}</span>
-                  </span>
-                </div>
-
-                <div class="reservation-status" [class]="reservation.status">
-                  {{ reservation.status | titlecase }}
-                </div>
-              </mat-card-content>
-            </mat-card>
+            <app-reservation-card *ngFor="let reservation of todayActiveReservations" class="reservation-card"
+              [reservation]="reservation" [isEnterpriseView]="false">
+            </app-reservation-card>
           </div>
 
           <div *ngIf="futureActiveReservations.length > 0" class="reservation-group">
             <h2 class="reservation-group-title">Future</h2>
 
-            <mat-card class="reservation-card" *ngFor="let reservation of futureActiveReservations" [routerLink]="['/reservations', reservation.id]">
-              <div class="track-image">
-                <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
-              </div>
-
-              <mat-card-content class="reservation-info">
-                <div class="reservation-details">
-                  <span class="track-name">{{ reservation.trackName }}</span>
-                  <span class="reservation-row">
-                    <mat-icon class="reservation-row-icon">group</mat-icon>
-                    {{ reservation.numParticipants }} {{reservation.numParticipants === 1 ? 'participant' : 'participants'}}
-                  </span>
-                </div>
-
-                <div class="reservation-datetime">
-                  <span class="reservation-row">
-                    <mat-icon class="reservation-row-icon">event</mat-icon>
-                    <span>{{ reservation.date }}</span>
-                  </span>
-
-                  <span class="reservation-row">
-                    <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                    <span>{{ reservation.numSessions }} {{reservation.numSessions === 1 ? 'session' : 'sessions'}}</span>
-                  </span>
-                </div>
-
-                <div class="reservation-status" [class]="reservation.status">
-                  {{ reservation.status | titlecase }}
-                </div>
-              </mat-card-content>
-            </mat-card>
+            <app-reservation-card *ngFor="let reservation of futureActiveReservations" class="reservation-card"
+              [reservation]="reservation" [isEnterpriseView]="false">
+            </app-reservation-card>
           </div>
 
           <div *ngIf="activeReservations.length === 0" class="no-reservations">
@@ -95,42 +39,9 @@
 
       <mat-tab label="Completed">
         <div class="selected-tab" id="completed-tab">
-
-          <mat-card class="reservation-card" *ngFor="let reservation of completedReservations" [routerLink]="['/reservations', reservation.id]">
-            <div class="track-image">
-                <img mat-card-image [src]="reservation.trackImage" alt="Track Icon">
-              </div>
-
-            <mat-card-content class="reservation-info">
-              <div class="reservation-details">
-                <span class="track-name">{{ reservation.trackName }}</span>
-                <span class="reservation-row">
-                  <mat-icon class="reservation-row-icon">group</mat-icon>
-                  {{ reservation.numParticipants }} {{reservation.numParticipants === 1 ? 'participant' : 'participants'}}
-                </span>
-              </div>
-
-              <div class="reservation-datetime">
-                <span class="reservation-row">
-                  <mat-icon class="reservation-row-icon">event</mat-icon>
-                  <span>{{ reservation.date }}</span>
-                </span>
-
-                <span class="reservation-row">
-                  <mat-icon class="reservation-row-icon">schedule</mat-icon>
-                  <span>{{ reservation.numSessions }} {{reservation.numSessions === 1 ? 'session' : 'sessions'}}</span>
-                </span>
-              </div>
-
-              <div *ngIf="reservation.status === 'CONCLUDED'" class="reservation-actions">
-                <button mat-stroked-button type="button" class="reservation-action repeat" [routerLink]="['reservations/form']">Repeat</button>
-              </div>
-              <div *ngIf="reservation.status === 'REJECTED' || reservation.status === 'CANCELLED'" 
-                class="reservation-status" [class]="reservation.status">
-                {{ reservation.status | titlecase }}
-              </div>
-            </mat-card-content>
-          </mat-card>
+          <app-reservation-card *ngFor="let reservation of completedReservations" class="reservation-card"
+            [reservation]="reservation" [isEnterpriseView]="false">
+          </app-reservation-card>
 
           <div *ngIf="completedReservations.length === 0" class="no-reservations">
             No completed reservations.
