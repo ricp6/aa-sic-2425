@@ -40,7 +40,8 @@ export class ReservationsComponent implements OnInit {
     let reservationsObservable: Observable<Reservation[]>;
     if (this.isEnterpriseView) {
       // Owner, get reservations on his tracks
-      reservationsObservable = this.reservationService.getTrackActiveReservations();
+      // TODO change this later 
+      reservationsObservable = this.reservationService.getUserReservations();
     } else {
       // User, get reservations where he participated
       reservationsObservable = this.reservationService.getUserReservations();

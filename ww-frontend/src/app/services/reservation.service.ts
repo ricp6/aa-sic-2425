@@ -33,14 +33,12 @@ export class ReservationService {
     return this.loadAndMapReservations(this.getUserRawReservations());
   }
 
-  getTrackActiveReservations(): Observable<Reservation[]> {
-    return this.getUserReservations();
-    // return this.loadAndMapReservations(this.getTrackActiveRawReservations());
+  getTrackActiveReservations(trackId: number): Observable<Reservation[]> {
+    return this.loadAndMapReservations(this.getTrackActiveRawReservations(trackId));
   }
 
-  getTrackConcludedReservations(): Observable<Reservation[]> {
-    return this.getUserReservations();
-    // return this.loadAndMapReservations(this.getTrackConcludedRawReservations());
+  getTrackConcludedReservations(trackId: number): Observable<Reservation[]> {
+    return this.loadAndMapReservations(this.getTrackConcludedRawReservations(trackId));
   }
 
   private loadAndMapReservations(source$: Observable<RawReservation[]>): Observable<Reservation[]> {

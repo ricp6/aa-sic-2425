@@ -102,19 +102,18 @@ export class TrackService {
   }
 
   getOwnedTracks(): Observable<SimpleTrack[]> {
-    return this.getTracksCached();
-    // return this.http.get<SimpleTrack[]>(`${this.tracksURL}/owned`).pipe(
-    //   catchError((error: HttpErrorResponse) => {
-    //     if (error.status === 401) {
-    //       this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-    //     } else if (error.status === 403) {
-    //       this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-    //     } else {
-    //       this.toastr.error('An error occurred while loading the tracks', 'Server error');
-    //     }
-    //     return throwError(() => error);
-    //   })
-    // );
+    return this.http.get<SimpleTrack[]>(`${this.tracksURL}/owned`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the tracks', 'Server error');
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   setOperationalState(trackId: number): Observable<void> {
