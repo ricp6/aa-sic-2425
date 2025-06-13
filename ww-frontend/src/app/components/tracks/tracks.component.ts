@@ -4,12 +4,12 @@ import { TrackWithRecords } from '../../interfaces/track';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { User } from '../../interfaces/user';
-import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../services/user.service';
-import { Observable, combineLatest, Subscription, of } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { startWith, map } from 'rxjs/operators';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { ViewService } from '../../services/view.service';
 
 @Component({
   selector: 'app-tracks',
@@ -17,12 +17,14 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
   styleUrls: ['./tracks.component.css']
 })
 export class TracksComponent implements OnInit, OnDestroy {
+  
+  isEnterpriseView: boolean = false;
 
   searchTerm: string = '';
   onlyFavs: boolean = false;
   showOperationalOnly: boolean = false;
 
-  tracks: TrackWithRecords[] | null = null; //
+  tracks: TrackWithRecords[] | null = null;
   private tracksSubscription: Subscription | undefined;
 
   // Autocomplete e Multi-seleção de Cidades
@@ -31,6 +33,10 @@ export class TracksComponent implements OnInit, OnDestroy {
   availableCities: string[] = [];
   filteredCityOptions!: Observable<string[]>;
   selectedCities: string[] = [];
+
+  get showAdvancedInfo(): boolean {
+    return this.isLoggedIn && !this.isEnterpriseView;
+  }
 
   get isLoggedIn(): boolean { //
     return this.authService.isLoggedIn();
@@ -42,16 +48,28 @@ export class TracksComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly router: Router,
+    private readonly viewService: ViewService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly tracksService: TrackService,
-    private readonly toastr: ToastrService
+    private readonly tracksService: TrackService
   ) {}
 
   ngOnInit(): void {
-    const tracksObservable = this.isLoggedIn ?
-      this.tracksService.getTracksWithRecords() :
-      this.tracksService.getTracksCached().pipe(map(tracks => tracks as TrackWithRecords[])); //
+    this.viewService.viewMode$.subscribe(mode => {
+      this.isEnterpriseView = (mode === 'enterprise');
+    });
+
+    let tracksObservable: Observable<TrackWithRecords[]>;
+    if (this.isEnterpriseView && this.isLoggedIn) {
+      // Owner, get only his tracks
+      tracksObservable = this.tracksService.getOwnedTracks();
+    } else if (this.isLoggedIn) {
+      // User, get all tracks with his records
+      tracksObservable = this.tracksService.getTracksWithRecords();
+    } else {
+      // Annonimous, get just the tracks
+      tracksObservable = this.tracksService.getTracksCached().pipe(map(tracks => tracks as TrackWithRecords[]));
+    }
 
     this.tracksSubscription = tracksObservable.subscribe({
       next: (tracks) => {
@@ -67,7 +85,7 @@ export class TracksComponent implements OnInit, OnDestroy {
 
     this.filteredCityOptions = this.cityFilterControl.valueChanges.pipe(
       startWith(''),
-      map(value => this._filterCities(value || '')),
+      map(value => this._filterCities(value ?? '')),
     );
   }
 
@@ -85,7 +103,7 @@ export class TracksComponent implements OnInit, OnDestroy {
         uniqueCities.add(city);
       }
     });
-    this.availableCities = Array.from(uniqueCities).sort();
+    this.availableCities = Array.from(uniqueCities).sort((a, b) => a.localeCompare(b));
   }
 
   private _filterCities(value: string): string[] {
@@ -113,8 +131,7 @@ export class TracksComponent implements OnInit, OnDestroy {
     }
   }
 
-  applyFilters(): void {
-  }
+  applyFilters(): void { }
 
   filteredTracks(): TrackWithRecords[] | undefined {
     if (!this.tracks) {
@@ -163,6 +180,7 @@ export class TracksComponent implements OnInit, OnDestroy {
   }
 
   showTrack(track : TrackWithRecords): void {
-    this.router.navigate(['/tracks', track.id]);
+    const routePrefix = this.isEnterpriseView ? '/enterprise/tracks' : '/tracks';
+    this.router.navigate([routePrefix, track.id]);
   }
 }

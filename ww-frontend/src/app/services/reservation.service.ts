@@ -29,25 +29,37 @@ export class ReservationService {
     private readonly toastr: ToastrService
   ) { }
 
-  getReservations(): Observable<Reservation[]> {
-    return this.getRawReservations().pipe(
+  getUserReservations(): Observable<Reservation[]> {
+    return this.loadAndMapReservations(this.getUserRawReservations());
+  }
+
+  getTrackActiveReservations(): Observable<Reservation[]> {
+    return this.getUserReservations();
+    // return this.loadAndMapReservations(this.getTrackActiveRawReservations());
+  }
+
+  getTrackConcludedReservations(): Observable<Reservation[]> {
+    return this.getUserReservations();
+    // return this.loadAndMapReservations(this.getTrackConcludedRawReservations());
+  }
+
+  private loadAndMapReservations(source$: Observable<RawReservation[]>): Observable<Reservation[]> {
+    return source$.pipe(
       map(rawReservations => {
         const mappedReservations = this.mapRawReservationsToReservations(rawReservations);
-
-        mappedReservations.sort((a, b) => {
-          const [dayA, monthA, yearA] = a.date.split('/').map(Number);
-          const dateA = new Date(yearA, monthA - 1, dayA);
-
-          const [dayB, monthB, yearB] = b.date.split('/').map(Number);
-          const dateB = new Date(yearB, monthB - 1, dayB);
-
+        return mappedReservations.sort((a, b) => {
+          const dateA = this.parseDate(a.date);
+          const dateB = this.parseDate(b.date);
           return dateA.getTime() - dateB.getTime();
         });
-
-        return mappedReservations;
       }),
       catchError(this.handleError)
     );
+  }
+
+  private parseDate(dateStr: string): Date {
+    const [day, month, year] = dateStr.split('/').map(Number);
+    return new Date(year, month - 1, day);
   }
 
   private mapRawReservationsToReservations(rawReservations: RawReservation[]): Reservation[] {
@@ -67,8 +79,20 @@ export class ReservationService {
     });
   }
 
-  private getRawReservations(): Observable<RawReservation[]> {
+  private getUserRawReservations(): Observable<RawReservation[]> {
     return this.http.get<RawReservation[]>(`${this.reservationsURL}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  private getTrackActiveRawReservations(trackId: number): Observable<RawReservation[]> {
+    return this.http.get<RawReservation[]>(`${this.reservationsURL}/track/active/${trackId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  private getTrackConcludedRawReservations(trackId: number): Observable<RawReservation[]> {
+    return this.http.get<RawReservation[]>(`${this.reservationsURL}/track/concluded/${trackId}`).pipe(
       catchError(this.handleError)
     );
   }

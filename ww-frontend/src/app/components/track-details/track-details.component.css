@@ -59,7 +59,7 @@
   color: #FFD700 !important;
 }
 
-#information-section {
+#details-section {
   padding-top: 30px;
   display: flex;
   gap: 40px;
@@ -183,7 +183,7 @@
     margin: 0 5px;
   }
 
-  .information-section {
+  .details-section {
     flex-direction: column;
   }
 

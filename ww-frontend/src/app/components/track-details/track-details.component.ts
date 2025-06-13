@@ -6,6 +6,8 @@ import { TrackService } from '../../services/track.service';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../interfaces/user';
 import { UserService } from '../../services/user.service';
+import { ViewService } from '../../services/view.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-track-details',
@@ -13,7 +15,8 @@ import { UserService } from '../../services/user.service';
   styleUrl: './track-details.component.css'
 })
 export class TrackDetailsComponent implements OnInit {
-
+  
+  isEnterpriseView: boolean = false;
   track!: TrackDetails;
 
   get isLoggedIn(): boolean {
@@ -32,15 +35,21 @@ export class TrackDetailsComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly location: Location,
+    private readonly viewService: ViewService,
     private readonly trackService: TrackService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly toastr: ToastrService
   ) { }
 
   ngOnInit(): void {
+    this.viewService.viewMode$.subscribe(mode => {
+      this.isEnterpriseView = (mode === 'enterprise');
+    });
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (isNaN(id)) {
-      this.router.navigate(['/tracks']);
+      this.goBack();
       return;
     }
 
@@ -50,7 +59,7 @@ export class TrackDetailsComponent implements OnInit {
       },
       error: () => {
         // Optionally show a toast or redirect
-        this.router.navigate(['/tracks']);
+        this.goBack();
       }
     });
   }
@@ -63,12 +72,25 @@ export class TrackDetailsComponent implements OnInit {
     }
   }
 
+  toggleOperational(): void {
+    const newStatus = !this.track.isAvailable;
+
+    this.trackService.setOperationalState(this.track.id).subscribe({
+      next: () => {
+        this.track.isAvailable = newStatus;
+        this.toastr.success(`Track marked as ${newStatus ? 'operational' : 'not operational'}`);
+      },
+      error: () => this.toastr.error('Failed to change operational status')
+    });
+  }
+
   goBack() {
     this.location.back();
   }
 
   goToCreateReservation(): void {
-    this.router.navigate(['reservations/form'], {
+    const nextRoute = this.isEnterpriseView ? 'enterprise/reservations/form' : 'reservations/form';
+    this.router.navigate([nextRoute], {
       state: { track: this.track }
     })
   }

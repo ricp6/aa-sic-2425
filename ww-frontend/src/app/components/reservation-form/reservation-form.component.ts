@@ -2,7 +2,7 @@
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
@@ -21,6 +21,7 @@ import { Slot } from '../../interfaces/slot';
 import { Kart } from '../../interfaces/kart';
 import { SimpleUser } from '../../interfaces/user';
 import { format } from 'date-fns';
+import { ViewService } from '../../services/view.service';
 
 
 @Component({
@@ -31,6 +32,8 @@ import { format } from 'date-fns';
 export class ReservationFormComponent implements OnInit {
   @ViewChild('stepper') stepper!: MatStepper;
   @ViewChild('calendar') calendar!: MatCalendar<Date>;
+  
+  isEnterpriseView: boolean = false;
 
   // Form Groups for each step
   trackSelectionFormGroup!: FormGroup;
@@ -50,7 +53,6 @@ export class ReservationFormComponent implements OnInit {
   users: SimpleUser[] = []
   filteredUsers!: Observable<SimpleUser[]>;
   groupedKarts: { model: string; karts: Kart[] }[] = [];
-
 
   get formatedDate(): string {
     if(this.selectedDate) {
@@ -77,12 +79,14 @@ export class ReservationFormComponent implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly location: Location,
+    private readonly route: ActivatedRoute,
     private readonly formBuilder: FormBuilder,
     private readonly reservationService: ReservationService,
     private readonly userService: UserService,
     private readonly trackService: TrackService,
     private readonly kartService: KartService,
     private readonly authService: AuthService,
+    private readonly viewService: ViewService,
     private readonly toastr: ToastrService
   ) {
     // Save state if present
@@ -90,6 +94,9 @@ export class ReservationFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.viewService.viewMode$.subscribe(mode => {
+      this.isEnterpriseView = (mode === 'enterprise');
+    });
 
     // Initialize the forms
     this.createFormGroups();
@@ -136,6 +143,9 @@ export class ReservationFormComponent implements OnInit {
     const seenUserIds = new Set<number>();
     const seenKartIds = new Set<number>();
 
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    let currentUserIncluded = false;
+
     for (let group of participants.controls) {
       const user = group.get('user')?.value;
       const kart = group.get('kart')?.value;
@@ -149,6 +159,11 @@ export class ReservationFormComponent implements OnInit {
       if (!userIsValid) {
         return { invalidUser: true };
       }
+      
+      // Track if current user is included
+      if (user.id === currentUserId) {
+        currentUserIncluded = true;
+      }
 
       // Check for duplicate users
       if (seenUserIds.has(user.id)) {
@@ -161,6 +176,14 @@ export class ReservationFormComponent implements OnInit {
         return { duplicateKart: true };
       }
       seenKartIds.add(kart);
+    }
+    
+    // Enforce rules about current user based on mode
+    if (!this.isEnterpriseView && !currentUserIncluded) {
+      return { mustIncludeCurrentUser: true };
+    }
+    if (this.isEnterpriseView && currentUserIncluded) {
+      return { cannotIncludeCurrentUser: true };
     }
 
     return null;
@@ -261,6 +284,20 @@ export class ReservationFormComponent implements OnInit {
       participantGroup.get('kart')?.reset(null);
     });
     this.participantsKartsFormGroup.updateValueAndValidity();
+
+    // Pre-add the current user if in the client mode
+    if (!this.isEnterpriseView) {
+      const currentUser = this.authService.getCurrentUser();
+      if (currentUser) {
+        const simpleCurrentUser: SimpleUser = {
+          id: currentUser.id,
+          username: currentUser.name,
+          email: currentUser.email,
+          userType: currentUser.userType,
+        }
+        this.addParticipant({ user: simpleCurrentUser, kart: null });
+      }
+    }
   }
 
 
@@ -339,6 +376,7 @@ export class ReservationFormComponent implements OnInit {
     return this.participantsKartsFormGroup.get('participants') as FormArray;
   }
 
+  // Parameter ready thinking about edit reservation
   addParticipant(participant: { user: SimpleUser | null, kart: Kart | null }
     = {user: null, kart: null }
   ): void {
@@ -439,14 +477,17 @@ export class ReservationFormComponent implements OnInit {
   }
 
   checkUserParticipation(formatedParticipants: { userId: number; kartId: number; }[]): boolean {
-    const userIsIncluded = formatedParticipants.some(p => p.userId === this.authService.getCurrentUser()?.id);
-    if (!userIsIncluded) {
-      const proceed = confirm("You are not listed as a participant in this reservation. Do you want to continue?");
-      if (!proceed) {
-        return false; // User not included and dont want to proceed with the request
-      }
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    const userIsIncluded = formatedParticipants.some(p => p.userId === currentUserId);
+    
+    if(this.isEnterpriseView && userIsIncluded) {
+      this.toastr.warning('You cannot include yourself in the participants list.');
+      return false;
+    } else if (!this.isEnterpriseView && !userIsIncluded) {
+      this.toastr.warning('You must be included as a participant.');
+      return false;
     }
-    return true; // User included or wants to proceed without being included
+    return true;
   }
 
   sendCreateRequest(requestPayload: any): void {
@@ -469,7 +510,12 @@ export class ReservationFormComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (users: SimpleUser[]) => {
         if(users != null) {
-          this.users = users;
+          // Filter out current user only if in enterprise view
+          const currentUserId = this.authService.getCurrentUser()?.id;
+          this.users = this.isEnterpriseView
+            ? users.filter(user => user.id !== currentUserId)
+            : users;
+
         } else {
           this.toastr.warning("Error loading the users information", "Going back!");
           this.goBack();
@@ -484,7 +530,11 @@ export class ReservationFormComponent implements OnInit {
   }
 
   loadTracks(): void {
-    this.trackService.getTracksCached().subscribe({
+    const trackObservable = this.isEnterpriseView
+      ? this.trackService.getOwnedTracks()
+      : this.trackService.getTracksCached();
+
+    trackObservable.subscribe({
       next: (tracks: SimpleTrack[]) => {
         if(tracks !== null) {
           // Keep only available tracks

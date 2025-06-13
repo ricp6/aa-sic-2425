@@ -33,7 +33,6 @@ import { ReservationsComponent } from './components/reservations/reservations.co
 import { ProfileComponent } from './components/profile/profile.component';
 import { NotificationsComponent } from './components/notifications/notifications.component';
 import { TracksComponent } from './components/tracks/tracks.component';
-import { EnterpriseHomeComponent } from './components/enterprise-home/enterprise-home.component';
 import { AuthWrapperComponent } from './components/auth-wrapper/auth-wrapper.component';
 import { RegisterComponent } from './components/register/register.component';
 import { TrackDetailsComponent } from './components/track-details/track-details.component';
@@ -58,7 +57,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
     ProfileComponent,
     NotificationsComponent,
     TracksComponent,
-    EnterpriseHomeComponent,
     AuthWrapperComponent,
     RegisterComponent,
     TrackDetailsComponent,
