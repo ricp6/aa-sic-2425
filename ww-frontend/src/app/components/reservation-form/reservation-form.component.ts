@@ -45,11 +45,12 @@ export class ReservationFormComponent implements OnInit {
   tracks: SimpleTrack[] = [];
   filteredTracks!: Observable<SimpleTrack[]>;
   karts: Kart[] = [];
-  
+
   selectedDate: Date | null = null;
   slots: Slot[] = [];
   slotDuration: number = 0;
-  
+  minSelectableDate: Date | undefined;
+
   users: SimpleUser[] = []
   filteredUsers!: Observable<SimpleUser[]>;
   groupedKarts: { model: string; karts: Kart[] }[] = [];
@@ -85,8 +86,7 @@ export class ReservationFormComponent implements OnInit {
     private readonly userService: UserService,
     private readonly trackService: TrackService,
     private readonly kartService: KartService,
-    private readonly authService: AuthService,
-    private readonly viewService: ViewService,
+    protected readonly authService: AuthService,
     private readonly toastr: ToastrService
   ) {
     // Save state if present
@@ -100,10 +100,12 @@ export class ReservationFormComponent implements OnInit {
 
     // Initialize the forms
     this.createFormGroups();
-        
+
     // Setup data filtering observables
     this.setTracksFiltering();
-    
+
+    this.minSelectableDate = new Date();
+
     // Load initial data
     this.loadUsers();
     this.loadTracks();
@@ -167,13 +169,13 @@ export class ReservationFormComponent implements OnInit {
 
       // Check for duplicate users
       if (seenUserIds.has(user.id)) {
-        return { duplicateUser: true };
+        return { duplicatedUser: true };
       }
       seenUserIds.add(user.id);
 
       // Check for duplicate karts
       if (seenKartIds.has(kart)) {
-        return { duplicateKart: true };
+        return { duplicatedKart: true };
       }
       seenKartIds.add(kart);
     }
@@ -188,7 +190,7 @@ export class ReservationFormComponent implements OnInit {
 
     return null;
   }
-    
+
   validateUserInput(control: AbstractControl) {
     const value = control.value;
     const existingErrors = control.errors || {};
@@ -269,7 +271,7 @@ export class ReservationFormComponent implements OnInit {
     // Reset slots part
     this.resetSlotsSubStep();
   }
-  
+
   resetSlotsSubStep(): void {
     // Reset date-time form controls
     this.dateTimeSelectionFormGroup.get('selectedSlots')?.setValue([]);
@@ -327,9 +329,9 @@ export class ReservationFormComponent implements OnInit {
     this.loadKarts();
   }
 
-  
+
   // --- Step 2: Date and Time Selection ---
-  
+
   onDateSelected(): void {
     if (this.selectedDate == null) {
       // Start from step 1
@@ -348,11 +350,11 @@ export class ReservationFormComponent implements OnInit {
   isSlotSelected(slot: Slot): boolean {
     return this.dateTimeSelectionFormGroup.get('selectedSlots')?.value.includes(slot);
   }
-  
+
   toggleSlotSelection(slot: Slot): void {
     const control = this.dateTimeSelectionFormGroup.get('selectedSlots')!;
     const current: Slot[] = control.value;
-    
+
     const index = current.indexOf(slot);
     if (index === -1) {
       control.setValue([...current, slot]);
@@ -361,18 +363,18 @@ export class ReservationFormComponent implements OnInit {
       updated.splice(index, 1);
       control.setValue(updated);
     }
-    
+
     control.markAsTouched();
   }
 
 
   // --- Step 3: Participants and Karts ---
-  
+
   displayUserFn(user: SimpleUser): string {
     return user ? `${user.username} - ${user.email}` : '';
   }
 
-  get participants() {
+  public get participants() {
     return this.participantsKartsFormGroup.get('participants') as FormArray;
   }
 
@@ -390,14 +392,18 @@ export class ReservationFormComponent implements OnInit {
       this.setUsersFiltering(participantGroup.get('user')!);
 
       this.participants.push(participantGroup);
+      this.participantsKartsFormGroup.updateValueAndValidity();
+
+
     } else {
-      this.toastr.warning('This track currently has no karts available to host more participants.', 
+      this.toastr.warning('This track currently has no karts available to host more participants.',
         `Maximum of ${this.karts.length} participants reached.`);
     }
   }
 
   removeParticipant(index: number): void {
     this.participants.removeAt(index);
+    this.participantsKartsFormGroup.updateValueAndValidity();
   }
 
 
@@ -408,8 +414,8 @@ export class ReservationFormComponent implements OnInit {
     // Validate forms info
     if (
       !this.selectedDate ||
-      this.trackSelectionFormGroup.invalid || 
-      this.dateTimeSelectionFormGroup.invalid || 
+      this.trackSelectionFormGroup.invalid ||
+      this.dateTimeSelectionFormGroup.invalid ||
       this.participantsKartsFormGroup.invalid
     ) {
       this.toastr.error('Please complete all required fields in the reservation form.', 'Form Invalid');
@@ -419,19 +425,19 @@ export class ReservationFormComponent implements OnInit {
       this.participantsKartsFormGroup.markAllAsTouched();
       return;
     }
-  
+
     // Get and format all info needed from the forms
     const selectedTrackId = this.trackSelectionFormGroup.get('selectedTrack')!.value.id; // get id
     const selectedDate  = this.formatedDate;
     const mergedSessions = this.formatAndMergeSessions();
     const formatedParticipants = this.formatParticipants();
-    
-    // If the current user is not in the participants list throw an alert and 
+
+    // If the current user is not in the participants list throw an alert and
     // only proceed if the user confirms he is aware and wishes to proceed anyways
     if(!this.checkUserParticipation(formatedParticipants)) {
       return;
     }
-    
+
     // Gather info in one object
     const requestPayload = {
       trackId: selectedTrackId,
@@ -444,17 +450,17 @@ export class ReservationFormComponent implements OnInit {
 
   formatAndMergeSessions(): { startTime: string, endTime: string }[] {
     const mergedSessions: { startTime: string, endTime: string }[] = [];
-    
-    // Sort the slots 
+
+    // Sort the slots
     const selectedSlots = this.dateTimeSelectionFormGroup.get('selectedSlots')!.value;
     const sortedSlots = [...selectedSlots].sort((a: Slot, b: Slot) =>
       a.startTime.localeCompare(b.startTime)
     );
-  
+
     // Check for consecutives and merge them
     for (const slot of sortedSlots) {
       const last = mergedSessions[mergedSessions.length - 1];
-      
+
       if (last && last.endTime === slot.startTime) {
         // Extend the previous session
         last.endTime = slot.endTime;
@@ -502,7 +508,7 @@ export class ReservationFormComponent implements OnInit {
       }
     });
   }
-  
+
 
   // Helpers to fetch data from services
 
@@ -611,12 +617,12 @@ export class ReservationFormComponent implements OnInit {
   loadSlots(): void {
     this.reservationService.getSlots(
       this.trackSelectionFormGroup.get('selectedTrack')?.value.id,
-      this.formatedDate // e.g. '2025-06-03'
+      this.formatedDate
     ).subscribe({
       next: (slots: Slot[]) => {
         if(slots != null) {
           this.slots = slots;
-          this.slotDuration = this.getMinutesDifference(slots[0]);  
+          this.slotDuration = this.getMinutesDifference(slots[0]);
         } else {
           console.log("error loading slots: ", slots)
           // Restart from step 2
@@ -639,7 +645,7 @@ export class ReservationFormComponent implements OnInit {
 
     return (eh * 60 + em) - (sh * 60 + sm);
   }
-  
+
   formatTime(time: string): string {
     return time.slice(0, 5); // Assumes time format is 'HH:mm:ss'
   }
