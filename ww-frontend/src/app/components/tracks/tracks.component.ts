@@ -1,6 +1,7 @@
+// tracks.component.ts
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { TrackService } from '../../services/track.service';
-import { TrackWithRecords } from '../../interfaces/track';
+import { TrackWithRecords, DayOfWeek, FilterDTO, SimpleTrack } from '../../interfaces/track';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { User } from '../../interfaces/user';
@@ -28,22 +29,29 @@ export class TracksComponent implements OnInit, OnDestroy {
   tracks: TrackWithRecords[] | null = null;
   private tracksSubscription: Subscription | undefined;
 
-  // Autocomplete e Multi-seleção de Cidades
   @ViewChild('cityInput') cityInput!: ElementRef<HTMLInputElement>;
   cityFilterControl = new FormControl('');
   availableCities: string[] = [];
   filteredCityOptions!: Observable<string[]>;
   selectedCities: string[] = [];
 
+  minKartsFilterControl = new FormControl<number | null>(null);
+
+  selectedDaysToFilterBy: DayOfWeek[] = [];
+  availableDaysOfWeek = Object.values(DayOfWeek);
+
+  filterDataMap: Map<number, FilterDTO> = new Map();
+  advancedFiltersLoaded: boolean = false;
+
   get showAdvancedInfo(): boolean {
     return this.isLoggedIn && !this.isEnterpriseView;
   }
 
-  get isLoggedIn(): boolean { //
+  get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
 
-  get user(): User | null { //
+  get user(): User | null {
     return this.authService.getCurrentUser();
   }
 
@@ -66,21 +74,18 @@ export class TracksComponent implements OnInit, OnDestroy {
       content: 'This page shows every track available on our website and their status, allowing you to acess each track and quickly see your record in those tracks.It also supports filtering the search of tracks'
     });
 
-    let tracksObservable: Observable<TrackWithRecords[]>;
+    let tracksObservable: Observable<TrackWithRecords[] | SimpleTrack[]>;
     if (this.isEnterpriseView && this.isLoggedIn) {
-      // Owner, get only his tracks
       tracksObservable = this.tracksService.getOwnedTracks();
     } else if (this.isLoggedIn) {
-      // User, get all tracks with his records
       tracksObservable = this.tracksService.getTracksWithRecords();
     } else {
-      // Annonimous, get just the tracks
-      tracksObservable = this.tracksService.getTracksCached().pipe(map(tracks => tracks as TrackWithRecords[]));
+      tracksObservable = this.tracksService.getTracksCached();
     }
 
     this.tracksSubscription = tracksObservable.subscribe({
-      next: (tracks) => {
-        this.tracks = tracks;
+      next: (tracksData) => {
+        this.tracks = tracksData.map(track => ({ ...track, personalRecord: null, trackRecord: null })) as TrackWithRecords[];
         this.populateAvailableCities();
         this.applyFilters();
       },
@@ -94,11 +99,26 @@ export class TracksComponent implements OnInit, OnDestroy {
       startWith(''),
       map(value => this._filterCities(value ?? '')),
     );
+    this.minKartsFilterControl.valueChanges.subscribe(() => this.applyFilters());
   }
 
   ngOnDestroy(): void {
     if (this.tracksSubscription) {
       this.tracksSubscription.unsubscribe();
+    }
+  }
+
+  loadAdvancedFilterData(): void {
+    if (!this.advancedFiltersLoaded) {
+      this.tracksService.getTracksFilterData().subscribe({
+        next: (filterData) => {
+          this.filterDataMap = new Map(filterData.map(f => [f.trackId, f]));
+          this.advancedFiltersLoaded = true;
+        },
+        error: (err) => {
+          console.error("Failed to load advanced filter data", err);
+        }
+      });
     }
   }
 
@@ -138,7 +158,22 @@ export class TracksComponent implements OnInit, OnDestroy {
     }
   }
 
-  applyFilters(): void { }
+  toggleDaySelection(day: DayOfWeek): void {
+    const index = this.selectedDaysToFilterBy.indexOf(day);
+    if (index === -1) {
+      this.selectedDaysToFilterBy.push(day);
+    } else {
+      this.selectedDaysToFilterBy.splice(index, 1);
+    }
+    this.applyFilters();
+  }
+
+  isDaySelected(day: DayOfWeek): boolean {
+    return this.selectedDaysToFilterBy.includes(day);
+  }
+
+  applyFilters(): void {
+  }
 
   filteredTracks(): TrackWithRecords[] | undefined {
     if (!this.tracks) {
@@ -146,6 +181,7 @@ export class TracksComponent implements OnInit, OnDestroy {
     }
 
     const search = this.searchTerm.trim().toLowerCase();
+    const minKartsFilter = this.minKartsFilterControl.value;
 
     return this.tracks.filter(track => {
       const matchesSearch =
@@ -155,20 +191,38 @@ export class TracksComponent implements OnInit, OnDestroy {
       const matchesFav = !this.onlyFavs || this.isFav(track);
       const matchesAvailability = !this.showOperationalOnly || track.available;
 
-
       const matchesCity = this.selectedCities.length === 0 ||
         this.selectedCities.includes(track.address.trim());
 
-      return matchesSearch && matchesFav && matchesAvailability && matchesCity;
+      let matchesMinKarts = true;
+      let matchesDayFilter = true;
+
+      if (this.advancedFiltersLoaded) {
+        const trackFilterInfo = this.filterDataMap.get(track.id);
+
+        if (minKartsFilter !== null && minKartsFilter !== undefined) {
+          matchesMinKarts = (trackFilterInfo?.maxKarts !== null && trackFilterInfo?.maxKarts !== undefined &&
+            trackFilterInfo.maxKarts >= minKartsFilter);
+        }
+
+        if (this.selectedDaysToFilterBy.length > 0) {
+          matchesDayFilter = this.selectedDaysToFilterBy.some(day =>
+            !trackFilterInfo?.notOpen?.includes(day)
+          );
+        } else {
+          matchesDayFilter = true;
+        }
+      }
+
+      return matchesSearch && matchesFav && matchesAvailability && matchesCity && matchesMinKarts && matchesDayFilter;
     });
   }
 
   isFav(track: TrackWithRecords): boolean {
-    return this.user?.favoriteTrackIds?.includes(track.id) ?? false; //
+    return this.user?.favoriteTrackIds?.includes(track.id) ?? false;
   }
 
   setFav(track: TrackWithRecords): void {
-    // Toastrs handled by the service
     if (!this.isFav(track)) {
       this.userService.addFavorite(track.id).subscribe();
     } else {

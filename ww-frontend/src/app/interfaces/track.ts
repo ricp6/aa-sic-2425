@@ -1,3 +1,14 @@
+// Enum for DayOfWeek if you want strong typing on the frontend
+export enum DayOfWeek {
+  MONDAY = 'MONDAY',
+  TUESDAY = 'TUESDAY',
+  WEDNESDAY = 'WEDNESDAY',
+  THURSDAY = 'THURSDAY',
+  FRIDAY = 'FRIDAY',
+  SATURDAY = 'SATURDAY',
+  SUNDAY = 'SUNDAY'
+}
+
 export interface SimpleTrack {
     id: number,
     name: string,
@@ -11,21 +22,16 @@ export interface TrackWithRecords extends SimpleTrack {
     trackRecord?: string | null;
 }
 
+
 export interface RecordsDTO {
     id: number;
     personalRecord?: string | null;
     trackRecord?: string | null;
 }
-
-// Enum for DayOfWeek if you want strong typing on the frontend
-export enum DayOfWeek {
-    MONDAY = 'MONDAY',
-    TUESDAY = 'TUESDAY',
-    WEDNESDAY = 'WEDNESDAY',
-    THURSDAY = 'THURSDAY',
-    FRIDAY = 'FRIDAY',
-    SATURDAY = 'SATURDAY',
-    SUNDAY = 'SUNDAY'
+export interface FilterDTO {
+  trackId: number;
+  maxKarts?: number | null;
+  notOpen?:  DayOfWeek[] | null;
 }
 
 export interface DaySchedule {

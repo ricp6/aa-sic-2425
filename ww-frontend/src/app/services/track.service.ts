@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, tap, catchError, throwError, BehaviorSubject, of, combineLatest, map } from 'rxjs';
-import { RecordsDTO, SimpleTrack, TrackDetails, TrackWithRecords } from '../interfaces/track';
+import { RecordsDTO, SimpleTrack, TrackDetails, TrackWithRecords, FilterDTO } from '../interfaces/track';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +12,9 @@ export class TrackService {
 
   private tracksCache: SimpleTrack[] | null = null;
   private readonly tracksSubject = new BehaviorSubject<SimpleTrack[]>([]);
+
+  private filterDataCache: FilterDTO[] | null = null;
+  private readonly filterDataSubject = new BehaviorSubject<FilterDTO[]>([]);
 
   constructor(
     private readonly http: HttpClient,
@@ -44,12 +47,11 @@ export class TrackService {
     return this.tracksSubject.asObservable();
   }
 
-  // Optionally, add a method to force refresh
   refreshTracks(): Observable<SimpleTrack[]> {
     this.tracksCache = null;
     return this.getTracksBackend();
   }
-  
+
   private getTracksRecords(): Observable<RecordsDTO[] | null> {
     return this.http.get<RecordsDTO[]>(this.tracksURL + '/records').pipe(
       catchError((error: HttpErrorResponse) => {
@@ -65,6 +67,35 @@ export class TrackService {
     );
   }
 
+  getTracksFilterData(): Observable<FilterDTO[]> {
+    if (this.filterDataCache) {
+      return of(this.filterDataCache);
+    }
+    return this.http.get<FilterDTO[]>(this.tracksURL + '/filter').pipe(
+      tap(data => {
+        this.filterDataCache = data;
+        this.filterDataSubject.next(data);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading track filter data', 'Server error');
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getTracksFilterDataCached(): Observable<FilterDTO[]> {
+    if (this.filterDataCache) {
+      return of(this.filterDataCache);
+    }
+    return this.filterDataSubject.asObservable();
+  }
+
   getTracksWithRecords(): Observable<TrackWithRecords[]> {
     return combineLatest([
       this.getTracksCached(),
@@ -73,15 +104,18 @@ export class TrackService {
       map(([tracks, records]) => {
         const recordsMap = new Map(records?.map(r => [r.id, r]) ?? []);
         return (tracks ?? [])
-          .map(track => ({
-            ...track,
-            personalRecord: recordsMap.get(track.id)?.personalRecord ?? null,
-            trackRecord: recordsMap.get(track.id)?.trackRecord ?? null
-          }));
+          .map(track => {
+            const trackRecords = recordsMap.get(track.id);
+            return {
+              ...track,
+              personalRecord: trackRecords?.personalRecord ?? null,
+              trackRecord: trackRecords?.trackRecord ?? null,
+            };
+          });
       }),
       catchError((err) => {
         console.error("Failed to load tracks or records", err);
-        return of([]); // fallback to empty array on error
+        return of([]);
       })
     );
   }
