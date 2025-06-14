@@ -9,12 +9,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import pt.um.aasic.whackywheels.dtos.SlotResponseDTO;
-import pt.um.aasic.whackywheels.dtos.ReservationCreateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.*;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.ReservationService;
-import pt.um.aasic.whackywheels.dtos.ReservationDetailsResponseDTO;
-import pt.um.aasic.whackywheels.dtos.ReservationResponseDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -96,7 +93,7 @@ public class ReservationController {
 
     @PutMapping("/update/{reservationId}")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
-    public ResponseEntity<?> updateReservation(@PathVariable Long reservationId, @Valid @RequestBody ReservationCreateRequestDTO request, @AuthenticationPrincipal User authenticatedUser) {
+    public ResponseEntity<?> updateReservation(@PathVariable Long reservationId, @Valid @RequestBody ReservationUpdateRequestDTO request, @AuthenticationPrincipal User authenticatedUser) {
         Long userId = authenticatedUser.getId();
 
         try {
@@ -153,6 +150,38 @@ public class ReservationController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("Failed to retrieve reservations: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/accept/{reservationId}")
+    @PreAuthorize("hasAnyRole('OWNER')")
+    public ResponseEntity<?> acceptReservation(@PathVariable Long reservationId, @RequestBody(required = false) String message ,@AuthenticationPrincipal User authenticatedUser) {
+        Long ownerId = authenticatedUser.getId();
+
+        try {
+            reservationService.acceptReservation(reservationId, ownerId, message);
+            return new ResponseEntity<>("Reservation accepted successfully.", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Failed to accept reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/reject/{reservationId}")
+    @PreAuthorize("hasAnyRole('OWNER')")
+    public ResponseEntity<?> rejectReservation(@PathVariable Long reservationId, @RequestBody(required = false) String message, @AuthenticationPrincipal User authenticatedUser) {
+        Long ownerId = authenticatedUser.getId();
+
+        try {
+            reservationService.rejectReservation(reservationId, ownerId, message);
+            return new ResponseEntity<>("Reservation rejected successfully.", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Failed to reject reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

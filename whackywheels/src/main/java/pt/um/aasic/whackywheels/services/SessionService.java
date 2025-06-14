@@ -5,13 +5,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import pt.um.aasic.whackywheels.dtos.DriverClassificationDTO;
 import pt.um.aasic.whackywheels.dtos.SessionsDetailsResponseDTO;
-import pt.um.aasic.whackywheels.dtos.SessionsResponseDTO;
+import pt.um.aasic.whackywheels.dtos.SessionResponseDTO;
 import pt.um.aasic.whackywheels.entities.*;
 import pt.um.aasic.whackywheels.repositories.SessionRepository;
 import pt.um.aasic.whackywheels.repositories.ReservationRepository;
 import pt.um.aasic.whackywheels.repositories.TimePerLapRepository;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,7 +31,7 @@ public class SessionService {
     }
 
     @Transactional(readOnly = true)
-    public List<SessionsResponseDTO> getSessionsByUser(Long userId) {
+    public List<SessionResponseDTO> getSessionsByUser(Long userId) {
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null.");
         }
@@ -71,13 +70,16 @@ public class SessionService {
                 position = userClassification.get().getPosition().intValue();
             }
 
-            return new SessionsResponseDTO(
+            return new SessionResponseDTO(
                 session.getId(),
                 trackName,
                 session.getReservation().getDate(),
                 numParticipants,
                 position,
-                personalRecord
+                personalRecord,
+                session.getBookedStartTime(),
+                session.getBookedEndTime(),
+                session.getReservation().getTrack().getBannerImage()
             );
         }).collect(Collectors.toList());
     }
@@ -110,14 +112,7 @@ public class SessionService {
         String trackName = (reservation.getTrack() != null) ? reservation.getTrack().getName() : "N/A";
         LocalDate date = reservation.getDate();
 
-        long kartsUsed = reservation.getParticipants().stream()
-                                    .filter(p -> p.getKart() != null)
-                                    .map(Participant::getKart)
-                                    .distinct()
-                                    .count();
-
         String sessionDurationFormatted = "N/A";
-        long totalSessionDurationMinutes = 0;
         if (session.getActualStartTime() != null && session.getActualEndTime() != null) {
             Duration duration = Duration.between(session.getActualStartTime(), session.getActualEndTime());
             // Handle cases where end time might be on the next day if starting near midnight
@@ -146,9 +141,12 @@ public class SessionService {
                 Double averageLapTime = classification.getAverageTime();
                 Double bestLapTime = classification.getBestLapTime();
                 Integer finalPosition = classification.getPosition() != null ? classification.getPosition().intValue() : null;
+                Integer kartNumber = null;
+                String driverPicture = null;
 
                 if (classification.getParticipant() != null && classification.getParticipant().getUser() != null) {
                     driverName = classification.getParticipant().getUser().getName();
+                    driverPicture = classification.getParticipant().getUser().getProfilePicture();
 
                     // Calculate total laps for this participant in this session from TimePerLap
                     totalLaps = (int) classification.getParticipant().getTimePerLaps().stream()
@@ -156,12 +154,19 @@ public class SessionService {
                         .count();
                 }
 
+                if (classification.getParticipant().getKart() != null) {
+                    kartNumber = classification.getParticipant().getKart().getKartNumber();
+                }
+
                 return new DriverClassificationDTO(
                     driverName,
                     totalLaps,
                     averageLapTime,
                     bestLapTime,
-                    finalPosition
+                    finalPosition,
+                    kartNumber,
+                    driverPicture
+
                 );
             })
             .sorted(Comparator.comparing(dto -> dto.getFinalPosition() != null ? dto.getFinalPosition() : Integer.MAX_VALUE))
@@ -171,7 +176,6 @@ public class SessionService {
             session.getId(),
             trackName,
             date,
-            (int) kartsUsed,
             sessionDurationFormatted,
             driverClassifications
         );

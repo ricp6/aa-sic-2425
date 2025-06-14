@@ -10,8 +10,9 @@ public class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-
+    @Column(nullable = false)
     private LocalTime bookedStartTime;
+    @Column(nullable = false)
     private LocalTime bookedEndTime;
     private LocalTime actualStartTime;
     private LocalTime actualEndTime;

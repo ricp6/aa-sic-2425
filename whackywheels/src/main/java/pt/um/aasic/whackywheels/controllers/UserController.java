@@ -81,10 +81,7 @@ public class UserController {
 
     @PostMapping("/change-password")
     @PreAuthorize("hasAnyRole('USER', 'OWNER')")
-    public ResponseEntity<?> changePassword(
-            @RequestBody PasswordChangeRequest request,
-            @AuthenticationPrincipal User authenticatedUser) {
-
+    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request, @AuthenticationPrincipal User authenticatedUser) {
         try {
             if (authenticatedUser == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");

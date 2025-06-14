@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.dtos.SessionsDetailsResponseDTO;
-import pt.um.aasic.whackywheels.dtos.SessionsResponseDTO;
+import pt.um.aasic.whackywheels.dtos.SessionResponseDTO;
 import pt.um.aasic.whackywheels.services.SessionService;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class SessionController {
     public ResponseEntity<?> getSessionsByUser(@AuthenticationPrincipal User authenticatedUser) {
         Long userId = authenticatedUser.getId();
         try {
-            List<SessionsResponseDTO> sessions = sessionService.getSessionsByUser(userId);
+            List<SessionResponseDTO> sessions = sessionService.getSessionsByUser(userId);
             return ResponseEntity.ok(sessions);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

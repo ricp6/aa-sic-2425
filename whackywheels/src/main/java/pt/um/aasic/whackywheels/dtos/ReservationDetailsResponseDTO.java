@@ -9,14 +9,15 @@ public class ReservationDetailsResponseDTO {
     private Long id;
     private LocalDate reservationDate;
     private ReservationStatus status;
+    private Double price;
     private Long trackId;
     private String trackName;
-    private List<SessionResponseDTO> sessions;
+    private List<SimpleSessionResponseDTO> sessions;
     private List<ParticipantResponseDTO> participants;
 
     public ReservationDetailsResponseDTO() {}
 
-    public ReservationDetailsResponseDTO(Long id, LocalDate reservationDate, ReservationStatus status, Long trackId, String trackName, List<SessionResponseDTO> sessions, List<ParticipantResponseDTO> participants) {
+    public ReservationDetailsResponseDTO(Long id, LocalDate reservationDate, ReservationStatus status, Long trackId, String trackName, List<SimpleSessionResponseDTO> sessions, List<ParticipantResponseDTO> participants, Double price) {
         this.id = id;
         this.reservationDate = reservationDate;
         this.status = status;
@@ -24,6 +25,7 @@ public class ReservationDetailsResponseDTO {
         this.trackName = trackName;
         this.sessions = sessions;
         this.participants = participants;
+        this.price = price;
     }
 
     public Long getId() { return id; }
@@ -36,9 +38,11 @@ public class ReservationDetailsResponseDTO {
     public void setTrackId(Long trackId) { this.trackId = trackId; }
     public String getTrackName() { return trackName; }
     public void setTrackName(String trackName) { this.trackName = trackName; }
-    public List<SessionResponseDTO> getSessions() { return sessions; }
-    public void setSessions(List<SessionResponseDTO> sessions) { this.sessions = sessions; }
+    public List<SimpleSessionResponseDTO> getSessions() { return sessions; }
+    public void setSessions(List<SimpleSessionResponseDTO> sessions) { this.sessions = sessions; }
     public List<ParticipantResponseDTO> getParticipants() { return participants; }
     public void setParticipants(List<ParticipantResponseDTO> participants) { this.participants = participants; }
+    public Double getPrice() { return price; }
+    public void setPrice(Double price) { this.price = price;}
 }
 

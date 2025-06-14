@@ -26,6 +26,14 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
             @Param("pendingStatus") ReservationStatus pendingStatus,
             @Param("acceptedStatus") ReservationStatus acceptedStatus);
 
+    @Query("SELECT s FROM Session s JOIN s.reservation r WHERE r.track.id = :trackId AND r.date = :date AND r.status IN :statuses AND r.id != :excludedReservationId")
+    List<Session> findOccupiedSessionsForTrackAndDateExcludingReservation(
+            @Param("trackId") Long trackId,
+            @Param("date") LocalDate date,
+            @Param("statuses") List<ReservationStatus> statuses,
+            @Param("excludedReservationId") Long excludedReservationId
+    );
+
     @Query("SELECT s FROM Session s " +
             "LEFT JOIN FETCH s.reservation r " +
             "LEFT JOIN FETCH r.track " +

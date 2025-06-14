@@ -2,17 +2,21 @@ package pt.um.aasic.whackywheels.dtos;
 
 public class DriverClassificationDTO {
     private String driverName;
+    private Integer kartNumber;
+    private String driverPicture;
     private Integer totalLaps;
     private Double averageLapTime;
     private Double bestLapTime;
     private Integer finalPosition;
 
-    public DriverClassificationDTO(String driverName, Integer totalLaps, Double averageLapTime, Double bestLapTime, Integer finalPosition) {
+    public DriverClassificationDTO(String driverName, Integer totalLaps, Double averageLapTime, Double bestLapTime, Integer finalPosition, Integer kartNumber, String driverPicture) {
         this.driverName = driverName;
         this.totalLaps = totalLaps;
         this.averageLapTime = averageLapTime;
         this.bestLapTime = bestLapTime;
         this.finalPosition = finalPosition;
+        this.kartNumber = kartNumber;
+        this.driverPicture = driverPicture;
     }
 
     // Getters
@@ -56,4 +60,11 @@ public class DriverClassificationDTO {
     public void setFinalPosition(Integer finalPosition) {
         this.finalPosition = finalPosition;
     }
+
+    public Integer getKartNumber() {return this.kartNumber;}
+    public String getDriverPicture() {return this.driverPicture;}
+    
+    public void setKartNumber(Integer kartNumber) {this.kartNumber = kartNumber;}
+    public void setDriverPicture(String driverPicture) {this.driverPicture = driverPicture;}
+    
 }
