@@ -2,6 +2,8 @@ package pt.um.aasic.whackywheels.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import pt.um.aasic.whackywheels.dtos.kart.KartRequestDTO;
 import pt.um.aasic.whackywheels.dtos.kart.KartResponseDTO;
 import pt.um.aasic.whackywheels.entities.Kart;
 import pt.um.aasic.whackywheels.entities.Track;
@@ -72,5 +74,72 @@ public class KartService {
                 kart.getKartNumber(),
                 kart.getModel()
         );
+    }
+
+    @Transactional
+    public KartResponseDTO createKart(KartRequestDTO kart, Long ownerId) {
+        if (kart.getKartNumber() == null || kart.getKartNumber() <= 0) {
+            throw new IllegalArgumentException("Kart number must be a positive integer.");
+        }
+
+        if (kart.getModel() == null || kart.getModel().isEmpty()) {
+            throw new IllegalArgumentException("Kart model cannot be empty.");
+        }
+
+        Track track = trackRepository.findById(kart.getTrackId())
+                .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + kart.getTrackId()));
+        if (!track.getOwner().getId().equals(ownerId)) {
+            throw new IllegalArgumentException("You do not have permission to create a kart for this track.");
+        }
+
+        if (kartRepository.existsByKartNumberAndTrack(kart.getKartNumber(), track)) {
+            throw new IllegalArgumentException("A kart with this number already exists on the track.");
+        }
+        
+        Kart newKart = new Kart();
+        newKart.setKartNumber(kart.getKartNumber());
+        newKart.setModel(kart.getModel());
+        newKart.setIsAvailable(kart.getIsAvailable());
+        newKart.setTrack(track);
+
+        Kart savedKart = kartRepository.save(newKart);
+        return mapKartToKartResponseDTO(savedKart);
+    }
+
+    @Transactional
+    public KartResponseDTO updateKart(Long kartId, KartRequestDTO kartDTO, Long ownerId) {
+        Kart existingKart = kartRepository.findById(kartId)
+                .orElseThrow(() -> new IllegalArgumentException("Kart not found with ID: " + kartId));
+
+        Track track = existingKart.getTrack();
+        if (!track.getOwner().getId().equals(ownerId)) {
+            throw new IllegalArgumentException("You do not have permission to update this kart.");
+        }
+        
+        Track dtoTrack = trackRepository.findById(kartDTO.getTrackId())
+                .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + kartDTO.getTrackId()));
+        
+        if (dtoTrack.getOwner().getId() != ownerId) {
+            throw new IllegalArgumentException("You cannot change the track of this kart to a track you do not own.");
+        }
+
+        if (kartDTO.getKartNumber() != null && kartDTO.getKartNumber() <= 0) {
+            throw new IllegalArgumentException("Kart number must be a positive integer.");
+        }
+
+        if (kartDTO.getModel() == null || kartDTO.getModel().isEmpty()) {
+            throw new IllegalArgumentException("Kart model cannot be empty.");
+        }
+
+        if (kartRepository.existsByKartNumberAndTrack(kartDTO.getKartNumber(), track)) {
+            throw new IllegalArgumentException("A kart with this number already exists on the track.");
+        }
+
+        existingKart.setKartNumber(kartDTO.getKartNumber());
+        existingKart.setModel(kartDTO.getModel());
+        existingKart.setIsAvailable(kartDTO.getIsAvailable());
+
+        Kart updatedKart = kartRepository.save(existingKart);
+        return mapKartToKartResponseDTO(updatedKart);
     }
 }

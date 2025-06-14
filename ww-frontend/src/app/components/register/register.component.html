@@ -7,7 +7,7 @@
             Must be between 3 and 50 characters
         </mat-error>
     </mat-form-field>
-    
+
     <mat-form-field appearance="outline" id="email-field">
         <mat-label>E-mail</mat-label>
         <input matInput type="email" id="email" formControlName="email">
@@ -15,7 +15,7 @@
         <mat-error *ngIf="form.get('email')?.hasError('email')">Please enter a valid email address</mat-error>
         <mat-error *ngIf="form.get('email')?.hasError('maxLength')">Cannot exceed 100 characters</mat-error>
     </mat-form-field>
-    
+
     <mat-form-field appearance="outline" id="password-field">
         <mat-label>Password</mat-label>
         <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password" />
@@ -34,5 +34,5 @@
 </form>
 
 <p>Already have an account? <a routerLink="/auth/login">Login!</a></p>
-<p>Own a track? <a (click)="requestEnterprise()">Request an enterprise account!</a></p>
+<p>Own a track? <a (click)="requestEnterprise()" routerLink="/home">Request an enterprise account!</a></p>
 <p>Or feel free to <a routerLink="/home">stay as a guest.</a></p>

@@ -6,21 +6,13 @@ import java.time.LocalDateTime;
 public class TrackRankingDTO {
     private String driverName;
     private LocalDate date; // Use LocalDate for just the date
-    private String kartNumber; // Assuming Kart has a kartNumber field
+    private Integer kartNumber; // Assuming Kart has a kartNumber field
     private Double lapTime; // Use Double for lap time
 
     public TrackRankingDTO() {}
 
-    // Constructor that takes LocalDateTime for the date, and converts it to LocalDate
-    public TrackRankingDTO(String driverName, LocalDateTime dateTime, String kartNumber, Double lapTime) {
-        this.driverName = driverName;
-        this.date = dateTime != null ? dateTime.toLocalDate() : null; // Convert LocalDateTime to LocalDate
-        this.kartNumber = kartNumber;
-        this.lapTime = lapTime;
-    }
-
     // Original constructor (if you want to keep it for other uses)
-    public TrackRankingDTO(String driverName, LocalDate date, String kartNumber, Double lapTime) {
+    public TrackRankingDTO(String driverName, LocalDate date, Integer kartNumber, Double lapTime) {
         this.driverName = driverName;
         this.date = date;
         this.kartNumber = kartNumber;
@@ -43,11 +35,11 @@ public class TrackRankingDTO {
         this.date = date;
     }
 
-    public String getKartNumber() {
+    public Integer getKartNumber() {
         return kartNumber;
     }
 
-    public void setKartNumber(String kartNumber) {
+    public void setKartNumber(Integer kartNumber) {
         this.kartNumber = kartNumber;
     }
 

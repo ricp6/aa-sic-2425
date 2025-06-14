@@ -22,7 +22,7 @@ public class Kart {
     @NonNull
     private Integer kartNumber;
 
-    private Boolean isAvailable; // true - available, false - occupied, null - maintenance
+    private boolean isAvailable; // true - available, false - occupied, null - maintenance
 
     @Column(length = 50)
     private String model;
@@ -60,7 +60,7 @@ public class Kart {
         return isAvailable;
     }
 
-    public void setIsAvailable(Boolean isAvailable) {
+    public void setIsAvailable(boolean isAvailable) {
         this.isAvailable = isAvailable;
     }
 

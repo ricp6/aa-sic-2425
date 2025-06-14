@@ -1,5 +1,6 @@
 package pt.um.aasic.whackywheels.services;
 
+import org.springframework.cglib.core.Local;
 import pt.um.aasic.whackywheels.dtos.kart.KartDTO;
 import pt.um.aasic.whackywheels.dtos.track.*;
 import pt.um.aasic.whackywheels.entities.*;
@@ -10,6 +11,8 @@ import pt.um.aasic.whackywheels.repositories.TrackRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +45,7 @@ public class TrackService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<TrackRecordResponseDTO> findAllTracksRecords(Long userId)   {
         // 1. Fetch overall minimum lap times for all tracks
         List<Object[]> overallRecordsRaw = trackRepository.findOverallMinLapTimesPerTrack();
@@ -113,8 +117,8 @@ public class TrackService {
         List<TrackRankingDTO> rankings = new ArrayList<>();
         for (Object[] row : rawRankings) {
             String driverName = (String) row[0];
-            LocalDateTime sessionDateTime = (LocalDateTime) row[1]; // Expected type from r.date
-            String kartNumber = (String) row[2];
+            LocalDate sessionDateTime = (LocalDate) row[1]; // Expected type from r.date
+            Integer kartNumber = (Integer) row[2];
             Double lapTime = (Double) row[3];
 
             // Create TrackRankingDTO.
@@ -243,5 +247,75 @@ public class TrackService {
         userRepository.save(owner);
 
         return newTrack;
+    }
+
+    @Transactional
+    public void updateTrack(Long trackId, TrackUpdateRequestDTO request, Long ownerId) {
+        User user = userRepository.findById(ownerId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID " + ownerId + " not found."));
+
+        if (!(user instanceof Owner)) {
+            throw new IllegalArgumentException("User with ID " + ownerId + " is not an Owner and cannot update a track.");
+        }
+        Owner owner = (Owner) user;
+
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new IllegalArgumentException("Track with ID " + trackId + " not found."));
+
+        if (!track.getOwner().equals(owner)) {
+            throw new IllegalArgumentException("Track with ID " + trackId + " does not belong to Owner with ID " + ownerId + ".");
+        }
+
+        // Update basic fields
+        track.setName(request.getName());
+        track.setSlotPrice(request.getSlotPrice());
+        track.setSlotDuration(request.getSlotDuration());
+        track.setEmail(request.getEmail());
+        track.setPhoneNumber(request.getPhoneNumber());
+        track.setImages(request.getImages());
+
+        // Update day schedules
+        if (request.getDaySchedules() != null && !request.getDaySchedules().isEmpty()) {
+            Set<DaySchedule> daySchedules = new HashSet<>();
+            for (DayScheduleDTO dto : request.getDaySchedules()) {
+                DaySchedule daySchedule = new DaySchedule();
+                daySchedule.setDay(dto.getDay());
+                daySchedule.setOpeningTime(dto.getOpeningTime());
+                daySchedule.setClosingTime(dto.getClosingTime());
+                daySchedule.setTrack(track);
+                daySchedules.add(daySchedule);
+            }
+            dayScheduleRepository.saveAll(daySchedules);
+            track.setDaySchedules(daySchedules);
+        }
+        trackRepository.save(track);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TrackFilterResponseDTO> getTrackDetaislForFilters() {
+        List<Track> tracks = trackRepository.findAll();
+        return tracks.stream()
+                .map(track -> {
+                    int maxKarts = kartRepository.findByTrackAndIsAvailable(track, true).size();
+
+                    List<DaySchedule> openSchedules = dayScheduleRepository.findByTrack(track);
+                    Set<DayOfWeek> openDays = openSchedules.stream()
+                                                            .map(DaySchedule::getDay)
+                                                            .collect(Collectors.toSet());
+
+                    List<DayOfWeek> allDaysOfWeek = Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+                                                                  DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
+
+                    List<DayOfWeek> notOpen = allDaysOfWeek.stream()
+                                                                .filter(day -> !openDays.contains(day))
+                                                                .collect(Collectors.toList());
+
+                    return new TrackFilterResponseDTO(
+                            track.getId(),
+                            maxKarts,
+                            notOpen
+                    );
+                })
+                .toList();
     }
 }

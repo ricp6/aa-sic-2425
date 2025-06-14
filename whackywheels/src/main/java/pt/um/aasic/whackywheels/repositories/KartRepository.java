@@ -11,4 +11,5 @@ import java.util.List;
 public interface KartRepository extends JpaRepository<Kart, Long> {
     List<Kart> findByTrack(Track track);
     List<Kart> findByTrackAndIsAvailable(Track track, Boolean isAvailable);
+    boolean existsByKartNumberAndTrack(Integer kartNumber, Track track);
 }
