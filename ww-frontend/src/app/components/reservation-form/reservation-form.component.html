@@ -1,17 +1,19 @@
-<button mat-raised-button id="back-button" color="warn" (click)="goBack()">
-  <mat-icon>arrow_back</mat-icon>
-  Back
-</button>
+<div id="title-section">
+  <button mat-stroked-button id="back-button" color="warn" (click)="goBack()">
+    <mat-icon>cancel</mat-icon>
+    Discard
+  </button>
+  <h1 id="title">Submit a New Reservation</h1>
+</div>
 
 <div class="reservation-form-card">
   <mat-stepper orientation="vertical" linear #stepper>
 
     <mat-step [stepControl]="trackSelectionFormGroup">
       <ng-template matStepLabel>
-        Select the track
+        <span class="step-title">Select the track</span>
         <div *ngIf="trackSelectionFormGroup.valid && trackSelectionFormGroup.get('selectedTrack')?.value as track">
-          <br>
-          <small>{{ track.name }} ({{ track.address }})</small>
+          {{ track.name }} ({{ track.address }})
         </div>
       </ng-template>
 
@@ -36,21 +38,19 @@
         </mat-form-field>
 
         <div class="stepper-actions">
-          <button mat-button matStepperNext [disabled]="trackSelectionFormGroup.invalid">Next</button>
+          <button mat-stroked-button matStepperNext [disabled]="trackSelectionFormGroup.invalid">Next</button>
         </div>
       </form>
     </mat-step>
 
     <mat-step [stepControl]="dateTimeSelectionFormGroup">
       <ng-template matStepLabel>
-        Select the date and hours
-        <div *ngIf="dateTimeSelectionFormGroup.valid && selectedDate && dateTimeSelectionFormGroup.get('selectedSlots')?.value as slots">
-          <br>
-          <small>
-            {{ formatedDate }}
+        <span class="step-title">Select the date and hours</span>
+        <div id="selected-date-slots" *ngIf="dateTimeSelectionFormGroup.valid && selectedDate && 
+                    dateTimeSelectionFormGroup.get('selectedSlots')?.value as slots">
+            <span>{{ formatedDate }}</span> 
             <mat-icon>arrow_right</mat-icon>
-            {{ formattedSortedSlots }}
-          </small>
+            <span>{{ formattedSortedSlots }}</span>
         </div>
       </ng-template>
 
@@ -62,15 +62,15 @@
           </div>
 
           <div id="slots-main-container">
-            <span *ngIf="!selectedDate" class="no-date-selected-message">Choose a date</span>
+            <span *ngIf="!selectedDate" class="no-date-selected-message">Choose a date to see the available schedules.</span>
 
             <div *ngIf="selectedDate" id="slots-container">
               <mat-label class="form-section-title">
                 Choose one or more schedules
-                <span *ngIf="slots && slots.length > 0">(Sessions of {{slotDuration}} minutes)</span>
+                <small *ngIf="slots && slots.length > 0" id="slot-duration">Sessions of {{slotDuration}} minutes</small>
               </mat-label>
               <div class="compact-slots-container" *ngIf="slots && slots.length > 0; else noSlots">
-                <button class="compact-slot" mat-stroked-button *ngFor="let slot of slots" [disabled]="!slot.available"
+                <button class="compact-slot" mat-flat-button *ngFor="let slot of slots" [disabled]="!slot.available"
                         [ngClass]="{ 'selected-slot': isSlotSelected(slot), 'occupied-slot': !slot.available }"
                         (click)="toggleSlotSelection(slot)">
                   {{ formatTime(slot.startTime) }}
@@ -80,83 +80,84 @@
                 <p class="no-slots-message">Track is closed on that day.</p>
               </ng-template>
 
-              <mat-error *ngIf="dateTimeSelectionFormGroup.get('selectedSlots')?.hasError('required') && dateTimeSelectionFormGroup.get('selectedSlots')?.touched">
+              <mat-error *ngIf="dateTimeSelectionFormGroup.get('selectedSlots')?.hasError('required') 
+                            && dateTimeSelectionFormGroup.get('selectedSlots')?.touched">
                 Choose at least one schedule.
               </mat-error>
-              <mat-error *ngIf="dateTimeSelectionFormGroup.get('selectedSlots')?.hasError('maxSlots') && dateTimeSelectionFormGroup.get('selectedSlots')?.touched">
-                You can't schedule more than 4.
+              <mat-error *ngIf="dateTimeSelectionFormGroup.get('selectedSlots')?.hasError('maxSlots') 
+                            && dateTimeSelectionFormGroup.get('selectedSlots')?.touched">
+                You can't select more than 4 schedules.
               </mat-error>
             </div>
           </div>
         </div>
 
         <div class="stepper-actions">
-          <button mat-button matStepperPrevious>Previous Step</button>
-          <button mat-button matStepperNext [disabled]="dateTimeSelectionFormGroup.invalid">Next</button>
+          <button mat-stroked-button matStepperPrevious>Previous Step</button>
+          <button mat-stroked-button matStepperNext [disabled]="dateTimeSelectionFormGroup.invalid">Next</button>
         </div>
       </form>
     </mat-step>
 
     <mat-step [stepControl]="participantsKartsFormGroup">
       <ng-template matStepLabel>
-        Choose the participants and the karts
+        <span class="step-title">Choose the participants and the karts</span>
       </ng-template>
       <form [formGroup]="participantsKartsFormGroup" class="step-content">
         <div formArrayName="participants" id="participants-container">
-          <mat-label class="form-section-title">Choose the pilots:</mat-label>
+          <mat-label class="form-section-title" *ngIf="participants.length === 0">Start choosing the pilots.</mat-label>
           <div *ngFor="let participant of participants.controls; let i = index" [formGroupName]="i" class="participant-card">
-            <div class="participant-details-row">
-              <div class="user-display-field">
-                <mat-icon>person</mat-icon> <input type="text" placeholder="Search Users" aria-label="Search User" matInput
-                                                   formControlName="user" [matAutocomplete]="auto"
-                                                   (blur)="validateUserInput(participant.get('user')!)"
-                                                   class="user-input-override">
-                <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayUserFn">
-                  <mat-option *ngFor="let user of filteredUsers | async" [value]="user">
-                    {{ user.username }} - {{ user.email }}
-                    <span *ngIf="currentUser?.id === user.id" class="current-user-tag">(You)</span>
-                  </mat-option>
-                </mat-autocomplete>
-              </div>
-
-              <mat-form-field appearance="outline" class="participant-kart-select">
-                <mat-label>Kart</mat-label>
-                <mat-select formControlName="kart" required>
-                  <ng-container *ngFor="let group of groupedKarts">
-                    <mat-optgroup [label]="group.model">
-                      <mat-option *ngFor="let kart of group.karts" [value]="kart.id">
-                        Kart {{ kart.kartNumber }}
-                      </mat-option>
-                    </mat-optgroup>
-                  </ng-container>
-                </mat-select>
-                <mat-error *ngIf="participant.get('kart')?.hasError('required')">Select a kart</mat-error>
-              </mat-form-field>
-
-              <button mat-icon-button type="button" color="warn" class="remove-participant" (click)="removeParticipant(i)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-
-            <div class="participant-errors">
+            <mat-form-field class="user-search-field" appearance="outline">
+              <mat-icon matPrefix>person</mat-icon> 
+              <mat-label>Search Users</mat-label>
+              <input type="text" placeholder="Search Users" aria-label="Search User" matInput
+                formControlName="user" [matAutocomplete]="auto"
+                (blur)="validateUserInput(participant.get('user')!)"
+                class="user-input-override">
+              <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayUserFn">
+                <mat-option *ngFor="let user of filteredUsers | async" [value]="user">
+                  {{ user.username }} - {{ user.email }}
+                  <span *ngIf="currentUser?.id === user.id" class="current-user-tag">(You)</span>
+                </mat-option>
+              </mat-autocomplete>
               <mat-error *ngIf="participant.get('user')?.hasError('required') && participant.get('user')?.touched">
                 User is mandatory.
               </mat-error>
               <mat-error *ngIf="participant.get('user')?.hasError('invalidOption')">
                 Choose a valid user.
               </mat-error>
-            </div>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="participant-kart-select">
+              <mat-label>Kart</mat-label>
+              <mat-select formControlName="kart" required>
+                <ng-container *ngFor="let group of groupedKarts">
+                  <mat-optgroup [label]="group.model">
+                    <mat-option *ngFor="let kart of group.karts" [value]="kart.id">
+                      Kart {{ kart.kartNumber }}
+                    </mat-option>
+                  </mat-optgroup>
+                </ng-container>
+              </mat-select>
+              <mat-error *ngIf="participant.get('kart')?.hasError('required')">Select a kart</mat-error>
+            </mat-form-field>
+
+            <button mat-icon-button type="button" color="warn" class="remove-participant" (click)="removeParticipant(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
           </div>
         </div>
 
-        <button mat-raised-button type="button" class="add-participant-button" (click)="addParticipant()"
+        <button mat-stroked-button type="button" class="add-participant-button" (click)="addParticipant()"
                 [disabled]="participants.length >= karts.length">
           <mat-icon>person_add</mat-icon>
-          Add pilot
+          Add participant
         </button>
-        <span *ngIf="participants.length >= karts.length" class="max-participants-message">Maxiumum participants reached</span>
-
-        <div class="participants-form-errors">
+        
+        <div id="participants-form-errors">
+          <mat-error *ngIf="participants.length >= karts.length">
+            Maxiumum participants reached
+          </mat-error>
           <mat-error *ngIf="participantsKartsFormGroup.hasError('required')">
             At least 1 participant is needed
           </mat-error>
@@ -175,15 +176,20 @@
           <mat-error *ngIf="participants.hasError('duplicatedKart')">
             Two or more participants can't share the same kart.
           </mat-error>
+          <mat-error *ngIf="participants.hasError('mustIncludeCurrentUser')">
+            You need to be in the participants list.
+          </mat-error>
+          <mat-error *ngIf="participants.hasError('cannotIncludeCurrentUser')">
+            As the owner, you can't be in the participants list.
+          </mat-error>
         </div>
 
 
         <div class="stepper-actions">
-          <button mat-button matStepperPrevious>Previous Step</button>
-          <button mat-flat-button color="accent" (click)="submitReservation()"
-                  [disabled]="participantsKartsFormGroup.invalid">
+          <button mat-stroked-button matStepperPrevious>Previous Step</button>
+          <button mat-stroked-button type="submit" id="submit-button" (click)="submitReservation()">
             <mat-icon>save</mat-icon>
-            Create Reservation
+            Submit Reservation
           </button>
         </div>
       </form>

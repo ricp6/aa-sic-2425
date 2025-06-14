@@ -3,8 +3,7 @@ import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { Reservation, ReservationStatus } from '../interfaces/reservation';
-import { ReservationDetails } from '../interfaces/reservation-details';
+import { Reservation, ReservationDetails, ReservationStatus } from '../interfaces/reservation';
 import { Slot } from '../interfaces/slot';
 
 

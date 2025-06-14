@@ -26,7 +26,7 @@
       </span>
     </div>
 
-    <!-- Repeat button for CONCLUDED reservations -->
+    <!-- Repeat button for CONCLUDED reservations in client view -->
     <div *ngIf="!isEnterpriseView && reservation.status === 'CONCLUDED'" class="reservation-actions">
       <button mat-stroked-button type="button" class="reservation-action repeat"
         [routerLink]="[isEnterpriseView ? '/enterprise/reservations/form' : '/reservations/form']">
@@ -34,8 +34,8 @@
       </button>
     </div>
 
-    <!-- Status for rejected/cancelled or if showStatus is enabled -->
-    <div *ngIf="!isEnterpriseView && reservation.status !== 'CONCLUDED'"
+    <!-- Status for other reservations -->
+    <div *ngIf="reservation.status !== 'CONCLUDED'"
          class="reservation-status" [class]="reservation.status">
       {{ reservation.status | titlecase }}
     </div>

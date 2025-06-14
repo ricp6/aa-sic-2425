@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { catchError, Observable, of, throwError } from 'rxjs';
 import { SessionDetail, Classification, User, Kart, Participant, PodiumEntry } from '../interfaces/session-details';
+import { Session, SessionDetails } from '../interfaces/session';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -52,21 +55,65 @@ export class SessionService {
     classifications: this.MOCK_CLASSIFICATIONS
   };
 
-  constructor() { }
-
+  
   getSession(id: number): Observable<SessionDetail> {
     return of(this.MOCK_SESSION_DETAIL);
   }
-
-
+  
+  
   getPodiumEntries(classifications: Classification[]): PodiumEntry[] {
     return classifications
-      .sort((a, b) => a.position - b.position)
-      .slice(0, 3)
-      .map(c => ({
-        position: c.position,
-        driverName: c.participant.user.name,
-        profilePic: c.participant.user.profilePic || 'default.png'
-      }));
+    .sort((a, b) => a.position - b.position)
+    .slice(0, 3)
+    .map(c => ({
+      position: c.position,
+      driverName: c.participant.user.name,
+      profilePic: c.participant.user.profilePic || 'default.png'
+    }));
+  }
+
+  
+  private readonly sessionsURL = "http://localhost:8080/api/sessions";
+
+  constructor(
+    private readonly http: HttpClient,
+    private readonly toastr: ToastrService
+  ) { }
+  
+  getSessions(): Observable<Session[]> {
+    return this.http.get<Session[]>(`${this.sessionsURL}`).pipe(
+      catchError(this.handleError('loading the sessions'))
+    );
+  }
+
+  getSessionDetails(sessionId: number): Observable<SessionDetails[]> {
+    return this.http.get<SessionDetails[]>(`${this.sessionsURL}/${sessionId}`).pipe(
+      catchError(this.handleError('loading the details of the session'))
+    );
+  }
+
+  startSession(sessionId: number): Observable<void> {
+    return this.http.post<void>(`${this.sessionsURL}/${sessionId}/start`, {}).pipe(
+      catchError(this.handleError('starting the session'))
+    );
+  }
+
+  endSession(sessionId: number): Observable<void> {
+    return this.http.post<void>(`${this.sessionsURL}/${sessionId}/end`, {}).pipe(
+      catchError(this.handleError('ending the session'))
+    );
+  }
+
+  private handleError(operation: string) {
+    return (error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+      } else if (error.status === 403) {
+        this.toastr.warning('You don’t have permission to execute this action', 'Permission required');
+      } else {
+        this.toastr.error(`An error occurred while ${operation}`, 'Server error');
+      }
+      return throwError(() => error);
+    };
   }
 }

@@ -198,6 +198,9 @@ export class ReservationFormComponent implements OnInit {
   validateUserInput(control: AbstractControl) {
     const value = control.value;
     const existingErrors = control.errors || {};
+    
+    // If a 'required' error already exists, don't overlap
+    if (existingErrors['required']) return;
 
     // If the input is not from the options list
     if (typeof value !== 'object' || value === null) {
@@ -290,20 +293,6 @@ export class ReservationFormComponent implements OnInit {
       participantGroup.get('kart')?.reset(null);
     });
     this.participantsKartsFormGroup.updateValueAndValidity();
-
-    // Pre-add the current user if in the client mode
-    if (!this.isEnterpriseView) {
-      const currentUser = this.authService.getCurrentUser();
-      if (currentUser) {
-        const simpleCurrentUser: SimpleUser = {
-          id: currentUser.id,
-          username: currentUser.name,
-          email: currentUser.email,
-          userType: currentUser.userType,
-        }
-        this.addParticipant({ user: simpleCurrentUser, kart: null });
-      }
-    }
   }
 
 
@@ -386,10 +375,11 @@ export class ReservationFormComponent implements OnInit {
   addParticipant(participant: { user: SimpleUser | null, kart: Kart | null }
     = {user: null, kart: null }
   ): void {
+    
     if (this.participants.length < this.karts.length) { // Max participants is max karts available
       const participantGroup = this.formBuilder.group({
-        user: [null, Validators.required],
-        kart: [null, Validators.required],
+        user: [participant.user, Validators.required],
+        kart: [participant.kart, Validators.required],
       });
 
       // Set filtering on users autocomplete
@@ -397,7 +387,6 @@ export class ReservationFormComponent implements OnInit {
 
       this.participants.push(participantGroup);
       this.participantsKartsFormGroup.updateValueAndValidity();
-
 
     } else {
       this.toastr.warning('This track currently has no karts available to host more participants.',
@@ -585,6 +574,20 @@ export class ReservationFormComponent implements OnInit {
         if(karts !== null) {
           this.karts = karts;
           this.groupKarts();
+
+          // Pre-add the current user if in the client mode
+          if (!this.isEnterpriseView) {
+            const currentUser = this.authService.getCurrentUser();
+            if (currentUser) {
+              const simpleCurrentUser: SimpleUser = {
+                id: currentUser.id,
+                username: currentUser.name,
+                email: currentUser.email,
+                userType: currentUser.userType,
+              }
+              this.addParticipant({ user: simpleCurrentUser, kart: null });
+            }
+          }
         } else {
           console.log("error loading karts: ", karts)
           // Restart from step 2

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SessionDetail, PodiumEntry } from '../../interfaces/session-details';
-import { SessionService } from '../../services/session-details.service';
+import { SessionService } from '../../services/session.service';
 
 @Component({
   selector: 'app-session-details',

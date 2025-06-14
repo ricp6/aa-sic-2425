@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReservationService } from '../../services/reservation.service';
-import { ReservationDetails, ReservationStatus } from '../../interfaces/reservation-details';
 import { Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { ViewService } from '../../services/view.service';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ReservationDetails, ReservationStatus } from '../../interfaces/reservation';
 
 @Component({
   selector: 'app-reservation-details',

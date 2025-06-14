@@ -21,6 +21,10 @@
           <mat-icon class="detail-icon">info</mat-icon>
           <span>Status: <span class="status-{{ reservation.status }}">{{ reservation.status | titlecase }}</span></span>
         </div>
+        <div class="detail-row">
+          <mat-icon class="detail-icon">payment</mat-icon>
+          <span>Price: {{ reservation.price }} €</span>
+        </div>
 
         <mat-divider></mat-divider>
 
