@@ -59,9 +59,10 @@ mat-card-content {
   color: #555;
 }
 
-.status-PENDING { color: #ff9800; font-weight: bold; }
-.status-ACCEPTED { color: #4caf50; font-weight: bold; }
-.status-REJECTED { color: #f44336; font-weight: bold; }
+.status-PENDING { color: #d17d00; font-weight: bold; }
+.status-ACCEPTED { color: #137c17; font-weight: bold; }
+.status-REJECTED,
+.status-CANCELLED { color: #c9170a; font-weight: bold; }
 .status-CONCLUDED { color: blue; font-weight: bold; }
 
 .group-title {
@@ -83,6 +84,7 @@ mat-card-content {
 
 .participant-item,
 .session-item {
+  height: 40px;
   display: flex;
   align-items: center;
   background-color: #f8f8f8;
@@ -106,6 +108,21 @@ mat-card-content {
   color: #444;
 }
 
+.start-session-button {
+  color: #19771c;
+  border-radius: 5px;
+}
+.start-session-button mat-icon {
+  color: #19771c;
+}
+
+.finish-session-button {
+  border-radius: 5px;
+}
+.finish-session-button mat-icon {
+  color: #ba1a1a;
+}
+
 .view-session-button {
   color: #007bff;
 }
@@ -126,8 +143,7 @@ mat-card-content {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
+  padding: 30px 16px 15px;
 }
 
 .detail-actions button {

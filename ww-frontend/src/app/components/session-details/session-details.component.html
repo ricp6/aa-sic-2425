@@ -1,23 +1,26 @@
 <div class="session-detail-container" *ngIf="session">
   <div class="header-section">
-    <button class="back-button" (click)="goBack()">← Back</button>
+    <button class="back-button" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </button>
   </div>
 
   <div class="content-wrapper">
     <div class="left-column">
-      <div class="session-data-header-card"> <h2>Session Data</h2>
+      <div class="session-data-header-card"> <h2>Session Details</h2>
       </div>
 
 
       <h2>Podium</h2>
       <div class="podium-grid">
-        <div class="podium-item" *ngFor="let entry of podiumEntries"
-             [class.gold-podium]="entry.position === 1"
-             [class.silver-podium]="entry.position === 2"
-             [class.bronze-podium]="entry.position === 3">
-          <img [src]="entry.profilePic" alt="{{ entry.driverName }} Profile Picture">
+        <div class="podium-item" *ngFor="let entry of podium"
+             [class.gold-podium]="entry.finalPosition === 1"
+             [class.silver-podium]="entry.finalPosition === 2"
+             [class.bronze-podium]="entry.finalPosition === 3">
+          <img [src]="entry.driverPicture" alt="{{ entry.driverName }} Profile">
           <p class="driver-name">{{ entry.driverName }}</p>
-          <span class="position-badge">{{ entry.position }}</span>
+          <span class="position-badge">{{ entry.finalPosition }}</span>
         </div>
       </div>
 
@@ -25,23 +28,19 @@
 
     <div class="right-column">
       <div class="track-details-card">
-        <h1>{{ trackName }}</h1>
+        <h1>{{ session.trackName }}</h1>
         <div class="session-details-right">
           <div class="data-row">
-            <span class="label">Data</span>
+            <span class="label">Date</span>
             <span class="value">{{ session.date }}</span>
           </div>
           <div class="data-row">
-            <span class="label">Nº participants</span>
-            <span class="value">{{ session.kartsUsed }}</span>
+            <span class="label">No. participants</span>
+            <span class="value">{{ session.classifications.length }}</span>
           </div>
           <div class="data-row">
             <span class="label">Duration</span>
-            <span class="value">{{ session.startTime }} - {{ session.endTime }}</span>
-          </div>
-          <div class="data-row">
-            <span class="label">Price</span>
-            <span class="value">{{ session.totalCost }}€</span>
+            <span class="value">{{ session.sessionDuration }}</span>
           </div>
         </div>
       </div>
@@ -53,6 +52,7 @@
         <tr>
           <th>Pos.</th>
           <th>Pilot</th>
+          <th>Kart</th>
           <th>Laps</th>
           <th>Avg Time</th>
           <th>Best time</th>
@@ -61,18 +61,19 @@
         <tbody>
         <tr *ngFor="let classification of session.classifications; let i = index">
           <td class="pos-highlight"
-              [class.gold]="classification.position === 1"
-              [class.silver]="classification.position === 2"
-              [class.bronze]="classification.position === 3">
-            {{ classification.position }}.
+              [class.gold]="classification.finalPosition === 1"
+              [class.silver]="classification.finalPosition === 2"
+              [class.bronze]="classification.finalPosition === 3">
+            {{ classification.finalPosition }}.
           </td>
           <td>
-            <mat-icon class="purple-icon">star</mat-icon>
-            {{ classification.participant.user.name }}
+            <img [src]="classification.driverPicture" alt="{{ classification.driverName }} Profile">
+            {{ classification.driverName }}
           </td>
-          <td>{{ classification.averageTime }}</td>
-          <td>{{ classification.bestLapTime }}</td>
-          <td>{{ classification.bestLapTime }}</td>
+          <td>{{ classification.kartNumber }}</td>
+          <td>{{ classification.totalLaps }}</td>
+          <td>{{ classification.averageLapTime.toFixed(3) }}</td>
+          <td>{{ classification.bestLapTime.toFixed(3) }}</td>
         </tr>
         </tbody>
       </table>

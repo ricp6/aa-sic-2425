@@ -17,7 +17,7 @@
     <div class="reservation-datetime">
       <span class="reservation-row">
         <mat-icon class="reservation-row-icon">event</mat-icon>
-        <span>{{ reservation.date }}</span>
+        <span>{{ formatedDate }}</span>
       </span>
 
       <span class="reservation-row">
@@ -26,17 +26,7 @@
       </span>
     </div>
 
-    <!-- Repeat button for CONCLUDED reservations in client view -->
-    <div *ngIf="!isEnterpriseView && reservation.status === 'CONCLUDED'" class="reservation-actions">
-      <button mat-stroked-button type="button" class="reservation-action repeat"
-        [routerLink]="[isEnterpriseView ? '/enterprise/reservations/form' : '/reservations/form']">
-        Repeat
-      </button>
-    </div>
-
-    <!-- Status for other reservations -->
-    <div *ngIf="reservation.status !== 'CONCLUDED'"
-         class="reservation-status" [class]="reservation.status">
+    <div class="reservation-status" [class]="reservation.status">
       {{ reservation.status | titlecase }}
     </div>
   </mat-card-content>

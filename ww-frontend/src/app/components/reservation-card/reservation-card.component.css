@@ -62,7 +62,7 @@
 }
 
 .reservation-actions, .reservation-status {
-  width: 200px;
+  width: 150px;
 }
 
 .reservation-actions {
@@ -76,17 +76,10 @@
   text-align: center;
 }
 
-.PENDING {
-  color: #ff9800;
-}
-
-.ACCEPTED {
-  color: #4caf50;
-}
-
-.REJECTED, .CANCELLED {
-  color: #f44336;
-}
+.ACCEPTED { color: #137c17; }
+.PENDING { color: #d17d00; }
+.REJECTED, .CANCELLED { color: #c9170a; }
+.CONCLUDED { color: blue; }
 
 .reservation-action {
   border-radius: 5px;

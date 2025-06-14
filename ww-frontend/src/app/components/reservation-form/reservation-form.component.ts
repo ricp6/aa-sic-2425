@@ -40,7 +40,7 @@ export class ReservationFormComponent implements OnInit {
   dateTimeSelectionFormGroup!: FormGroup;
   participantsKartsFormGroup!: FormGroup;
 
-  trackFromState: TrackDetails | null = null;
+  stateTrackId: number | null = null;
 
   tracks: SimpleTrack[] = [];
   filteredTracks!: Observable<SimpleTrack[]>;
@@ -94,7 +94,7 @@ export class ReservationFormComponent implements OnInit {
     private readonly toastr: ToastrService
   ) {
     // Save state if present
-    this.trackFromState = this.router.getCurrentNavigation()?.extras?.state?.['track'] ?? null;
+    this.stateTrackId = this.router.getCurrentNavigation()?.extras?.state?.['trackId'] ?? null;
   }
 
   ngOnInit(): void {
@@ -556,8 +556,8 @@ export class ReservationFormComponent implements OnInit {
   }
 
   checkStateForSelectedTrack(): void {
-    if (this.trackFromState) {
-      const matchingTrack = this.tracks.find(t => t.id === this.trackFromState?.id);
+    if (this.stateTrackId) {
+      const matchingTrack = this.tracks.find(t => t.id === this.stateTrackId);
       if (matchingTrack) {
         this.preselectTrack(matchingTrack);
       } else {
@@ -622,12 +622,12 @@ export class ReservationFormComponent implements OnInit {
   }
 
   loadSlots(): void {
-    this.reservationService.getSlots(
-      this.trackSelectionFormGroup.get('selectedTrack')?.value.id,
-      this.formatedDate
-    ).subscribe({
+    const selectedTrack = this.trackSelectionFormGroup.get('selectedTrack')?.value;
+
+    this.reservationService.getSlots(selectedTrack.id, this.formatedDate).subscribe({
       next: (slots: Slot[]) => {
         if(slots != null) {
+          this.markPastSlotsAsUnavailable(slots);
           this.slots = slots;
           this.slotDuration = this.getMinutesDifference(slots[0]);
         } else {
@@ -646,6 +646,28 @@ export class ReservationFormComponent implements OnInit {
     });
   }
 
+  markPastSlotsAsUnavailable(slots: Slot[]) {
+    const today = new Date();
+    const selectedDate = new Date(this.formatedDate);
+    
+    const isToday =
+      today.getFullYear() === selectedDate.getFullYear() &&
+      today.getMonth() === selectedDate.getMonth() &&
+      today.getDate() === selectedDate.getDate();
+    
+    // Se a data for hoje, marcar slots passados como indisponíveis
+    if (isToday) {
+      const nowMinutes = today.getHours() * 60 + today.getMinutes();
+      for (let slot of slots) {
+        const [sh, sm] = slot.startTime.split(':').map(Number);
+        const slotMinutes = sh * 60 + sm;
+        if (slotMinutes < nowMinutes) {
+          slot.available = false;
+        }
+      }
+    }
+  }
+
   getMinutesDifference(slot: Slot): number {
     const [sh, sm] = slot.startTime.split(':').map(Number);
     const [eh, em] = slot.endTime.split(':').map(Number);
@@ -653,8 +675,9 @@ export class ReservationFormComponent implements OnInit {
     return (eh * 60 + em) - (sh * 60 + sm);
   }
 
-  formatTime(time: string): string {
-    return time.slice(0, 5); // Assumes time format is 'HH:mm:ss'
+  formatTime(timeString: string): string {
+    const parts = timeString.split(':');
+    return `${parts[0]}:${parts[1]}`;
   }
 
   goBack(): void {

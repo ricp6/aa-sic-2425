@@ -7,7 +7,7 @@
     </section>
 
     <div class="sessions-list">
-      <mat-card class="session-card" *ngFor="let session of sessions">
+      <mat-card class="session-card" *ngFor="let session of sessions" [routerLink]="['/sessions', session.id]">
         <div class="track-image">
           <img mat-card-image [src]="session.trackImage" alt="Track Icon">
         </div>
@@ -28,14 +28,14 @@
             </span>
             <span class="session-row">
               <mat-icon class="session-row-icon">schedule</mat-icon>
-              <span>{{ session.startTime }} - {{ session.endTime }}</span>
+              <span>{{ formatTime(session.startTime) }} - {{ formatTime(session.endTime) }}</span>
             </span>
           </div>
 
           <div class="session-result">
             <div class="session-best-time">
               My best:
-              <span class="best-time-value">{{ session.personalRecord }}</span>
+              <span class="best-time-value">{{ session.personalRecord.toFixed(3) }}</span>
             </div>
             <div class="session-position">
               <ng-container *ngIf="session.position >= 1 && session.position <= 3; else showPositionNumber">
