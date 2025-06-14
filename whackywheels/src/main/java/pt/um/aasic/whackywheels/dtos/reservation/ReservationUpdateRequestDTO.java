@@ -1,6 +1,8 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.reservation;
 
-import jakarta.validation.constraints.NotNull;
+import pt.um.aasic.whackywheels.dtos.participant.ParticipantUpdateDTO;
+import pt.um.aasic.whackywheels.dtos.session.SessionCreateDTO;
+
 import java.time.LocalDate;
 import java.util.Set;
 

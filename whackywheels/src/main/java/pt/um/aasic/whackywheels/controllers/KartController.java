@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pt.um.aasic.whackywheels.dtos.KartResponseDTO;
+import pt.um.aasic.whackywheels.dtos.kart.KartResponseDTO;
 import pt.um.aasic.whackywheels.services.KartService;
 
 import java.util.List;

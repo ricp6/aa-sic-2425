@@ -9,7 +9,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import pt.um.aasic.whackywheels.dtos.*;
+import pt.um.aasic.whackywheels.dtos.reservation.ReservationCreateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.reservation.ReservationDetailsResponseDTO;
+import pt.um.aasic.whackywheels.dtos.reservation.ReservationResponseDTO;
+import pt.um.aasic.whackywheels.dtos.reservation.ReservationUpdateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.track.SlotResponseDTO;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.ReservationService;
 

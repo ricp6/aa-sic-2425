@@ -2,15 +2,13 @@ package pt.um.aasic.whackywheels.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pt.um.aasic.whackywheels.dtos.KartResponseDTO;
+import pt.um.aasic.whackywheels.dtos.kart.KartResponseDTO;
 import pt.um.aasic.whackywheels.entities.Kart;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.repositories.KartRepository;
 import pt.um.aasic.whackywheels.repositories.TrackRepository;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

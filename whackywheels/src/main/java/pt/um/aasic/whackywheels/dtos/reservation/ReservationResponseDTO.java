@@ -1,4 +1,4 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.reservation;
 
 import pt.um.aasic.whackywheels.entities.ReservationStatus;
 

@@ -1,4 +1,4 @@
-package pt.um.aasic.whackywheels.dtos; // Your DTO package
+package pt.um.aasic.whackywheels.dtos.track; // Your DTO package
 
 import java.math.BigDecimal;
 import java.util.Set;

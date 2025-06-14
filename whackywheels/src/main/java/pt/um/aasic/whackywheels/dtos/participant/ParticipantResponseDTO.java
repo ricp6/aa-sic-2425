@@ -1,4 +1,4 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.participant;
 
 public class ParticipantResponseDTO {
     private Long id;

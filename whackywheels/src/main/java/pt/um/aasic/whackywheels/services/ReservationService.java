@@ -3,6 +3,16 @@ package pt.um.aasic.whackywheels.services;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import pt.um.aasic.whackywheels.dtos.*;
+import pt.um.aasic.whackywheels.dtos.participant.ParticipantCreateDTO;
+import pt.um.aasic.whackywheels.dtos.participant.ParticipantResponseDTO;
+import pt.um.aasic.whackywheels.dtos.participant.ParticipantUpdateDTO;
+import pt.um.aasic.whackywheels.dtos.reservation.ReservationCreateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.reservation.ReservationDetailsResponseDTO;
+import pt.um.aasic.whackywheels.dtos.reservation.ReservationResponseDTO;
+import pt.um.aasic.whackywheels.dtos.reservation.ReservationUpdateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.session.SessionCreateDTO;
+import pt.um.aasic.whackywheels.dtos.session.SimpleSessionResponseDTO;
+import pt.um.aasic.whackywheels.dtos.track.SlotResponseDTO;
 import pt.um.aasic.whackywheels.entities.*;
 import pt.um.aasic.whackywheels.repositories.*;
 

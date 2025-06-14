@@ -1,6 +1,9 @@
 package pt.um.aasic.whackywheels.controllers;
 
-import pt.um.aasic.whackywheels.dtos.*;
+import pt.um.aasic.whackywheels.dtos.track.TrackCreateRequestDTO;
+import pt.um.aasic.whackywheels.dtos.track.TrackDetailsResponseDTO;
+import pt.um.aasic.whackywheels.dtos.track.TrackRecordResponseDTO;
+import pt.um.aasic.whackywheels.dtos.track.TrackResponseDTO;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.TrackService;

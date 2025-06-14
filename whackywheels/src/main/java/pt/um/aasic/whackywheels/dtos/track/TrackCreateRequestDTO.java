@@ -1,7 +1,9 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.track;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import pt.um.aasic.whackywheels.dtos.kart.KartDTO;
+
 import java.math.BigDecimal;
 import java.util.Set;
 

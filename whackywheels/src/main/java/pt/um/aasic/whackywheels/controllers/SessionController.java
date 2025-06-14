@@ -7,8 +7,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import pt.um.aasic.whackywheels.entities.User;
-import pt.um.aasic.whackywheels.dtos.SessionsDetailsResponseDTO;
-import pt.um.aasic.whackywheels.dtos.SessionResponseDTO;
+import pt.um.aasic.whackywheels.dtos.session.SessionsDetailsResponseDTO;
+import pt.um.aasic.whackywheels.dtos.session.SessionResponseDTO;
 import pt.um.aasic.whackywheels.services.SessionService;
 
 import java.util.List;

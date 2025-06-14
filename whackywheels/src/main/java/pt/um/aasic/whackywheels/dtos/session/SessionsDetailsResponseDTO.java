@@ -1,7 +1,6 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.session;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 public class SessionsDetailsResponseDTO {

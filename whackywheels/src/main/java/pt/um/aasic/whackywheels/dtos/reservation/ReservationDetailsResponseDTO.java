@@ -1,5 +1,7 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.reservation;
 
+import pt.um.aasic.whackywheels.dtos.participant.ParticipantResponseDTO;
+import pt.um.aasic.whackywheels.dtos.session.SimpleSessionResponseDTO;
 import pt.um.aasic.whackywheels.entities.ReservationStatus;
 
 import java.time.LocalDate;

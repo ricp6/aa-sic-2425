@@ -1,4 +1,4 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.track;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -2,7 +2,6 @@ package pt.um.aasic.whackywheels.repositories;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import pt.um.aasic.whackywheels.dtos.TrackRankingDTO;
 import pt.um.aasic.whackywheels.entities.Track;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

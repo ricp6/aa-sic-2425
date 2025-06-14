@@ -1,6 +1,7 @@
 package pt.um.aasic.whackywheels.services;
 
-import pt.um.aasic.whackywheels.dtos.*;
+import pt.um.aasic.whackywheels.dtos.kart.KartDTO;
+import pt.um.aasic.whackywheels.dtos.track.*;
 import pt.um.aasic.whackywheels.entities.*;
 import pt.um.aasic.whackywheels.repositories.DayScheduleRepository;
 import pt.um.aasic.whackywheels.repositories.KartRepository;

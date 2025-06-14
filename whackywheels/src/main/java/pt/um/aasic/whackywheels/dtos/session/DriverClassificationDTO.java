@@ -1,4 +1,4 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.session;
 
 public class DriverClassificationDTO {
     private String driverName;

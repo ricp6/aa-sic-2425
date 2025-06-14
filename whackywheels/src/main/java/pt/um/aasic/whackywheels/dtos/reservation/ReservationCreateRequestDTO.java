@@ -1,9 +1,11 @@
-package pt.um.aasic.whackywheels.dtos;
+package pt.um.aasic.whackywheels.dtos.reservation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
+import pt.um.aasic.whackywheels.dtos.participant.ParticipantCreateDTO;
+import pt.um.aasic.whackywheels.dtos.session.SessionCreateDTO;
 
 import java.time.LocalDate;
 import java.util.List;
