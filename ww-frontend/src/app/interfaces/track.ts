@@ -18,15 +18,15 @@ export interface SimpleTrack {
 }
 
 export interface TrackWithRecords extends SimpleTrack {
-    personalRecord?: string | null;
-    trackRecord?: string | null;
+    personalRecord?: number | null;
+    trackRecord?: number | null;
 }
 
 
 export interface RecordsDTO {
     id: number;
-    personalRecord?: string | null;
-    trackRecord?: string | null;
+    personalRecord?: number | null;
+    trackRecord?: number | null;
 }
 export interface FilterDTO {
   trackId: number;

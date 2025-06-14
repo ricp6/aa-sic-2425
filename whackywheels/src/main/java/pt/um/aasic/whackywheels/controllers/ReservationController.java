@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import pt.um.aasic.whackywheels.dtos.NotificationMessageDTO;
 import pt.um.aasic.whackywheels.dtos.reservation.ReservationCreateRequestDTO;
 import pt.um.aasic.whackywheels.dtos.reservation.ReservationDetailsResponseDTO;
 import pt.um.aasic.whackywheels.dtos.reservation.ReservationResponseDTO;
@@ -159,11 +160,11 @@ public class ReservationController {
 
     @PutMapping("/accept/{reservationId}")
     @PreAuthorize("hasAnyRole('OWNER')")
-    public ResponseEntity<?> acceptReservation(@PathVariable Long reservationId, @RequestBody(required = false) String message ,@AuthenticationPrincipal User authenticatedUser) {
+    public ResponseEntity<?> acceptReservation(@PathVariable Long reservationId, @RequestBody(required = false) NotificationMessageDTO request , @AuthenticationPrincipal User authenticatedUser) {
         Long ownerId = authenticatedUser.getId();
 
         try {
-            reservationService.acceptReservation(reservationId, ownerId, message);
+            reservationService.acceptReservation(reservationId, ownerId, request);
             return new ResponseEntity<>("Reservation accepted successfully.", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -175,11 +176,11 @@ public class ReservationController {
 
     @PutMapping("/reject/{reservationId}")
     @PreAuthorize("hasAnyRole('OWNER')")
-    public ResponseEntity<?> rejectReservation(@PathVariable Long reservationId, @RequestBody(required = false) String message, @AuthenticationPrincipal User authenticatedUser) {
+    public ResponseEntity<?> rejectReservation(@PathVariable Long reservationId, @RequestBody(required = false) NotificationMessageDTO request, @AuthenticationPrincipal User authenticatedUser) {
         Long ownerId = authenticatedUser.getId();
 
         try {
-            reservationService.rejectReservation(reservationId, ownerId, message);
+            reservationService.rejectReservation(reservationId, ownerId, request);
             return new ResponseEntity<>("Reservation rejected successfully.", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

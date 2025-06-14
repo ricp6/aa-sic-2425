@@ -2,11 +2,11 @@ export interface Session {
   id: number;
   trackName: string;
   date: string;
-  startTime: string;
-  endTime: string;
   numParticipants: number;
   position: number;
-  personalRecord: string;
+  personalRecord: number;
+  startTime: string;
+  endTime: string;
   trackImage: string;
 }
   

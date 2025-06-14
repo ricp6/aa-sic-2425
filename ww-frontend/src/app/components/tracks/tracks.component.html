@@ -93,11 +93,11 @@
           <div class="track-stats" *ngIf="showAdvancedInfo && (track.personalRecord || track.trackRecord)">
             <span class="track-record" *ngIf="track.personalRecord">
               Personal Record:
-              <span class="record-value">{{ track.personalRecord }}</span>
+              <span class="record-value">{{ track.personalRecord.toFixed(3) }}</span>
             </span>
             <span class="track-record" *ngIf="track.trackRecord">
               Track Record:
-              <span class="record-value">{{ track.trackRecord }}</span>
+              <span class="record-value">{{ track.trackRecord.toFixed(3) }}</span>
             </span>
           </div>
 

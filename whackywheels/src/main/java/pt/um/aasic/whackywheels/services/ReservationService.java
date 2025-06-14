@@ -418,7 +418,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public void acceptReservation(Long reservationId, Long ownerId, String message) {
+    public void acceptReservation(Long reservationId, Long ownerId, NotificationMessageDTO request) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
 
@@ -442,8 +442,8 @@ public class ReservationService {
                 reservation.getTrack().getName(),
                 reservation.getDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
 
-        if (message != null && !message.isEmpty()) {
-             notificationMessage = message.toString();
+        if (request.getMessage() != null && !request.getMessage().isEmpty()) {
+             notificationMessage = request.getMessage();
         }
 
         String notificationBody = notificationMessage;
@@ -456,7 +456,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public void rejectReservation(Long reservationId, Long ownerId, String message) {
+    public void rejectReservation(Long reservationId, Long ownerId, NotificationMessageDTO request) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
 
@@ -480,8 +480,8 @@ public class ReservationService {
                 reservation.getTrack().getName(),
                 reservation.getDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
 
-        if (message != null && !message.isEmpty()) {
-             notificationMessage = message.toString();
+        if (request.getMessage() != null && !request.getMessage().isEmpty()) {
+             notificationMessage = request.getMessage();
         }
 
         String notificationBody = notificationMessage;

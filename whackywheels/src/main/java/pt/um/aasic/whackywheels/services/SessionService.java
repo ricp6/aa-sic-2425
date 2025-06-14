@@ -43,9 +43,7 @@ public class SessionService {
                                ? session.getReservation().getTrack().getName()
                                : "N/A";
 
-            int numParticipants = (session.getReservation() != null && session.getReservation().getParticipants() != null)
-                                   ? session.getReservation().getParticipants().size()
-                                   : 0;
+            int numParticipants = session.getClassifications().size();
 
             Integer position = null;
             Double personalRecord = null;

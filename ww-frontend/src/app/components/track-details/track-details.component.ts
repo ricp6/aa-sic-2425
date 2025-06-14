@@ -11,6 +11,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Reservation } from '../../interfaces/reservation';
 import { ReservationService } from '../../services/reservation.service';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'app-track-details',
@@ -98,7 +99,7 @@ export class TrackDetailsComponent implements OnInit {
   goToCreateReservation(): void {
     const nextRoute = this.isEnterpriseView ? 'enterprise/reservations/form' : 'reservations/form';
     this.router.navigate([nextRoute], {
-      state: { track: this.track }
+      state: { trackId: this.track.id }
     })
   }
 
@@ -130,8 +131,7 @@ export class TrackDetailsComponent implements OnInit {
     today.setHours(12, 0, 0, 0);
 
     return this.trackActiveReservations.filter(res => {
-      const [day, month, year] = res.date.split('/').map(Number);
-      const reservationDate = new Date(year, month - 1, day);
+      const reservationDate = new Date(res.reservationDate);
       reservationDate.setHours(12, 0, 0, 0);
 
       return reservationDate.getTime() === today.getTime();
@@ -147,11 +147,19 @@ export class TrackDetailsComponent implements OnInit {
     today.setHours(12, 0, 0, 0);
 
     return this.trackActiveReservations.filter(res => {
-      const [day, month, year] = res.date.split('/').map(Number);
-      const reservationDate = new Date(year, month - 1, day);
+      const reservationDate = new Date(res.reservationDate);
       reservationDate.setHours(12, 0, 0, 0);
 
       return reservationDate.getTime() > today.getTime();
     });
+  }
+
+  formatTime(timeString: string): string {
+    const parts = timeString.split(':');
+    return `${parts[0]}:${parts[1]}`;
+  }
+
+  formatDate(date: string): string {
+    return format(date, 'yyyy-MM-dd');
   }
 }

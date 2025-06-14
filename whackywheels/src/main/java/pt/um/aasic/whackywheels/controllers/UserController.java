@@ -1,19 +1,13 @@
 package pt.um.aasic.whackywheels.controllers;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import pt.um.aasic.whackywheels.dtos.PasswordChangeRequest;
 import pt.um.aasic.whackywheels.dtos.UserProfileDTO;
 import pt.um.aasic.whackywheels.entities.User;
-import pt.um.aasic.whackywheels.security.JwtService;
 import pt.um.aasic.whackywheels.services.UserService;
 import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
 import java.util.List;
@@ -25,13 +19,9 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
 
-    public UserController(UserService userService, JwtService jwtService, UserDetailsService userDetailsService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
     }
 
     @PostMapping("/favorites/add/{trackId}")
@@ -107,21 +97,6 @@ public class UserController {
             return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
-    }
-
-    @DeleteMapping("/delete")
-    @PreAuthorize("hasAnyRole('USER', 'OWNER')")
-    public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal User authenticatedUser) {
-        try {
-            if (authenticatedUser == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-            }
-
-            userService.deleteAccount(authenticatedUser.getId());
-            return ResponseEntity.ok(Map.of("message", "Account deleted successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to delete account"));
         }
     }
 
