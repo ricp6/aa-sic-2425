@@ -2,8 +2,10 @@ package pt.um.aasic.whackywheels.controllers;
 
 import pt.um.aasic.whackywheels.dtos.track.TrackCreateRequestDTO;
 import pt.um.aasic.whackywheels.dtos.track.TrackDetailsResponseDTO;
+import pt.um.aasic.whackywheels.dtos.track.TrackFilterResponseDTO;
 import pt.um.aasic.whackywheels.dtos.track.TrackRecordResponseDTO;
 import pt.um.aasic.whackywheels.dtos.track.TrackResponseDTO;
+import pt.um.aasic.whackywheels.dtos.track.TrackUpdateRequestDTO;
 import pt.um.aasic.whackywheels.entities.Track;
 import pt.um.aasic.whackywheels.entities.User;
 import pt.um.aasic.whackywheels.services.TrackService;
@@ -110,6 +112,32 @@ public class TrackController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("Failed to update track availability: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/update/{trackId}")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<?> updateTrack(@PathVariable Long trackId, @Valid @RequestBody TrackUpdateRequestDTO request, @AuthenticationPrincipal User authenticatedUser) {
+        try {
+            Long ownerId = authenticatedUser.getId();
+            trackService.updateTrack(trackId, request, ownerId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Failed to update track: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<TrackFilterResponseDTO>> getTrackDetaislForFilters() {
+        try {
+            List<TrackFilterResponseDTO> filteredTracks = trackService.getTrackDetaislForFilters();
+            return new ResponseEntity<>(filteredTracks, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
