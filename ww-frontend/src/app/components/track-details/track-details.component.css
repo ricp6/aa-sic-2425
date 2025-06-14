@@ -63,6 +63,15 @@
   color: #FFD700 !important;
 }
 
+.btn-close-track {
+  border-color: #ff3737 !important; /* red */
+  color: #ff3737 !important;
+}
+
+.btn-open-track {
+  border-color: #40a846 !important; /* green */
+  color: #40a846 !important;
+}
 
 
 /* DETAILS TAB */

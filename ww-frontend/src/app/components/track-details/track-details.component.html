@@ -28,15 +28,17 @@
 
       <!-- ENTERPRISE VIEW ACTIONS -->
       <div id="actions" *ngIf="isEnterpriseView">
-        <button mat-stroked-button color="warn" (click)="toggleOperational()">
-          {{ track.isAvailable ? 'Set as Not Operational' : 'Set as Operational' }}
+        <button mat-stroked-button (click)="toggleOperational()"
+          [color]="track.isAvailable ? 'warn' : 'primary'"
+          [ngClass]="track.isAvailable ? 'btn-close-track' : 'btn-open-track'">
+          {{ track.isAvailable ? 'Close Track to Public' : 'Reopen Track' }}
         </button>
 
         <button mat-stroked-button color="primary" disabled>
           Edit Details
         </button>
 
-        <button mat-stroked-button color="accent" (click)="goToCreateReservation()">
+        <button mat-stroked-button color="accent" (click)="goToCreateReservation()" [disabled]="!track.isAvailable">
           Create Reservation
         </button>
       </div>
@@ -78,7 +80,7 @@
                       Closed
                     </ng-container>
                     <ng-template #open>
-                      {{ day.openingTime.slice(0,5) }} - {{ day.closingTime.slice(0,5) }}
+                      {{ formatTime(day.openingTime) }} - {{ formatTime(day.closingTime) }}
                     </ng-template>
                   </p>
                 </ng-container>
@@ -119,8 +121,8 @@
               <tr>
                 <th>Pos.</th>
                 <th>Pilot</th>
-                <th>Date</th>
                 <th>Kart</th>
+                <th>Date</th>
                 <th>Time</th>
               </tr>
             </thead>
@@ -134,9 +136,9 @@
                   <mat-icon class="purple-icon" *ngIf="i < 3">star</mat-icon>
                   {{ ranking.driverName }}
                 </td>
-                <td>{{ ranking.date | date: 'dd/MM/yyyy' }}</td>
                 <td>{{ ranking.kartNumber }}</td>
-                <td>{{ ranking.lapTime | number: '1.3-3' }}</td>
+                <td>{{ formatDate(ranking.date) }}</td>
+                <td>{{ ranking.lapTime.toFixed(3) }}</td>
               </tr>
             </tbody>
           </table>

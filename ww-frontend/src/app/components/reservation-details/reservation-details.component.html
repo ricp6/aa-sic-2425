@@ -1,6 +1,6 @@
 <div id="reservation-details-container">
   <section id="reservation-details-header">
-    <button mat-icon-button (click)="goBack()">
+    <button mat-icon-button type="button" (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <h1 id="title">Reservation Details</h1>
@@ -41,38 +41,78 @@
 
         <h3 class="group-title">Sessions ({{ reservation.sessions.length }})</h3>
         <div class="sessions-list">
-          <div *ngIf="reservation.sessions.length === 0" class="no-data">No sessions for this reservation.</div>
+          <div *ngIf="reservation.sessions.length === 0" class="no-data">
+            No sessions for this reservation.
+          </div>
           <div *ngFor="let session of reservation.sessions" class="session-item">
             <span class="session-time">
-              {{ formatTime(session.startTime) }} - {{ formatTime(session.endTime) }}
+              {{ formatTime(session.bookedStartTime) }} - {{ formatTime(session.bookedEndTime) }}
             </span>
-            <button mat-icon-button (click)="navigateToSessionDetails(session.id)" class="view-session-button" matTooltip="View Session Details">
+            
+            <!-- Client view, session details -->
+            <button *ngIf="!isEnterpriseView && hasEnded(session)"
+                    mat-icon-button
+                    type="button" 
+                    [routerLink]="['/sessions', session.id]"
+                    class="view-session-button"
+                    matTooltip="View Session Details">
               <mat-icon>launch</mat-icon>
+            </button>
+            
+            <!-- Enterprise view, start session -->
+            <button *ngIf="isEnterpriseView && canStartSession(session)"
+                    mat-stroked-button
+                    type="button" 
+                    color="primary"
+                    (click)="startSession(session.id)"
+                    class="start-session-button">
+              <mat-icon>play_arrow</mat-icon>
+              Start Session
+            </button>
+
+            <!-- Enterprise view, finish session -->
+            <button *ngIf="isEnterpriseView && isOpen(session)"
+                    mat-stroked-button
+                    type="button" 
+                    color="warn"
+                    (click)="endSession(session.id)"
+                    class="finish-session-button">
+              <mat-icon>stop</mat-icon>
+              Finish Session
             </button>
           </div>
         </div>
       </mat-card-content>
 
-      <mat-card-actions align="end" class="detail-actions" *ngIf="isActive()">
-         <!-- CLIENT VIEW -->
-        <ng-container *ngIf="!isEnterpriseView">
-          <button mat-stroked-button color="primary" (click)="editReservation()" disabled>
+      <mat-card-actions align="end" class="detail-actions" *ngIf="reservation.status !== 'CANCELLED'">
+        <!-- CLIENT VIEW ACTIVE RESERVATIONS-->
+        <ng-container *ngIf="!isEnterpriseView && isActive()">
+          <button mat-flat-button type="button" color="primary" (click)="editReservation()" disabled>
             <mat-icon>edit</mat-icon>
             Edit
           </button>
-          <button mat-flat-button color="warn" (click)="cancelReservation()">
+          <button mat-flat-button type="button" color="warn" (click)="cancelReservation()">
             <mat-icon>cancel</mat-icon>
             Cancel Reservation
           </button>
         </ng-container>
+        <!-- CLIENT VIEW CONCLUDED RESERVATIONS-->
+        <ng-container *ngIf="!isEnterpriseView && reservation.status === 'CONCLUDED'">
+          <div *ngIf="!isEnterpriseView && reservation.status === 'CONCLUDED'" class="reservation-actions">
+            <button mat-flat-button type="button" color="primary" class="reservation-action repeat"
+              (click)="goToCreateReservation()">
+              Repeat Reservation
+            </button>
+          </div>
+        </ng-container>
 
-        <!-- ENTERPRISE VIEW -->
-        <ng-container *ngIf="isEnterpriseView">
-          <button mat-stroked-button color="primary" (click)="acceptReservation()">
+        <!-- ENTERPRISE VIEW ACTIVE RESERVATIONS -->
+        <ng-container *ngIf="isEnterpriseView && isActive()">
+          <button mat-flat-button type="button" color="primary" (click)="acceptReservation()">
             <mat-icon>check_circle</mat-icon>
             Accept
           </button>
-          <button mat-flat-button color="warn" (click)="rejectReservation()">
+          <button mat-flat-button type="button" color="warn" (click)="rejectReservation()">
             <mat-icon>cancel</mat-icon>
             Reject
           </button>

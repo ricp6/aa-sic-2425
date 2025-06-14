@@ -6,7 +6,9 @@ import { ToastrService } from 'ngx-toastr';
 import { ViewService } from '../../services/view.service';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { ReservationDetails, ReservationStatus } from '../../interfaces/reservation';
+import { ReservationDetails, ReservationStatus, SimpleSession } from '../../interfaces/reservation';
+import { SessionService } from '../../services/session.service';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'app-reservation-details',
@@ -17,14 +19,14 @@ export class ReservationDetailsComponent implements OnInit {
   
   isEnterpriseView: boolean = false;
 
-  reservation: ReservationDetails | undefined;
-  reservationId!: number;
+  reservation!: ReservationDetails;
 
   constructor(
     private readonly router: Router,
     private readonly location: Location,
     private readonly route: ActivatedRoute,
     private readonly reservationService: ReservationService,
+    private readonly sessionService: SessionService,
     private readonly viewService: ViewService,
     private readonly toastr: ToastrService,
     private readonly dialog: MatDialog
@@ -38,10 +40,10 @@ export class ReservationDetailsComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const idParam = params.get('id');
       if (idParam) {
-        this.reservationId = +idParam;
-        this.loadReservationDetails(this.reservationId);
+        this.loadReservationDetails(+idParam);
       } else {
         console.error('Reservation ID not provided in route.');
+        this.toastr.error("Please navigate using the page commands.", "Invalid URL!");
         this.goBack();
       }
     });
@@ -50,6 +52,7 @@ export class ReservationDetailsComponent implements OnInit {
   loadReservationDetails(id: number): void {
     this.reservationService.getReservationDetails(id).subscribe({
       next: (reservation: ReservationDetails) => {
+        reservation.sessions.sort((a, b) => a.bookedStartTime.localeCompare(b.bookedStartTime));
         this.reservation = reservation;
       },
       error: (err) => {
@@ -60,8 +63,7 @@ export class ReservationDetailsComponent implements OnInit {
   }
 
   formatDate(dateTimeString: string): string {
-    const date = new Date(dateTimeString);
-    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return format(dateTimeString, 'yyyy-MM-dd');
   }
 
   formatTime(timeString: string): string {
@@ -70,15 +72,56 @@ export class ReservationDetailsComponent implements OnInit {
   }
 
   isActive(): boolean {
-    return this.reservation?.status === ReservationStatus.PENDING ||
-      (!this.isEnterpriseView && this.reservation?.status === ReservationStatus.ACCEPTED);
+    return this.reservation?.status === ReservationStatus.PENDING 
+        || this.reservation?.status === ReservationStatus.ACCEPTED;
   }
 
-  // TODO Alterar para qnd tiver as sessoes
-  navigateToSessionDetails(sessionId: number): void {
-    this.router.navigate(['/sessions', sessionId]);
-    console.log(`Navigating to session ${sessionId} details.`);
+  canStartSession(session: SimpleSession): boolean {
+    return this.reservation?.status === ReservationStatus.ACCEPTED 
+        && !this.isOpen(session) && this.isInTimeWindow(session);
   }
+
+  isOpen(session: SimpleSession): boolean {
+    return this.hasStarted(session) && !this.hasEnded(session);
+  }
+
+  hasStarted(session: SimpleSession): boolean {
+    return session.realStartTime != null;
+  }
+
+  hasEnded(session: SimpleSession): boolean {
+    return session.realEndTime != null;
+  }
+
+  isInTimeWindow(session: SimpleSession): boolean {
+    const now = new Date();
+    // Gets session times as dates
+    const sessionStart = new Date(`${this.reservation.reservationDate}T${session.bookedStartTime}`);
+    const sessionEnd = new Date(`${this.reservation.reservationDate}T${session.bookedEndTime}`);
+
+    return sessionStart <= now && now <= sessionEnd;
+  }
+
+  startSession(sessionId: number): void {
+    this.sessionService.startSession(sessionId).subscribe({
+      next: () => {
+        this.toastr.success('Session started.', 'Success');
+        this.loadReservationDetails(this.reservation.id);
+      },
+      error: () => this.toastr.error('Failed to start session.', 'Error')
+    });
+  }
+
+  endSession(sessionId: number): void {
+    this.sessionService.endSession(sessionId).subscribe({
+      next: () => {
+        this.toastr.success('Session finished.', 'Success');
+        this.loadReservationDetails(this.reservation.id);
+      },
+      error: () => this.toastr.error('Failed to end session.', 'Error')
+    });
+  }
+
 
   // TODO Change when edit is implemented
   editReservation(): void {
@@ -88,7 +131,7 @@ export class ReservationDetailsComponent implements OnInit {
 
   cancelReservation(): void {
     if (confirm('Are you sure you want to cancel this reservation?')) {
-      this.reservationService.cancelReservation(this.reservationId).subscribe({
+      this.reservationService.cancelReservation(this.reservation.id).subscribe({
         next: () => {
           this.toastr.success('Reservation cancelled successfully.', 'Success');
           this.router.navigate(['/reservations']);
@@ -107,39 +150,49 @@ export class ReservationDetailsComponent implements OnInit {
     });
     
     dialogRef.afterClosed().subscribe(message => {
-      this.reservationService.acceptReservation(this.reservationId, message ?? '').subscribe({
-        next: () => {
-          this.toastr.success('Reservation accepted.', 'Success');
-          this.loadReservationDetails(this.reservationId);
-        },
-        error: () => this.toastr.error('Failed to accept reservation.', 'Error')
-      });
+      if (message != null) {
+        this.reservationService.acceptReservation(this.reservation.id, message).subscribe({
+          next: () => {
+            this.toastr.success('Reservation accepted.', 'Success');
+            this.loadReservationDetails(this.reservation.id);
+          },
+          error: () => this.toastr.error('Failed to accept reservation.', 'Error')
+        });
+      }
     });
   }
 
   rejectReservation(): void {
-    if (confirm('Are you sure you want to reject this reservation?')) {
-      const dialogRef = this.dialog.open(MessageDialogComponent, {
-        width: '400px',
-        data: {
-          title: 'Reject Reservation',
-          defaultMessage: 'Unfortunately, your reservation could not be accepted.'
-        }
-      });
-
-      dialogRef.afterClosed().subscribe(message => {
-        this.reservationService.rejectReservation(this.reservationId, message).subscribe({
+    const dialogRef = this.dialog.open(MessageDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Reject Reservation',
+        defaultMessage: 'Unfortunately, your reservation could not be accepted.'
+      }
+    });
+    
+    dialogRef.afterClosed().subscribe(message => {
+      // Confirm one more time because it is irreversible
+      if (message != null && confirm('Are you sure you want to reject this reservation?')) {
+        this.reservationService.rejectReservation(this.reservation.id, message).subscribe({
           next: () => {
             this.toastr.success('Reservation rejected.', 'Success');
             this.router.navigate(['/enterprise/reservations']);
           },
           error: () => this.toastr.error('Failed to reject reservation.', 'Error')
         });
-      });
-    }
+      }
+    });
   }
 
   goBack(): void {
     this.location.back();
+  }
+
+  goToCreateReservation(): void {
+    const nextRoute = this.isEnterpriseView ? 'enterprise/reservations/form' : 'reservations/form';
+    this.router.navigate([nextRoute], {
+      state: { trackId: this.reservation.trackId }
+    })
   }
 }

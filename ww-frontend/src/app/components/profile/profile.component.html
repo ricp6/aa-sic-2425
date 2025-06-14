@@ -18,7 +18,6 @@
 
     <div class="actions">
       <button class="edit-btn" (click)="enableEdit()">✏️ Edit</button>
-      <button class="delete-btn" (click)="deleteAccount()">🗑️ Delete</button>
     </div>
   </div>
 
@@ -43,7 +42,9 @@
     <div class="favorites">
       <h3>Favorite tracks</h3>
       <ul>
-        <li *ngFor="let track of user.favoriteTracks">{{ track }}</li>
+        <li *ngFor="let track of user.favoriteTracks | slice:0:3">
+          {{ track }}
+        </li>
       </ul>
     </div>
   </div>

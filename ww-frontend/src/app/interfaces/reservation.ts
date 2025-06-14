@@ -10,19 +10,21 @@ export interface Reservation {
   id: number;
   trackName: string;
   numParticipants: number;
-  date: string;
+  reservationDate: string;
   numSessions: number;
   status: ReservationStatus;
   trackImage: string;
 }
 
-interface SimpleSession {
+export interface SimpleSession {
   id: number;
-  startTime: string;
-  endTime: string;
+  bookedStartTime: string;
+  bookedEndTime: string;
+  realStartTime: string;
+  realEndTime: string;
 }
 
-interface SimpleParticipant {
+export interface SimpleParticipant {
   id: number;
   userId: number;
   userName: string;

@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { User } from '../../interfaces/user';
 import { UserService } from '../../services/user.service';
+import { Meta } from '@angular/platform-browser';
 import { Observable, Subscription } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { startWith, map } from 'rxjs/operators';
@@ -17,7 +18,7 @@ import { ViewService } from '../../services/view.service';
   styleUrls: ['./tracks.component.css']
 })
 export class TracksComponent implements OnInit, OnDestroy {
-  
+
   isEnterpriseView: boolean = false;
 
   searchTerm: string = '';
@@ -48,6 +49,7 @@ export class TracksComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly router: Router,
+    private metaService: Meta,
     private readonly viewService: ViewService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
@@ -57,6 +59,11 @@ export class TracksComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.viewService.viewMode$.subscribe(mode => {
       this.isEnterpriseView = (mode === 'enterprise');
+    });
+
+    this.metaService.updateTag({
+      name:'description',
+      content: 'This page shows every track available on our website and their status, allowing you to acess each track and quickly see your record in those tracks.It also supports filtering the search of tracks'
     });
 
     let tracksObservable: Observable<TrackWithRecords[]>;
