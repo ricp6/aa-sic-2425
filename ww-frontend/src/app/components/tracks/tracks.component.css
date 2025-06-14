@@ -4,7 +4,7 @@
 }
 
 #banner-image {
-  background-image: url('/kart.jpg');
+  background-image: url('/kart.webp');
   background-size: cover;
   background-position: center;
   width: 35%;
@@ -164,7 +164,7 @@
 
 .star-button-container {
   /* gives 15px of margin-top/bottom */
-  height: 70px; 
+  height: 70px;
 }
 
 .star-button,

@@ -1,64 +1,50 @@
 <nav mat-tab-nav-bar [tabPanel]="tabPanel" *ngIf="!isAuthPage">
 
-  <!-- Left content -->
   <div id="nav-home-container" [routerLink]="isEnterpriseView ? 'enterprise' : 'home'">
-    <img id="nav-home-logo" src="logo.png" alt="Logo">
+    <img id="nav-home-logo" src="logo.webp" width="100px" height="60px" alt="Logo">
     <h3 id="nav-home-title"> {{ isEnterpriseView ? "WW" : "WACKY WHEELS" }} </h3>
     <h4 id="nav-home-subtitle"> {{ isEnterpriseView ? "Enterprise" : "" }} </h4>
   </div>
 
-  <!-- Right content -->
   <div id="nav-right-group">
-    
-    <!-- Main Links -->
+
     <div id="nav-links">
-      <!-- Personal links -->
       <a mat-tab-link *ngIf="!isEnterpriseView" routerLink="tracks"
-        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
-        Tracks 
+         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Tracks
       </a>
       <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations"
-        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
-        Reservations 
+         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Reservations
       </a>
       <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions"
-        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
-        Sessions 
+         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Sessions
       </a>
-      
-      <!-- Entreprise links -->
+
       <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/tracks"
-        routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"> 
-        My Tracks 
+         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> My Tracks
       </a>
     </div>
-    
-    <!-- Anonimous User or logged out -->
+
     <div *ngIf="!isLoggedIn" class="nav-account-container">
-      <button mat-stroked-button type="button" routerLink="auth/login" id="login-button"> 
-        Login
+      <button mat-stroked-button type="button" routerLink="auth/login" id="login-button" tabindex="0"> Login
         <mat-icon>login</mat-icon>
       </button>
     </div>
-    
-    <!-- User logged in -->
+
     <div *ngIf="isLoggedIn" class="nav-account-container">
-      <button mat-icon-button routerLink="notifications" type="button" id="notifications-button"  [class.active]="isNotificationsPage">
-        <mat-icon [matBadge]="unreadNotificationCount" [matBadgeHidden]="!unreadNotificationCount" aria-hidden="false">
-          notifications_none
-        </mat-icon>
+      <button mat-icon-button routerLink="notifications" type="button" id="notifications-button"  [class.active]="isNotificationsPage" tabindex="0"> <mat-icon [matBadge]="unreadNotificationCount" [matBadgeHidden]="!unreadNotificationCount" aria-hidden="false">
+        notifications_none
+      </mat-icon>
       </button>
-      <button mat-stroked-button [matMenuTriggerFor]="profilemenu" type="button" id="user-button">
-        {{ userName }}
+      <button mat-stroked-button [matMenuTriggerFor]="profilemenu" type="button" id="user-button" tabindex="0"> {{ userName }}
         <mat-icon>account_circle</mat-icon>
       </button>
     </div>
     <mat-menu #profilemenu="matMenu" id="user-menu">
-      <a mat-tab-link routerLink="profile" id="profile-button"> My Profile </a>
-      <a mat-tab-link *ngIf="isOwner" (click)="toggleEnterprise()" id="enterprise-toggle-button">
+      <a mat-tab-link routerLink="profile" id="profile-button" tabindex="0"> My Profile </a>
+      <a mat-tab-link *ngIf="isOwner" (click)="toggleEnterprise()" id="enterprise-toggle-button" tabindex="0">
         {{ isEnterpriseView ? 'Personal View' : 'Enterprise View' }}
       </a>
-      <a mat-tab-link (click)="logout()" id="logout-button">
+      <a mat-tab-link (click)="logout()" id="logout-button" tabindex="0">
         <span>Logout</span>
         <mat-icon id="logout-icon">logout</mat-icon>
       </a>
@@ -70,9 +56,9 @@
 <div id="main-content">
   <router-outlet></router-outlet>
 </div>
-  
+
 <footer>
-  <a>About Us</a>
-  <a>Privacy Policy</a>
-  <a>Terms & Conditions</a>
+  <a routerLink="/home">About Us</a>
+  <a routerLink="/home">Privacy Policy</a>
+  <a routerLink="/home">Terms & Conditions</a>
 </footer>
