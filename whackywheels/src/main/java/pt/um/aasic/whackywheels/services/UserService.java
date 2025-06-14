@@ -13,11 +13,8 @@ import pt.um.aasic.whackywheels.repositories.TrackRepository;
 import pt.um.aasic.whackywheels.dtos.UserResponseDTO;
 import java.util.List;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
-public class UserService { // Or create a new service like UserFavoriteTrackService
+public class UserService {
 
     private final UserRepository userRepository;
     private final TrackRepository trackRepository;
@@ -29,7 +26,7 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional // Ensures the entire operation is a single transaction
+    @Transactional
     public void addFavoriteTrack(Long userId, Long trackId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
@@ -37,7 +34,7 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
         Track track = trackRepository.findById(trackId)
                 .orElseThrow(() -> new IllegalArgumentException("Track not found with ID: " + trackId));
 
-        user.getFavoriteTracks().add(track); // set prevents duplicates automatically
+        user.getFavoriteTracks().add(track);
         userRepository.save(user);
     }
 
@@ -111,14 +108,7 @@ public class UserService { // Or create a new service like UserFavoriteTrackServ
         userRepository.save(user);
     }
 
-    @Transactional
-    public void deleteAccount(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        userRepository.delete(user);
-    }
-
+    @Transactional(readOnly = true)
     public List<UserResponseDTO> searchUsersByNameOrEmail(String query) {
         return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query).stream()
                 .map(this::mapUserToUserResponseDTO)

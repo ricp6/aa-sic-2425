@@ -17,6 +17,7 @@ import java.util.HashSet;
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("USER")
 public class User implements UserDetails {
 
     @Id

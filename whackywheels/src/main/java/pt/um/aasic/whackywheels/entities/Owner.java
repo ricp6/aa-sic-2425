@@ -23,7 +23,7 @@ public class Owner extends User {
     @JsonIgnore
     private Set<Track> tracks = new HashSet<>();
 
-    protected Owner() {
+    public Owner() {
         super();
         this.userType = "OWNER";
     }
