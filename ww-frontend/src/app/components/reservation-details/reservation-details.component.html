@@ -108,7 +108,7 @@
 
         <!-- ENTERPRISE VIEW ACTIVE RESERVATIONS -->
         <ng-container *ngIf="isEnterpriseView && isActive()">
-          <button mat-flat-button type="button" color="primary" (click)="acceptReservation()">
+          <button mat-flat-button type="button" color="primary" (click)="acceptReservation()" *ngIf="reservation.status !== 'ACCEPTED'">
             <mat-icon>check_circle</mat-icon>
             Accept
           </button>

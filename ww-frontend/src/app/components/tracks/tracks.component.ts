@@ -57,7 +57,7 @@ export class TracksComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly router: Router,
-    private metaService: Meta,
+    private readonly metaService: Meta,
     private readonly viewService: ViewService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
