@@ -456,7 +456,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             Reservation reservation2 = new Reservation();
             reservation2.setDate(LocalDate.now().plusDays(10));
             reservation2.setStatus(ReservationStatus.ACCEPTED);
-            reservation2.setCreatedByUserId(user2.getId()); // User 2 faz a reserva
+            reservation2.setCreatedByUserId(user3.getId()); // User 2 faz a reserva
             reservation2.setTrack(track2);
             reservationRepository.save(reservation2);
 
@@ -509,10 +509,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             Session session1_res2 = new Session(LocalTime.of(11, 0), LocalTime.of(11, 20), reservation2, null, null);
             sessionRepository.save(session1_res2);
 
-            Session session1_res3 = new Session(LocalTime.of(11, 0), LocalTime.of(11, 05), reservation3, null, null);
-            sessionRepository.save(session1_res2);
-
-            Session session2_res3 = new Session(LocalTime.of(11, 05), LocalTime.of(11, 10), reservation3, null, null);
+            Session session1_res3 = new Session(LocalTime.of(11, 0), LocalTime.of(11, 10), reservation3, null, null);
             sessionRepository.save(session1_res3);
 
             Session session1_res4 = new Session(LocalTime.of(11, 0), LocalTime.of(11, 5), reservation4, null, null);
@@ -549,6 +546,12 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             Participant participant4_res2 = new Participant(user4, kart2_track2, reservation2);
             participantRepository.save(participant4_res2);
+
+            Participant participant1_res3 = new Participant(user4, kart1_track2, reservation3);
+            participantRepository.save(participant1_res3);
+
+            Participant participant1_res4 = new Participant(user3, kart2_track2, reservation4);
+            participantRepository.save(participant1_res4);
 
             Participant completedParticipant1 = new Participant(user1, kart1_track1, completedReservation1);
             participantRepository.save(completedParticipant1);
