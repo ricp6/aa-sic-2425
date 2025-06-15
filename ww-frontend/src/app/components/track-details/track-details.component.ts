@@ -61,7 +61,7 @@ export class TrackDetailsComponent implements OnInit {
       return;
     }
 
-    this.trackService.getTrack(id).subscribe({
+    this.trackService.getTrackDetails(id).subscribe({
       next: (track) => {
         this.track = track;
       },

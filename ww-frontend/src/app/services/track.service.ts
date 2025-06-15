@@ -13,89 +13,26 @@ export class TrackService {
   private tracksCache: SimpleTrack[] | null = null;
   private readonly tracksSubject = new BehaviorSubject<SimpleTrack[]>([]);
 
-  private filterDataCache: FilterDTO[] | null = null;
-  private readonly filterDataSubject = new BehaviorSubject<FilterDTO[]>([]);
-
   constructor(
     private readonly http: HttpClient,
     private readonly toastr: ToastrService
   ) {}
 
-  private getTracksBackend(): Observable<SimpleTrack[]> {
-    return this.http.get<SimpleTrack[]>(this.tracksURL).pipe(
-      tap(tracks => {
-        this.tracksCache = tracks;
-        this.tracksSubject.next(tracks);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the tracks', 'Server error');
-        }
-        return throwError(() => error);
-      })
-    );
+  // Endpoint to fetch all tracks from the backend
+  refreshTracks(): Observable<SimpleTrack[]> {
+    this.tracksCache = null;
+    return this.getTracksBackend();
   }
 
+  // Gets the cached tracks to avoid multiple requests on info that rarely changes
   getTracksCached(): Observable<SimpleTrack[]> {
     if (this.tracksCache) {
       return of(this.tracksCache);
     }
     return this.tracksSubject.asObservable();
   }
-
-  refreshTracks(): Observable<SimpleTrack[]> {
-    this.tracksCache = null;
-    return this.getTracksBackend();
-  }
-
-  private getTracksRecords(): Observable<RecordsDTO[] | null> {
-    return this.http.get<RecordsDTO[]>(this.tracksURL + '/records').pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the tracks records', 'Server error');
-        }
-        return throwError(() => error);
-      })
-    );
-  }
-
-  getTracksFilterData(): Observable<FilterDTO[]> {
-    if (this.filterDataCache) {
-      return of(this.filterDataCache);
-    }
-    return this.http.get<FilterDTO[]>(this.tracksURL + '/filter').pipe(
-      tap(data => {
-        this.filterDataCache = data;
-        this.filterDataSubject.next(data);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading track filter data', 'Server error');
-        }
-        return throwError(() => error);
-      })
-    );
-  }
-
-  getTracksFilterDataCached(): Observable<FilterDTO[]> {
-    if (this.filterDataCache) {
-      return of(this.filterDataCache);
-    }
-    return this.filterDataSubject.asObservable();
-  }
-
+  
+  // Fetches the track records and joins with cached tracks
   getTracksWithRecords(): Observable<TrackWithRecords[]> {
     return combineLatest([
       this.getTracksCached(),
@@ -120,21 +57,7 @@ export class TrackService {
     );
   }
 
-  getTrack(id: number): Observable<TrackDetails> {
-    return this.http.get<TrackDetails>(`${this.tracksURL}/${id}`).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-         this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the track details', 'Server error');
-        }
-        return throwError(() => new Error(`Something went wrong fetching track: ${error.message}`));
-      })
-    );
-  }
-
+  // Fetches only the owned tracks
   getOwnedTracks(): Observable<SimpleTrack[]> {
     return this.http.get<SimpleTrack[]>(`${this.tracksURL}/owned`).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -149,7 +72,24 @@ export class TrackService {
       })
     );
   }
+  
+  // Fetches the track details
+  getTrackDetails(id: number): Observable<TrackDetails> {
+    return this.http.get<TrackDetails>(`${this.tracksURL}/${id}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+         this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the track details', 'Server error');
+        }
+        return throwError(() => new Error(`Something went wrong fetching track: ${error.message}`));
+      })
+    );
+  }
 
+  // Changes the availability of the track
   setOperationalState(trackId: number): Observable<void> {
     return this.http.put<void>(`${this.tracksURL}/changeAvailability/${trackId}`, {}).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -164,7 +104,57 @@ export class TrackService {
       })
     );
   }
+  
+  // Fetches extra data for the filters
+  getTracksFilterData(): Observable<FilterDTO[]> {
+    return this.http.get<FilterDTO[]>(`${this.tracksURL}/filter`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading track filter data', 'Server error');
+        }
+        return throwError(() => error);
+      })
+    );
+  }
 
+
+  private getTracksBackend(): Observable<SimpleTrack[]> {
+    return this.http.get<SimpleTrack[]>(this.tracksURL).pipe(
+      tap(tracks => {
+        this.tracksCache = tracks;
+        this.tracksSubject.next(tracks);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the tracks', 'Server error');
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  private getTracksRecords(): Observable<RecordsDTO[] | null> {
+    return this.http.get<RecordsDTO[]>(this.tracksURL + '/records').pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+        } else if (error.status === 403) {
+          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+        } else {
+          this.toastr.error('An error occurred while loading the tracks records', 'Server error');
+        }
+        return throwError(() => error);
+      })
+    );
+  }
 
   /*createTrack(data: { track: Track }) {
     return this.http.post<Track>(this.tracksURL, data).pipe(
