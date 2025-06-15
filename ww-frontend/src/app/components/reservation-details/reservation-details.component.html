@@ -86,7 +86,7 @@
 
       <mat-card-actions align="end" class="detail-actions" *ngIf="reservation.status !== 'CANCELLED'">
         <!-- CLIENT VIEW ACTIVE RESERVATIONS-->
-        <ng-container *ngIf="!isEnterpriseView && isActive()">
+        <ng-container *ngIf="!isEnterpriseView && isActive() && isCreator()">
           <button mat-flat-button type="button" color="primary" (click)="editReservation()" disabled>
             <mat-icon>edit</mat-icon>
             Edit

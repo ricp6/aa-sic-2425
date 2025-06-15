@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ReservationDetails, ReservationStatus, SimpleSession } from '../../interfaces/reservation';
 import { SessionService } from '../../services/session.service';
 import { format } from 'date-fns';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-reservation-details',
@@ -25,6 +26,7 @@ export class ReservationDetailsComponent implements OnInit {
     private readonly router: Router,
     private readonly location: Location,
     private readonly route: ActivatedRoute,
+    private readonly authService: AuthService,
     private readonly reservationService: ReservationService,
     private readonly sessionService: SessionService,
     private readonly viewService: ViewService,
@@ -74,6 +76,10 @@ export class ReservationDetailsComponent implements OnInit {
   isActive(): boolean {
     return this.reservation?.status === ReservationStatus.PENDING 
         || this.reservation?.status === ReservationStatus.ACCEPTED;
+  }
+
+  isCreator(): boolean {
+    return this.authService.getCurrentUser()?.id === this.reservation.creatorId;
   }
 
   canStartSession(session: SimpleSession): boolean {

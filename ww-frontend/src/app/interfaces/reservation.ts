@@ -39,6 +39,7 @@ export interface ReservationDetails {
   price: number;
   trackId: number;
   trackName: string;
+  creatorId: number;
   sessions: SimpleSession[];
   participants: SimpleParticipant[];
 }
