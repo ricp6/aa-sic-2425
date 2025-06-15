@@ -1,29 +1,58 @@
-
 <div id="hero-container">
-  <img class="hero-background-image" src="/kart.webp" alt="Pista de Kart" width="1920" height="400">
+  <img class="hero-background-image" src="/kart.webp" alt="Karting Track" width="1920" height="400" #heroImage>
+
+  <div class="hero-overlay">
+    <div class="hero-content">
+      <h1>Find Your Next Karting Adventure!</h1>
+      <p>Explore the best karting tracks near you and book your session.</p>
+      <button mat-raised-button color="primary" routerLink="/tracks">
+        <mat-icon>search</mat-icon> View Tracks Now
+      </button>
+    </div>
+  </div>
 </div>
 
 <section id="popular-section">
   <div class="section-header">
-    <h2 class="section-title">Popular Tracks</h2>
-
-    <div class="section-scroll-buttons">
-      <button mat-icon-button class="scroll-button left" (click)="scrollLeft()" aria-label="Scroll left">
-        <mat-icon>navigate_before</mat-icon>
-      </button>
-      <button mat-icon-button class="scroll-button right" (click)="scrollRight()" aria-label="Scroll right">
-        <mat-icon>navigate_next</mat-icon>
-      </button>
-    </div>
+    <h2 class="section-title">Available Tracks</h2>
   </div>
 
-  <div class="scroll-wrapper">
-    <div class="tracks-container" #scrollContainer>
-      <mat-card class="track-card" *ngFor="let track of tracks" (click)="showTrack(track)">
+  <div class="tracks-grid-container" *ngIf="tracks && tracks.length > 0; else noTracks">
+    <mat-card class="track-card" *ngFor="let track of tracks" (click)="showTrack(track)">
+      <img mat-card-image [src]="track.image" [alt]="track.name" />
+      <mat-card-content>
         <mat-card-title>{{ track.name }}</mat-card-title>
         <mat-card-subtitle>{{ track.address }}</mat-card-subtitle>
-        <img mat-card-image [src]="track.image" [alt]="track.name" />
-      </mat-card>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <ng-template #noTracks>
+    <div class="no-tracks-message">
+      <mat-icon>info</mat-icon>
+      <p>No tracks available at the moment. Please check back later!</p>
+    </div>
+  </ng-template>
+</section>
+
+<section id="how-it-works-section">
+  <h2 class="section-title">How It Works?</h2>
+  <div class="steps-container">
+    <div class="step-card">
+      <mat-icon class="step-icon">map</mat-icon>
+      <h3>1. Find</h3>
+      <p>Browse through the available karting tracks in your region.</p>
+    </div>
+    <div class="step-card">
+      <mat-icon class="step-icon">calendar_month</mat-icon>
+      <h3>2. Book</h3>
+      <p>Choose your favorite track, date, and time for your session.</p>
+    </div>
+    <div class="step-card">
+      <mat-icon class="step-icon">flag</mat-icon>
+      <h3>3. Race!</h3>
+      <p>Go to the track and enjoy your karting experience.</p>
     </div>
   </div>
 </section>
+

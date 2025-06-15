@@ -13,6 +13,20 @@
   filter: brightness(0.8);
 }
 
+.pilot-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.driver-profile-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #eee;
+}
+
 #back-button {
   position: absolute;
   top: 20px;
@@ -64,18 +78,14 @@
 }
 
 .btn-close-track {
-  border-color: #ff3737 !important; /* red */
+  border-color: #ff3737 !important;
   color: #ff3737 !important;
 }
 
 .btn-open-track {
-  border-color: #40a846 !important; /* green */
+  border-color: #40a846 !important;
   color: #40a846 !important;
 }
-
-
-/* DETAILS TAB */
-
 
 #details-section {
   padding-top: 30px;
@@ -183,7 +193,7 @@
 
 
 
-/* RESERVATIONS TABS */
+
 
 .selected-tab {
   max-width: 900px;
@@ -225,125 +235,127 @@
 }
 
 
-@media (max-width: 768px) {
-  .header-section {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .actions {
-    margin-top: 15px;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-  }
-
-  .actions button {
-    flex: 1;
-    margin: 0 5px;
-  }
-
-  .details-section {
-    flex-direction: column;
-  }
-
-  .details-card,
-  .image-gallery {
-    min-width: unset;
-    width: 100%;
-  }
-
-  .image-gallery {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
-
-  .image-gallery img {
-    height: auto;
-  }
-
+.rankings-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  margin-top: 30px;
+  margin-bottom: 30px;
+  overflow-x: auto;
 }
 
 
-.rankings-section {
-  padding-top: 20px;
+.rankings-section h2 {
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #000;
+  font-weight: 700;
 }
 
 .rankings-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .rankings-table th,
 .rankings-table td {
-  text-align: left;
-  padding: 12px 15px;
+  padding: 12px 10px;
   border-bottom: 1px solid #eee;
   color: #000;
+  font-size: 1.0em;
+  white-space: nowrap;
 }
 
 .rankings-table th {
   background-color: #f8f8f8;
-  font-weight: bold;
+  font-weight: 700;
+  text-align: left;
+  color: #333;
 }
 
-.rankings-table tr:hover {
-  background-color: #f5f5f5;
-}
 
-.rankings-table td.pos-highlight {
-  font-weight: bold;
-  color: #8a2be2;
-}
-
-.rankings-table td mat-icon {
-  vertical-align: middle;
-  margin-right: 5px;
-
-  color: #8a2be2;
-}
-
-.load-more {
+.rankings-table th:nth-child(1),
+.rankings-table td:nth-child(1) {
   text-align: center;
-  padding: 15px;
-  cursor: pointer;
+  width: 8%;
+  font-weight: 700;
 }
 
-.load-more mat-icon {
-  font-size: 3em;
-  color: #555;
+.rankings-table th:nth-child(2),
+.rankings-table td:nth-child(2) {
+  text-align: left;
+  width: 30%;
+}
+
+.rankings-table th:nth-child(3),
+.rankings-table td:nth-child(3) {
+  text-align: center;
+  width: 15%;
+}
+
+.rankings-table th:nth-child(4),
+.rankings-table td:nth-child(4) {
+  text-align: center;
+  width: 23%;
+}
+
+.rankings-table th:nth-child(5),
+.rankings-table td:nth-child(5) {
+  text-align: center;
+  width: 24%;
 }
 
 
 .rankings-table td.pos-highlight {
-  font-weight: bold;
+  font-weight: 700;
   color: #8a2be2;
 }
-
 
 .rankings-table td.gold {
   color: #FFD700;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 .rankings-table td.silver {
   color: #C0C0C0;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 .rankings-table td.bronze {
   color: #CD7F32;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
-.rankings-table tr.gold-row {
-  background-color: rgba(255, 215, 0, 0.1);
+
+@media (max-width: 767px) {
+
+
+  .rankings-table {
+    min-width: 550px;
+  }
+
+  .rankings-table th,
+  .rankings-table td {
+    padding: 10px 8px;
+    font-size: 0.85em;
+  }
+
+
+  .rankings-table th:nth-child(1), .rankings-table td:nth-child(1) { width: 10%; text-align: center; }
+  .rankings-table th:nth-child(2), .rankings-table td:nth-child(2) { width: 30%; }
+  .rankings-table th:nth-child(3), .rankings-table td:nth-child(3) { width: 15%; text-align: center; }
+  .rankings-table th:nth-child(4), .rankings-table td:nth-child(4) { width: 23%; text-align: center; }
+  .rankings-table th:nth-child(5), .rankings-table td:nth-child(5) { width: 22%; text-align: center; }
 }
 
-.rankings-table tr.silver-row {
-  background-color: rgba(192, 192, 192, 0.1);
-}
-
-.rankings-table tr.bronze-row {
-  background-color: rgba(205, 127, 50, 0.1);
+@media (min-width: 768px) and (max-width: 1023px) {
+  rankings-table th,
+  .rankings-table td {
+    padding: 12px 10px;
+    font-size: 0.95em;
+  }
 }

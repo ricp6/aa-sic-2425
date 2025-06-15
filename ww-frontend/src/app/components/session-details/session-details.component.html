@@ -1,26 +1,33 @@
 <div class="session-detail-container" *ngIf="session">
-  <div class="header-section">
-    <button class="back-button" (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
-      Back
-    </button>
-  </div>
-
   <div class="content-wrapper">
     <div class="left-column">
-      <div class="session-data-header-card"> <h2>Session Details</h2>
+
+      <div class="session-data-header-card">
+        <button class="back-button" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2>Session Details</h2>
       </div>
 
 
       <h2>Podium</h2>
-      <div class="podium-grid">
-        <div class="podium-item" *ngFor="let entry of podium"
-             [class.gold-podium]="entry.finalPosition === 1"
-             [class.silver-podium]="entry.finalPosition === 2"
-             [class.bronze-podium]="entry.finalPosition === 3">
-          <img [src]="entry.driverPicture" alt="{{ entry.driverName }} Profile">
-          <p class="driver-name">{{ entry.driverName }}</p>
-          <span class="position-badge">{{ entry.finalPosition }}</span>
+      <div class="podium-grid-real">
+        <div class="podium-item silver-podium second-place" *ngIf="podium[1]">
+          <img [src]="podium[1].driverPicture" alt="{{ podium[1].driverName }} Profile">
+          <p class="driver-name">{{ podium[1].driverName }}</p>
+          <span class="position-badge">{{ podium[1].finalPosition }}</span>
+        </div>
+
+        <div class="podium-item gold-podium first-place" *ngIf="podium[0]">
+          <img [src]="podium[0].driverPicture" alt="{{ podium[0].driverName }} Profile">
+          <p class="driver-name">{{ podium[0].driverName }}</p>
+          <span class="position-badge">{{ podium[0].finalPosition }}</span>
+        </div>
+
+        <div class="podium-item bronze-podium third-place" *ngIf="podium[2]">
+          <img [src]="podium[2].driverPicture" alt="{{ podium[2].driverName }} Profile">
+          <p class="driver-name">{{ podium[2].driverName }}</p>
+          <span class="position-badge">{{ podium[2].finalPosition }}</span>
         </div>
       </div>
 
@@ -67,13 +74,15 @@
             {{ classification.finalPosition }}.
           </td>
           <td>
-            <img [src]="classification.driverPicture" alt="{{ classification.driverName }} Profile">
-            {{ classification.driverName }}
+            <div class="pilot-info">
+              <img [src]="classification.driverPicture" alt="{{ classification.driverName }} Profile" class="driver-profile-mini">
+              <span>{{ classification.driverName }}</span>
+            </div>
           </td>
           <td>{{ classification.kartNumber }}</td>
           <td>{{ classification.totalLaps }}</td>
-          <td>{{ classification.averageLapTime.toFixed(3) }}</td>
-          <td>{{ classification.bestLapTime.toFixed(3) }}</td>
+          <td class="align-center-value">{{ classification.averageLapTime.toFixed(3) }}</td>
+          <td class="align-center-value">{{ classification.bestLapTime.toFixed(3) }}</td>
         </tr>
         </tbody>
       </table>

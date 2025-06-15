@@ -1,3 +1,5 @@
+/* tracks.component.css */
+
 #tracks-content {
   display: flex;
   height: 100%;
@@ -20,6 +22,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 #title {
@@ -32,6 +35,8 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 #filter-favs {
@@ -163,7 +168,6 @@
 }
 
 .star-button-container {
-  /* gives 15px of margin-top/bottom */
   height: 70px;
 }
 
@@ -241,4 +245,154 @@
   font-style: italic;
   margin-top: 5px;
   display: block;
+}
+
+
+
+@media (max-width: 768px) {
+  #tracks-content {
+    flex-direction: column;
+    height: auto;
+  }
+
+  #banner-image {
+    width: 100%;
+    height: 200px;
+  }
+
+  #tracks-container {
+    width: 100%;
+    padding: 15px;
+  }
+
+  #tracks-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  #tracks-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  #search-field {
+    min-width: auto;
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+
+  #filter-favs,
+  .operational-toggle {
+    flex-shrink: 0;
+  }
+
+  #track-list-container.simple {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .track-card {
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100% !important;
+    padding: 10px;
+  }
+
+  .track-image {
+    width: 100%;
+    height: 150px;
+    margin-bottom: 10px;
+  }
+
+  .track-image img {
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .track-info {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px !important;
+  }
+
+  .track-details,
+  .track-stats {
+    width: 100%;
+    align-items: center;
+  }
+
+  .star-button-container {
+    height: auto;
+    margin-top: 10px;
+  }
+
+  .track-name {
+    font-size: 1.2em;
+  }
+
+  .filter-panel-content {
+    padding: 10px;
+  }
+
+  .days-filter-buttons button {
+    font-size: 0.8em;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  #tracks-container {
+    padding: 10px;
+  }
+
+  #title {
+    font-size: 24px;
+
+  #tracks-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #filter-favs,
+  .operational-toggle {
+    width: 100%;
+    height: auto;
+    padding: 10px 0;
+    justify-content: center;
+  }
+
+  .operational-toggle {
+    margin-bottom: 0;
+  }
+
+  #search-field {
+    margin-bottom: 0;
+  }
+
+  .track-image {
+    height: 120px;
+  }
+
+  .track-name {
+    font-size: 1.1em;
+  }
+
+  .days-filter-buttons {
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .days-filter-buttons button {
+    padding: 4px 8px;
+    font-size: 0.7em;
+  }
 }
