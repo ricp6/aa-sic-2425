@@ -7,6 +7,7 @@ export interface User {
   favoriteTrackIds: number[],
   token: string,
   refreshToken: string,
+  profilePicture: string,
 }
 
 export interface TokenResponse {

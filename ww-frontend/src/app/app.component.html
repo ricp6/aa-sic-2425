@@ -35,8 +35,9 @@
         notifications_none
       </mat-icon>
       </button>
-      <button mat-stroked-button [matMenuTriggerFor]="profilemenu" type="button" id="user-button" tabindex="0"> {{ userName }}
-        <mat-icon>account_circle</mat-icon>
+      <button mat-stroked-button [matMenuTriggerFor]="profilemenu" type="button" id="user-button" tabindex="0">
+        {{ userName }}
+        <img [src]="profilePicture" alt="User Profile Picture" class="user-profile-picture">
       </button>
     </div>
     <mat-menu #profilemenu="matMenu" id="user-menu">

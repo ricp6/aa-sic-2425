@@ -44,6 +44,7 @@ export interface DaySchedule {
 }
 
 export interface TrackRanking {
+    profilePicture: string;
     driverName: string;
     date: string; // Use string for LocalDate (e.g., "2023-10-26")
     kartNumber: string;

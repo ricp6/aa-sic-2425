@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, HostListener } from '@angular/core';
 import { SimpleTrack } from '../../interfaces/track';
 import { Router } from '@angular/router';
 import { TrackService } from '../../services/track.service';
@@ -7,12 +7,14 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit{
-  
+export class HomeComponent implements OnInit {
+
   tracks: SimpleTrack[] | null = null;
-  
+
+  @ViewChild('heroImage', { static: true }) heroImage!: ElementRef;
+
   constructor(
     private readonly router: Router,
     private readonly tracksService: TrackService,
@@ -22,27 +24,24 @@ export class HomeComponent implements OnInit{
   ngOnInit(): void {
     this.tracksService.getTracksCached().subscribe({
       next: (tracks) => {
-        // Keep only available tracks
         this.tracks = tracks.filter(track => track.available);
       },
       error: (err) => {
         console.error(err);
-        this.toastr.warning("Please refresh the page or try again later.", "Sorry! We could not load the tracks.");
+        this.toastr.warning("Por favor, atualize a página ou tente novamente mais tarde.", "Desculpe! Não conseguimos carregar as pistas.");
       }
     });
   }
 
-  @ViewChild('scrollContainer', { static: true }) scrollContainer!: ElementRef;
-
-  scrollLeft(): void {
-    this.scrollContainer.nativeElement.scrollBy({ left: -600, behavior: 'smooth' });
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll() {
+    const scrollPosition = window.pageYOffset;
+    if (this.heroImage) {
+      this.heroImage.nativeElement.style.transform = `translateY(${scrollPosition * 0.3}px)`;
+    }
   }
 
-  scrollRight(): void {
-    this.scrollContainer.nativeElement.scrollBy({ left: 600, behavior: 'smooth' });
-  }
-
-  showTrack(track : SimpleTrack) {
+  showTrack(track: SimpleTrack) {
     this.router.navigate(['/tracks', track.id], {
       state: { track: track }
     });

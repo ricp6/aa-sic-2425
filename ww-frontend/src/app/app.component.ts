@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { User } from './interfaces/user';
@@ -7,6 +7,9 @@ import { filter } from 'rxjs';
 import { TrackService } from './services/track.service';
 import { NotificationService } from './services/notification.service';
 import { ViewService } from './services/view.service';
+import { MatTabNavPanel } from '@angular/material/tabs'; // Keep this import
+import { MatSidenav } from '@angular/material/sidenav'; // Import MatSidenav
+
 
 @Component({
   selector: 'app-root',
@@ -14,6 +17,9 @@ import { ViewService } from './services/view.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
+
+  @ViewChild('tabPanel') tabPanel!: MatTabNavPanel;
+  @ViewChild('sidenav') sidenav!: MatSidenav; // Reference to the sidenav
 
   user: User | null = null;
   isAuthPage: boolean = false;
@@ -31,6 +37,10 @@ export class AppComponent implements OnInit {
 
   get isOwner(): boolean {
     return this.user?.userType === 'OWNER';
+  }
+
+  get profilePicture(): string | undefined {
+    return this.user?.profilePicture;
   }
 
   constructor(
