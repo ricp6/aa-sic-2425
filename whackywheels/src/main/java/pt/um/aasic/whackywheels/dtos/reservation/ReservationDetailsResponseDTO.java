@@ -16,10 +16,11 @@ public class ReservationDetailsResponseDTO {
     private String trackName;
     private List<SimpleSessionResponseDTO> sessions;
     private List<ParticipantResponseDTO> participants;
+    private Long creatorId;
 
     public ReservationDetailsResponseDTO() {}
 
-    public ReservationDetailsResponseDTO(Long id, LocalDate reservationDate, ReservationStatus status, Long trackId, String trackName, List<SimpleSessionResponseDTO> sessions, List<ParticipantResponseDTO> participants, Double price) {
+    public ReservationDetailsResponseDTO(Long id, LocalDate reservationDate, ReservationStatus status, Long trackId, String trackName, List<SimpleSessionResponseDTO> sessions, List<ParticipantResponseDTO> participants, Double price, Long creatorId) {
         this.id = id;
         this.reservationDate = reservationDate;
         this.status = status;
@@ -28,6 +29,7 @@ public class ReservationDetailsResponseDTO {
         this.sessions = sessions;
         this.participants = participants;
         this.price = price;
+        this.creatorId = creatorId;
     }
 
     public Long getId() { return id; }
@@ -46,5 +48,7 @@ public class ReservationDetailsResponseDTO {
     public void setParticipants(List<ParticipantResponseDTO> participants) { this.participants = participants; }
     public Double getPrice() { return price; }
     public void setPrice(Double price) { this.price = price;}
+    public Long getCreatorId() { return creatorId; }
+    public void setCreatorId(Long creatorId) { this.creatorId = creatorId;}
 }
 

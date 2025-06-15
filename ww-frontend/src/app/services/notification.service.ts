@@ -9,7 +9,7 @@ import { AuthService } from './auth.service'; // Importar AuthService
   providedIn: 'root'
 })
 export class NotificationService {
-  private readonly apiUrl = 'http://localhost:8080/api/notifications';
+  private readonly apiUrl = 'http://localhost/api/notifications';
   private readonly POLLING_INTERVAL_MS = 600000;
 
   private readonly _unreadNotificationCount = new BehaviorSubject<number>(0); // Inicializar com 0

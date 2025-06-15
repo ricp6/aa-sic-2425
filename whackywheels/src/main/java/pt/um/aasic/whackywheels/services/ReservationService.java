@@ -202,7 +202,7 @@ public class ReservationService {
             .mapToLong(session -> java.time.Duration.between(session.getBookedStartTime(), session.getBookedEndTime()).toMinutes())
             .sum();
         double price = calculateSessionCost(savedReservation, totalSessionDurationMinutes);
-
+        long creatorId = savedReservation.getCreatedByUserId() != null ? savedReservation.getCreatedByUserId() : currentUserId;
         return new ReservationDetailsResponseDTO(
                 savedReservation.getId(),
                 savedReservation.getDate(),
@@ -211,7 +211,8 @@ public class ReservationService {
                 savedReservation.getTrack().getName(),
                 sessionResponses,
                 participantResponses,
-                price
+                price,
+                creatorId
         );
     }
 
@@ -258,7 +259,7 @@ public class ReservationService {
             .sum();
 
         double price = calculateSessionCost(reservation, totalSessionDurationMinutes);
-
+        long creatorId = reservation.getCreatedByUserId() != null ? reservation.getCreatedByUserId() : userId;
         return new ReservationDetailsResponseDTO(
                 reservation.getId(),
                 reservation.getDate(),
@@ -267,7 +268,8 @@ public class ReservationService {
                 reservation.getTrack().getName(),
                 sessionResponses,
                 participantResponses,
-                price
+                price,
+                creatorId
                 );
         }
 
@@ -677,7 +679,7 @@ public class ReservationService {
                 .mapToLong(session -> java.time.Duration.between(session.getBookedStartTime(), session.getBookedEndTime()).toMinutes())
                 .sum();
         double price = calculateSessionCost(savedReservation, totalSessionDurationMinutes);
-
+        long creatorId = savedReservation.getCreatedByUserId() != null ? savedReservation.getCreatedByUserId() : currentUserId;
         return new ReservationDetailsResponseDTO(
                 savedReservation.getId(),
                 savedReservation.getDate(),
@@ -686,7 +688,8 @@ public class ReservationService {
                 savedReservation.getTrack().getName(),
                 sessionResponses,
                 participantResponses,
-                price
+                price,
+                creatorId
         );
     }
     private Double calculateSessionCost(Reservation reservation, long totalSessionDurationMinutes) {

@@ -19,7 +19,7 @@
 
   <div class="tracks-grid-container" *ngIf="tracks && tracks.length > 0; else noTracks">
     <mat-card class="track-card" *ngFor="let track of tracks" (click)="showTrack(track)">
-      <img mat-card-image [src]="track.image" [alt]="track.name" />
+      <img mat-card-image [src]="track.image" [alt]="track.name" loading="lazy" />
       <mat-card-content>
         <mat-card-title>{{ track.name }}</mat-card-title>
         <mat-card-subtitle>{{ track.address }}</mat-card-subtitle>

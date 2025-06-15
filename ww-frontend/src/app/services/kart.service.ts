@@ -8,7 +8,7 @@ import { Kart } from '../interfaces/kart';
   providedIn: 'root'
 })
 export class KartService {
-  private readonly kartsURL = 'http://localhost:8080/api/karts';
+  private readonly kartsURL = 'http://localhost/api/karts';
 
   constructor(
     private readonly http: HttpClient,
