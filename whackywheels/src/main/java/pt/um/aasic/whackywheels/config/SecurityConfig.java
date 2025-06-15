@@ -74,7 +74,8 @@ public class SecurityConfig {
                                 "/api/sessions/{sessionId}/{participantId}/{lapTime}",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/actuator/health"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

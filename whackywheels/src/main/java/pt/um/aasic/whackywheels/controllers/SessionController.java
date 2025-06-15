@@ -83,10 +83,13 @@ public class SessionController {
     public ResponseEntity<?> endSession(@PathVariable Long sessionId, @AuthenticationPrincipal User authenticatedUser) {
         try {
             sessionService.endSession(sessionId);
+            log.info("Session {} ended successfully by user {}", sessionId, authenticatedUser.getId());
             return ResponseEntity.ok("Session " + sessionId + " ended and classifications calculated successfully.");
         } catch (IllegalArgumentException | IllegalStateException e) {
+            log.error("Error ending session: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error ending session: {}", e.getMessage());
             return new ResponseEntity<>("Error ending session: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -95,10 +98,13 @@ public class SessionController {
     public ResponseEntity<?> addLapTime(@PathVariable Long sessionId, @PathVariable Long participantId, @PathVariable Double lapTime, @AuthenticationPrincipal User authenticatedUser) {
         try {
             sessionService.recordLapTime(sessionId, participantId, lapTime);
+            log.info("Lap time {} added for participant {} in session {}", lapTime, participantId, sessionId);
             return ResponseEntity.ok("Lap time added successfully.");
         } catch (IllegalArgumentException e) {
+            log.error("Error adding lap time: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error adding lap time: {}", e.getMessage());
             return new ResponseEntity<>("Error adding lap time: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

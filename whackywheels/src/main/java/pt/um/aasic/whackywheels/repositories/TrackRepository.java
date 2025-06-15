@@ -50,6 +50,7 @@ public interface TrackRepository extends JpaRepository<Track, Long> {
             "p.user.name, " +
             "r.date, " +
             "k.kartNumber, " +
+            "p.user.profilePicture, "+
             "MIN(tpl.lapTime) " +
             "FROM Track t " +
             "JOIN t.reservations r " +
@@ -58,7 +59,7 @@ public interface TrackRepository extends JpaRepository<Track, Long> {
             "JOIN p.timePerLaps tpl " +
             "WHERE t.id = :trackId " +
             "AND tpl.lapTime IS NOT NULL " +
-            "GROUP BY p.id, p.user.name, r.date, k.kartNumber " +
+            "GROUP BY p.id, p.user.name, p.user.profilePicture, r.date, k.kartNumber " +
             "ORDER BY MIN(tpl.lapTime) ASC " +
             "LIMIT 20")
     List<Object[]> findTopRankingsByTrackId(@Param("trackId") Long trackId);

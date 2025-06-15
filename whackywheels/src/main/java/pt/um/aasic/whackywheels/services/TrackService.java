@@ -119,11 +119,11 @@ public class TrackService {
             String driverName = (String) row[0];
             LocalDate sessionDateTime = (LocalDate) row[1]; // Expected type from r.date
             Integer kartNumber = (Integer) row[2];
-            Double lapTime = (Double) row[3];
-
+            String profilePicture = (String) row[3];
+            Double lapTime = (Double) row[4];
             // Create TrackRankingDTO.
             // Using the constructor that takes LocalDateTime for the date.
-            rankings.add(new TrackRankingDTO(driverName, sessionDateTime, kartNumber, lapTime));
+            rankings.add(new TrackRankingDTO(driverName, sessionDateTime, kartNumber, lapTime, profilePicture));
         }
 
         // Map and return the complete DTO

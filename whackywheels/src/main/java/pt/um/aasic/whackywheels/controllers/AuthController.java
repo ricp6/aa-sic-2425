@@ -87,6 +87,8 @@ public class AuthController {
 
             String acessToken = jwtService.generateAccessToken(authenticatedUser);
             String refreshToken = jwtService.generateRefreshToken(authenticatedUser);
+            
+            String profilePicture = authenticatedUser.getProfilePicture();
 
             LoginResponseDTO  loginResponse  = new LoginResponseDTO(
                     authenticatedUser.getId(),
@@ -96,7 +98,8 @@ public class AuthController {
                     unreadNotificationCount,
                     favoriteTrackIds,
                     acessToken,
-                    refreshToken
+                    refreshToken,
+                    profilePicture
             );
             log.info("User logged in successfully: {}", request.getEmail());
             return new ResponseEntity<>(loginResponse, HttpStatus.OK);

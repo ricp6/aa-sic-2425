@@ -1,5 +1,7 @@
 package pt.um.aasic.whackywheels.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -29,10 +31,13 @@ public class UserController {
     public ResponseEntity<String> addFavoriteTrack(@AuthenticationPrincipal User authenticatedUser, @PathVariable Long trackId) {
         try {
             userService.addFavoriteTrack(authenticatedUser.getId(), trackId);
+            log.info("Track with ID {} added to favorites for user {}", trackId, authenticatedUser.getId());
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error adding track to favorites: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            log.error("Error adding track to favorites: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Error adding track to favorites.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -43,10 +48,13 @@ public class UserController {
     public ResponseEntity<String> removeFavoriteTrack(@AuthenticationPrincipal User authenticatedUser, @PathVariable Long trackId) {
         try {
             userService.removeFavoriteTrack(authenticatedUser.getId(), trackId);
+            log.info("Track with ID {} removed from favorites for user {}", trackId, authenticatedUser.getId());
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error removing track from favorites: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            log.error("Error removing track from favorites: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Error removing track from favorites.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -62,9 +70,10 @@ public class UserController {
 
             // Usar el servicio que construye el DTO limpio
             UserProfileDTO dto = userService.getUserProfile(authenticatedUser.getId());
+            log.info("User profile retrieved successfully for user ID {}", authenticatedUser.getId());
             return ResponseEntity.ok(dto);
-
         } catch (Exception e) {
+            log.error("Error retrieving user profile: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user profile: " + e.getMessage());
         }
     }
@@ -78,10 +87,13 @@ public class UserController {
             }
 
             userService.changeUserPassword(authenticatedUser.getId(), request.getCurrentPassword(), request.getNewPassword());
+            log.info("Password changed successfully for user ID {}", authenticatedUser.getId());
             return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
         } catch (IllegalArgumentException e) {
+            log.error("Error changing password: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
+            log.error("Error changing password: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Internal error"));
         }
     }
@@ -94,8 +106,10 @@ public class UserController {
             String newEmail = updates.get("email");
 
             userService.updateUserProfile(user.getId(), newName, newEmail);
+            log.info("Profile updated successfully for user ID {}", user.getId());
             return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
         } catch (IllegalArgumentException e) {
+            log.error("Error updating profile: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
