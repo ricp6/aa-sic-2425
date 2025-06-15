@@ -516,7 +516,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             sessionRepository.save(session1_res3);
 
             Session session1_res4 = new Session(LocalTime.of(11, 0), LocalTime.of(11, 5), reservation4, null, null);
-            sessionRepository.save(session1_res2);
+            sessionRepository.save(session1_res4);
 
             Session completedSession1 = new Session(LocalTime.of(10, 0), LocalTime.of(10, 15), completedReservation1, LocalTime.of(10, 0), LocalTime.of(10, 15));
             sessionRepository.save(completedSession1);
@@ -544,7 +544,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             Participant participant4_res1 = new Participant(user4, kart3_track1, reservation1);
             participantRepository.save(participant4_res1);
 
-            Participant participant1_res2 = new Participant(user2, kart1_track2, reservation2);
+            Participant participant1_res2 = new Participant(user3, kart1_track2, reservation2);
             participantRepository.save(participant1_res2);
 
             Participant participant4_res2 = new Participant(user4, kart2_track2, reservation2);
