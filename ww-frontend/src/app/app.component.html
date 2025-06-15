@@ -9,17 +9,17 @@
   <div id="nav-right-group">
 
     <div id="nav-links">
-      <a mat-tab-link *ngIf="!isEnterpriseView" routerLink="tracks"
+      <a mat-tab-link *ngIf="!isEnterpriseView" routerLink="tracks" id="tracks-link"
          routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Tracks
       </a>
-      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations"
+      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations" id="reservations-link"
          routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Reservations
       </a>
-      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions"
+      <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions" id="sessions-link"
          routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Sessions
       </a>
 
-      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/tracks"
+      <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/tracks" id="my-tracks-link"
          routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> My Tracks
       </a>
     </div>
