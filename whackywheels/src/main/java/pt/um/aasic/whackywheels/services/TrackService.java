@@ -85,11 +85,8 @@ public class TrackService {
     @Transactional(readOnly = true)
     public TrackDetailsResponseDTO findTrack(Long id) {
         // *** OPTIMIZED LINE: Use the custom query to fetch Track with day schedules and karts ***
-        Track track = trackRepository.findByIdWithDaySchedulesAndKarts(id).orElse(null);
-
-        if (track == null) {
-            return null;
-        }
+        Track track = trackRepository.findByIdWithDaySchedulesAndKarts(id)
+                .orElseThrow(() -> new IllegalArgumentException("Track with ID " + id + " not found."));
 
         // 1. Get available karts count
         // Now 'track.getKarts()' is already initialized because of JOIN FETCH

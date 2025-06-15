@@ -12,6 +12,7 @@ import { FormControl } from '@angular/forms';
 import { startWith, map } from 'rxjs/operators';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ViewService } from '../../services/view.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-tracks',
@@ -61,7 +62,8 @@ export class TracksComponent implements OnInit, OnDestroy {
     private readonly viewService: ViewService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly tracksService: TrackService
+    private readonly tracksService: TrackService,
+    private readonly toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -90,7 +92,7 @@ export class TracksComponent implements OnInit, OnDestroy {
         this.applyFilters();
       },
       error: (err) => {
-        console.error("Failed to load tracks", err);
+        // console.error("Failed to load tracks", err)
         this.tracks = [];
       }
     });
@@ -116,7 +118,7 @@ export class TracksComponent implements OnInit, OnDestroy {
           this.advancedFiltersLoaded = true;
         },
         error: (err) => {
-          console.error("Failed to load advanced filter data", err);
+          // console.error("Failed to load advanced filter data", err)
         }
       });
     }
@@ -172,8 +174,7 @@ export class TracksComponent implements OnInit, OnDestroy {
     return this.selectedDaysToFilterBy.includes(day);
   }
 
-  applyFilters(): void {
-  }
+  applyFilters(): void { }
 
   filteredTracks(): TrackWithRecords[] | undefined {
     if (!this.tracks) {
@@ -209,8 +210,6 @@ export class TracksComponent implements OnInit, OnDestroy {
           matchesDayFilter = this.selectedDaysToFilterBy.some(day =>
             !trackFilterInfo?.notOpen?.includes(day)
           );
-        } else {
-          matchesDayFilter = true;
         }
       }
 
@@ -224,9 +223,17 @@ export class TracksComponent implements OnInit, OnDestroy {
 
   setFav(track: TrackWithRecords): void {
     if (!this.isFav(track)) {
-      this.userService.addFavorite(track.id).subscribe();
+      this.userService.addFavorite(track.id).subscribe({
+        next: () => {
+          this.toastr.success("Track added to the favorites!");
+        }
+      });
     } else {
-      this.userService.removeFavorite(track.id).subscribe();
+      this.userService.removeFavorite(track.id).subscribe({
+        next: () => {
+          this.toastr.info("Track removed from the favorites.");
+        }
+      });
     }
   }
 

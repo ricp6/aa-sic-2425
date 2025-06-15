@@ -221,8 +221,8 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findByParticipants_UserId(userId);
         return reservations.stream()
                 .map(reservation -> {
-                    Integer numSessions = reservation.getSessions().size() != 0 ? (int) reservation.getSessions().size() : 0;
-                    Integer numParticipants = reservation.getParticipants().size() != 0 ? (int) reservation.getParticipants().size() : 0;
+                    Integer numSessions = !reservation.getSessions().isEmpty() ? (int) reservation.getSessions().size() : 0;
+                    Integer numParticipants = !reservation.getParticipants().isEmpty() ? (int) reservation.getParticipants().size() : 0;
                     return new ReservationResponseDTO(
                             reservation.getId(),
                             reservation.getDate(),
@@ -314,8 +314,8 @@ public class ReservationService {
                 trackId, ownerId, targetStatuses);
         return reservations.stream()
                 .map(reservation -> {
-                    Integer numSessions = reservation.getSessions().size() != 0 ? (int) reservation.getSessions().size() : 0;
-                    Integer numParticipants = reservation.getParticipants().size() != 0 ? (int) reservation.getParticipants().size() : 0;
+                    Integer numSessions = !reservation.getSessions().isEmpty() ? (int) reservation.getSessions().size() : 0;
+                    Integer numParticipants = !reservation.getParticipants().isEmpty() ? (int) reservation.getParticipants().size() : 0;
                     return new ReservationResponseDTO(
                             reservation.getId(),
                             reservation.getDate(),
@@ -339,14 +339,14 @@ public class ReservationService {
             throw new IllegalArgumentException("Only the owner can view reservations for this track.");
         }
 
-        List<ReservationStatus> targetStatuses = Arrays.asList(ReservationStatus.CONCLUDED);
+        List<ReservationStatus> targetStatuses = List.of(ReservationStatus.CONCLUDED);
 
         List<Reservation> reservations = reservationRepository.findByTrackIdAndTrackOwnerIdAndStatuses(
                 trackId, ownerId, targetStatuses);
         return reservations.stream()
                 .map(reservation -> {
-                    Integer numSessions = reservation.getSessions().size() != 0 ? (int) reservation.getSessions().size() : 0;
-                    Integer numParticipants = reservation.getParticipants().size() != 0 ? (int) reservation.getParticipants().size() : 0;
+                    Integer numSessions = !reservation.getSessions().isEmpty() ? (int) reservation.getSessions().size() : 0;
+                    Integer numParticipants = !reservation.getParticipants().isEmpty() ? (int) reservation.getParticipants().size() : 0;
                     return new ReservationResponseDTO(
                             reservation.getId(),
                             reservation.getDate(),
@@ -371,8 +371,11 @@ public class ReservationService {
             }
 
             DayOfWeek dayOfWeek = date.getDayOfWeek();
-            DaySchedule trackSchedule = dayScheduleRepository.findByTrackAndDay(track, dayOfWeek)
-                    .orElseThrow(() -> new IllegalArgumentException("Track is not open on " + dayOfWeek.name() + "."));
+            Optional<DaySchedule> optionalSchedule = dayScheduleRepository.findByTrackAndDay(track, dayOfWeek);
+            if (optionalSchedule.isEmpty()) {
+                return Collections.emptyList();
+            }
+            DaySchedule trackSchedule = optionalSchedule.get();
 
             LocalTime openingTime = trackSchedule.getOpeningTime();
             LocalTime closingTime = trackSchedule.getClosingTime();
@@ -478,7 +481,7 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("Booking user not found with ID: " + reservation.getCreatedByUserId()));
         
         String notificationTitle = "Reservation #" + reservation.getId() + " rejected";
-        String notificationMessage = String.format("Your reservation on track '%s' to %s has been rejected. Message from owner: %s",
+        String notificationMessage = String.format("Your reservation on track '%s' to %s has been rejected.",
                 reservation.getTrack().getName(),
                 reservation.getDate().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
 

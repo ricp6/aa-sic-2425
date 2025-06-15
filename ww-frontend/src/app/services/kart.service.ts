@@ -17,18 +17,23 @@ export class KartService {
 
   getKartsAvailable(trackId: number): Observable<Kart[]> {
     return this.http.get<Kart[]>(`${this.kartsURL}/available/${trackId}`).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.log("erro obter karts available")
-        console.error(error)
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the karts available at this track', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
+  }
+
+  private handleError() {
+    return (error: HttpErrorResponse): Observable<never> => {
+      // console.error(error)
+      if (error.status === 400) {
+        this.toastr.warning(error.message, 'Invalid data!');
+      } else if (error.status === 401) {
+        this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+      } else if (error.status === 403) {
+        this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+      } else {
+        this.toastr.error('An unexpected error occurred while loading some necessary data', 'Server error');
+      }
+      return throwError(() => error);
+    }
   }
 }

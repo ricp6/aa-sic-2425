@@ -1,7 +1,9 @@
 .notifications-container {
   padding: 20px;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
 }
 
 h2, h3 {
@@ -33,6 +35,9 @@ h3 {
   box-sizing: border-box;
   border-radius: 8px;
   color: #333;
+  margin-bottom: 10px;
+  cursor: default;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .notification-card mat-card-header {
@@ -53,25 +58,6 @@ h3 {
   gap: 5px;
 }
 
-
-.unread-card {
-  border: 1px solid #3f51b5;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-
-.read-card {
-  opacity: 0.8;
-  border: 1px solid #ddd;
-}
-
-
-@media (max-width: 600px) {
-  .notifications-container {
-    padding: 10px;
-  }
-}
-
 .unread-card {
   border: 1px solid #3f51b5;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -79,23 +65,15 @@ h3 {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.unread-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-
 .read-card {
   opacity: 0.8;
   border: 1px solid #ddd;
+  background-color: #f0f0f0;
 }
 
-.notifications-container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+.unread-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 mat-card {
@@ -115,13 +93,6 @@ mat-card-title {
   justify-content: flex-end;
 }
 
-.notification-card {
-  width: 100%;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  cursor: default;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
 
 .notification-card h4 {
   margin: 0;
@@ -150,25 +121,14 @@ mat-card-title {
   margin-top: 10px;
 }
 
-.unread-card {
-  border: 1px solid #3f51b5;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
-
-.unread-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.read-card {
-  opacity: 0.8;
-  border: 1px solid #ddd;
-  background-color: #f0f0f0;
-}
-
 .no-notifications {
   text-align: center;
   color: #777;
   padding: 20px;
+}
+
+@media (max-width: 600px) {
+  .notifications-container {
+    padding: 10px;
+  }
 }

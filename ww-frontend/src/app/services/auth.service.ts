@@ -52,19 +52,8 @@ export class AuthService {
         this.userSubject.next(user);
         this.tokenSubject.next(user.token);
         this.refreshTokenSubject.next(user.refreshToken);
-        // Notify user
-        this.toastr.success('Your login was successful!', 'Welcome ' + user.name);
       }),
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Bad credentials.', 'Authentication error');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while processing the login.', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
@@ -92,11 +81,6 @@ export class AuthService {
         if (response?.accessToken) {
           localStorage.setItem('token', response.accessToken);
           this.tokenSubject.next(response.accessToken); // Update token subject
-
-          // Optional: If you also get a new refresh token, store it here
-          // if (response.refreshToken) {
-          //   localStorage.setItem('refreshToken', response.refreshToken);
-          // }
 
           // Update the user object with the new token if it's stored there
           const currentUser = this.getCurrentUser();
@@ -126,17 +110,7 @@ export class AuthService {
 
   register(data: { name: string; email: string; password: string }): Observable<User> {
     return this.http.post<User>(this.authURL + '/register', data).pipe(
-      tap(() => {
-        this.toastr.success('Your account was successfully created!', 'Welcome ' + data.name + '. Please log in.');
-      }),
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 400) {
-          this.toastr.warning(error.error ?? 'Invalid data given.', 'Registration error');
-        } else {
-          this.toastr.error('An error occurred while processing the registration.', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
@@ -194,5 +168,21 @@ export class AuthService {
         this.refreshTokenSubject.next(updatedUser.refreshToken);
     }
     this.userSubject.next(updatedUser);
+  }
+
+  private handleError() {
+    return (error: HttpErrorResponse): Observable<never> => {
+      // console.error(error)
+      if (error.status === 400) {
+        this.toastr.warning(error.message, 'Invalid data!');
+      } else if (error.status === 401) {
+        this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+      } else if (error.status === 403) {
+        this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+      } else {
+        this.toastr.error('An unexpected error occurred while loading some necessary data', 'Server error');
+      }
+      return throwError(() => error);
+    }
   }
 }

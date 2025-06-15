@@ -21,7 +21,7 @@ export class JwtInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authService.getToken();
-    // console.log("intercepted request: ", request.url);
+    // console.log("intercepted request: ", request.url)
     
     if (token &&
         !request.headers.has('Authorization') && // Only set if not already present
@@ -43,8 +43,8 @@ export class JwtInterceptor implements HttpInterceptor {
     // Handle the request and catch errors
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        // console.log("Interceptor: Request failed. Status:", error.status, "URL:", request.url);
-        // console.error(error);
+        // console.log("Interceptor: Request failed. Status:", error.status, "URL:", request.url)
+        // console.error(error)
 
         // Check if the error is 401 
         // AND the message indicates an invalid/expired token 
@@ -60,7 +60,7 @@ export class JwtInterceptor implements HttpInterceptor {
           // console.log("entered if")
           // If a refresh is already in progress, queue this request
           if (this.isRefreshing) {
-            // console.log("Interceptor: Token refresh in progress. Queuing request.");
+            // console.log("Interceptor: Token refresh in progress. Queuing request.")
             return this.refreshTokenSubject.pipe(
               filter(token => token !== null), // Wait until a new token is emitted
               take(1), // Take only one value (the new token)
@@ -69,7 +69,7 @@ export class JwtInterceptor implements HttpInterceptor {
                 const clonedRequest = request.clone({
                   setHeaders: { Authorization: `Bearer ${newToken}` }
                 });
-                console.log("Interceptor: Retrying queued request with new token.");
+                // console.log("Interceptor: Retrying queued request with new token.");
                 return next.handle(clonedRequest);
               })
             );
@@ -79,7 +79,7 @@ export class JwtInterceptor implements HttpInterceptor {
             this.isRefreshing = true;
             this.refreshTokenSubject.next(null); // Clear previous token, signaling refresh is ongoing
 
-            // console.log("Interceptor: Initial 401. Attempting token refresh.");
+            // console.log("Interceptor: Initial 401. Attempting token refresh.")
 
             return this.authService.refreshAccessToken().pipe(
               switchMap(response => {
@@ -93,7 +93,7 @@ export class JwtInterceptor implements HttpInterceptor {
                 const clonedRequest = request.clone({
                   setHeaders: { Authorization: `Bearer ${newToken}` }
                 });
-                // console.log("Interceptor: Token refreshed. Retrying original request.");
+                // console.log("Interceptor: Token refreshed. Retrying original request.")
                 return next.handle(clonedRequest); // This is the **single retry** of the original request
               }),
               catchError(refreshError => {

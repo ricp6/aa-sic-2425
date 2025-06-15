@@ -17,6 +17,12 @@ export class UserService {
     private readonly toastr: ToastrService
   ) {}
 
+  getAllUsers(): Observable<SimpleUser[]> {
+    return this.http.get<SimpleUser[]>(`${this.userURL}`).pipe(
+      catchError(this.handleError())
+    );
+  }
+
   addFavorite(trackId: number): Observable<void> {
     return this.http.post<void>(`${this.userURL}/favorites/add/${trackId}`, null).pipe(
       tap(() => {
@@ -27,20 +33,8 @@ export class UserService {
             this.authService.updateUser(user);
           }
         }
-        this.toastr.success("Track added to the favorites!");
       }),
-      catchError((error: HttpErrorResponse) => { 
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else if (error.status === 404) {
-          this.toastr.warning('Track or user not found', 'Failed to add favorite');
-        } else {
-          this.toastr.error('An error occurred while adding the track to the favorites', 'Server error');
-        }
-        return throwError(() => error); // Propagate the error for component-specific handling if needed
-      })
+      catchError(this.handleError())
     );
   }
 
@@ -53,33 +47,11 @@ export class UserService {
           user.favoriteTrackIds = user.favoriteTrackIds.filter(id => id !== trackId);
           this.authService.updateUser(user);
         }
-        this.toastr.info("Track removed from the favorites.");
       }),
-      catchError((error: HttpErrorResponse) => { 
-        // console.log("erro remove favorite: ")
-        // console.error(error)
-        if (error.status === 401) {
-          // If you see 401 here, it means:
-          // 1. No refresh token existed.
-          // 2. Refresh failed.
-          // 3. Refresh succeeded, but the retried request *still* got 401.
-          // In all these cases, the user should already be logged out by the interceptor/auth service.
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-          // You might not even need specific logout here, as the interceptor or authService will do it.
-          // The main goal here is to inform the user.
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else if (error.status === 404) {
-          this.toastr.warning('Track or user not found', 'Failed to remove favorite');
-        } else {
-          this.toastr.error('An error occurred while removing the track from the favorites', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
-  // You might also want a method to check if a track is a favorite (for UI state)
   isFavorite(trackId: number): boolean {
     const user = this.authService.getCurrentUser();
     return user ? user.favoriteTrackIds.includes(trackId) : false;
@@ -88,7 +60,7 @@ export class UserService {
   getUserProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.userURL}/me`).pipe( //Cambio el profile x el me
       catchError((error: HttpErrorResponse) => {
-        console.error('Error loading user profile:', error);
+        // console.error('Error loading user profile:', error)
         return throwError(() => error);
       })
     );
@@ -109,20 +81,19 @@ export class UserService {
     return this.http.delete(`${this.userURL}/delete`);
   }
 
-  getAllUsers(): Observable<SimpleUser[]> {
-    return this.http.get<SimpleUser[]>(`${this.userURL}`).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.log("erro obter users")
-        console.error(error)
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the users list', 'Server error');
-        }
-        return throwError(() => error);
-      })
-    );
+  private handleError() {
+    return (error: HttpErrorResponse): Observable<never> => {
+      // console.error(error)
+      if (error.status === 400) {
+        this.toastr.warning(error.message, 'Invalid data!');
+      } else if (error.status === 401) {
+        this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+      } else if (error.status === 403) {
+        this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+      } else {
+        this.toastr.error('An unexpected error occurred while loading some necessary data', 'Server error');
+      }
+      return throwError(() => error);
+    }
   }
 }

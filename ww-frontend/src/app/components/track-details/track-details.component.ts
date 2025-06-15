@@ -74,9 +74,17 @@ export class TrackDetailsComponent implements OnInit {
 
   setFav(): void {
     if (!this.isFav) {
-      this.userService.addFavorite(this.track.id).subscribe();
+      this.userService.addFavorite(this.track.id).subscribe({
+        next: () => {
+          this.toastr.success("Track added to the favorites!");
+        }
+      });
     } else {
-      this.userService.removeFavorite(this.track.id).subscribe();
+      this.userService.removeFavorite(this.track.id).subscribe({
+        next: () => {
+          this.toastr.info("Track removed from the favorites.");
+        }
+      });
     }
   }
 
@@ -86,9 +94,8 @@ export class TrackDetailsComponent implements OnInit {
     this.trackService.setOperationalState(this.track.id).subscribe({
       next: () => {
         this.track.isAvailable = newStatus;
-        this.toastr.success(`Track marked as ${newStatus ? 'operational' : 'not operational'}`);
-      },
-      error: () => this.toastr.error('Failed to change operational status')
+        this.toastr.info(`Track marked as ${newStatus ? 'operational' : 'not operational'}`);
+      }
     });
   }
 
@@ -110,14 +117,14 @@ export class TrackDetailsComponent implements OnInit {
     if (label === 'Active Reservations' && this.trackActiveReservations === null) {
       this.reservationService.getTrackActiveReservations(this.track.id).subscribe({
         next: res => this.trackActiveReservations = res,
-        error: err => console.error('Failed to load active reservations', err)
+        // error: err => console.error('Failed to load active reservations', err)
       });
     }
 
     if (label === 'Completed Reservations' && this.trackConcludedReservations === null) {
       this.reservationService.getTrackConcludedReservations(this.track.id).subscribe({
         next: res => this.trackConcludedReservations = res,
-        error: err => console.error('Failed to load completed reservations', err)
+        // error: err => console.error('Failed to load completed reservations', err)
       });
     }
   }

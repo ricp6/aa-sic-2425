@@ -18,38 +18,41 @@ export class SessionService {
   
   getSessions(): Observable<Session[]> {
     return this.http.get<Session[]>(`${this.sessionsURL}`).pipe(
-      catchError(this.handleError('loading the sessions'))
+      catchError(this.handleError())
     );
   }
 
   getSessionDetails(sessionId: number): Observable<SessionDetails> {
     return this.http.get<SessionDetails>(`${this.sessionsURL}/${sessionId}`).pipe(
-      catchError(this.handleError('loading the details of the session'))
+      catchError(this.handleError())
     );
   }
 
   startSession(sessionId: number): Observable<string> {
     return this.http.post(`${this.sessionsURL}/${sessionId}/start`, {}, { responseType: 'text' }).pipe(
-      catchError(this.handleError('starting the session'))
+      catchError(this.handleError())
     );
   }
 
   endSession(sessionId: number): Observable<string> {
     return this.http.post(`${this.sessionsURL}/${sessionId}/end`, {}, { responseType: 'text' }).pipe(
-      catchError(this.handleError('ending the session'))
+      catchError(this.handleError())
     );
   }
 
-  private handleError(operation: string) {
-    return (error: HttpErrorResponse) => {
-      if (error.status === 401) {
+  private handleError() {
+    return (error: HttpErrorResponse): Observable<never> => {
+      // console.error(error)
+      if (error.status === 400) {
+        this.toastr.warning(error.message, 'Invalid data!');
+      } else if (error.status === 401) {
         this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
       } else if (error.status === 403) {
-        this.toastr.warning('You don’t have permission to execute this action', 'Permission required');
+        this.toastr.warning('You dont have permission to execute this action', 'Permission required');
       } else {
-        this.toastr.error(`An error occurred while ${operation}`, 'Server error');
+        this.toastr.error('An unexpected error occurred while loading some necessary data', 'Server error');
       }
       return throwError(() => error);
-    };
+    }
   }
 }

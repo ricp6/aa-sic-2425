@@ -33,7 +33,7 @@ export class SessionsComponent implements OnInit {
         this.sessions = sessions;
       },
       error: (err) => {
-        console.error('Failed to load reservations', err);
+        // console.error('Failed to load reservations', err)
       }
     });
   }

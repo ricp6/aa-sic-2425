@@ -103,14 +103,6 @@ nav {
 }
 
 
-#user-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 15px;
-
-}
-
 #login-button:hover {
   background-color: #222;
 }
@@ -123,8 +115,7 @@ nav {
   background-color: #eee;
   color: #000000;
   border-radius: 5px;
-  padding: 0 15px;
-  height: 40px;
+  padding: 0 20px;
 }
 
 #profile-button, #enterprise-toggle-button, #logout-button {

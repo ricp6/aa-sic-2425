@@ -58,16 +58,21 @@
         <div class="date-time-form-content">
           <div id="date-container">
             <mat-label class="form-section-title">Choose a date</mat-label>
-            <mat-calendar [(selected)]="selectedDate" (selectedChange)="onDateSelected()" [minDate]="minSelectableDate"></mat-calendar>
+            <mat-calendar 
+              [(selected)]="selectedDate" 
+              (selectedChange)="onDateSelected()" 
+              [minDate]="minSelectableDate"
+              [dateClass]="dateClass">
+            </mat-calendar>
           </div>
 
           <div id="slots-main-container">
             <span *ngIf="!selectedDate" class="no-date-selected-message">Choose a date to see the available schedules.</span>
 
             <div *ngIf="selectedDate" id="slots-container">
-              <mat-label class="form-section-title">
+              <mat-label class="form-section-title" *ngIf="slots && slots.length > 0">
                 Choose one or more schedules
-                <small *ngIf="slots && slots.length > 0" id="slot-duration">Sessions of {{slotDuration}} minutes</small>
+                <small id="slot-duration">Sessions of {{slotDuration}} minutes</small>
               </mat-label>
               <div class="compact-slots-container" *ngIf="slots && slots.length > 0; else noSlots">
                 <button class="compact-slot" mat-flat-button *ngFor="let slot of slots" [disabled]="!slot.available"
@@ -77,7 +82,7 @@
                 </button>
               </div>
               <ng-template #noSlots>
-                <p class="no-slots-message">Track is closed on that day.</p>
+                <p class="no-slots-message">The selected track is closed on the chosen date. Please choose another date.</p>
               </ng-template>
 
               <mat-error *ngIf="dateTimeSelectionFormGroup.get('selectedSlots')?.hasError('required') 

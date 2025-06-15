@@ -97,12 +97,12 @@ import { ToastrModule } from 'ngx-toastr';
     MatDialogModule,
 
     ToastrModule.forRoot({
-      timeOut: 5000,
+      timeOut: 5000, // milli-seconds
       extendedTimeOut: 1000,
       positionClass: 'toast-top-left',
       progressBar: true,
       preventDuplicates: true
-    }), // ToastrModule added
+    }),
   ],
   providers: [
     provideHttpClient(withInterceptorsFromDi()),

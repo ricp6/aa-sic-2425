@@ -44,7 +44,7 @@ export class ReservationDetailsComponent implements OnInit {
       if (idParam) {
         this.loadReservationDetails(+idParam);
       } else {
-        console.error('Reservation ID not provided in route.');
+        // console.error('Reservation ID not provided in route.')
         this.toastr.error("Please navigate using the page commands.", "Invalid URL!");
         this.goBack();
       }
@@ -58,7 +58,7 @@ export class ReservationDetailsComponent implements OnInit {
         this.reservation = reservation;
       },
       error: (err) => {
-        console.error('Error fetching reservation details:', err);
+        // console.error('Error fetching reservation details:', err)
         this.goBack();
       }
     });
@@ -113,8 +113,7 @@ export class ReservationDetailsComponent implements OnInit {
       next: () => {
         this.toastr.success('Session started.', 'Success');
         this.loadReservationDetails(this.reservation.id);
-      },
-      error: () => this.toastr.error('Failed to start session.', 'Error')
+      }
     });
   }
 
@@ -123,23 +122,15 @@ export class ReservationDetailsComponent implements OnInit {
       next: () => {
         this.toastr.success('Session finished.', 'Success');
         this.loadReservationDetails(this.reservation.id);
-      },
-      error: () => this.toastr.error('Failed to end session.', 'Error')
+      }
     });
-  }
-
-
-  // TODO Change when edit is implemented
-  editReservation(): void {
-    // this.router.navigate(['/reservations/edit', this.reservationId]);
-    console.log("Method not implemented: edit reservation");
   }
 
   cancelReservation(): void {
     if (confirm('Are you sure you want to cancel this reservation?')) {
       this.reservationService.cancelReservation(this.reservation.id).subscribe({
         next: () => {
-          this.toastr.success('Reservation cancelled successfully.', 'Success');
+          this.toastr.info('Reservation cancelled successfully.', 'Success');
           this.router.navigate(['/reservations']);
         }
       });
@@ -161,8 +152,7 @@ export class ReservationDetailsComponent implements OnInit {
           next: () => {
             this.toastr.success('Reservation accepted.', 'Success');
             this.loadReservationDetails(this.reservation.id);
-          },
-          error: () => this.toastr.error('Failed to accept reservation.', 'Error')
+          }
         });
       }
     });
@@ -182,10 +172,9 @@ export class ReservationDetailsComponent implements OnInit {
       if (message != null && confirm('Are you sure you want to reject this reservation?')) {
         this.reservationService.rejectReservation(this.reservation.id, message).subscribe({
           next: () => {
-            this.toastr.success('Reservation rejected.', 'Success');
+            this.toastr.info('Reservation rejected.', 'Success');
             this.router.navigate(['/enterprise/reservations']);
-          },
-          error: () => this.toastr.error('Failed to reject reservation.', 'Error')
+          }
         });
       }
     });

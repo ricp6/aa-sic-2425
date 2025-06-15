@@ -76,7 +76,6 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { view: 'client' }
   },
-  // { path: 'reservations/form/:id', component: ReservationFormComponent, canActivate: [AuthGuard] },
 
   { 
     path: 'sessions', 

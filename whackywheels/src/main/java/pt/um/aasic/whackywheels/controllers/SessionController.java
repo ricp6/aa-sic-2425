@@ -48,9 +48,6 @@ public class SessionController {
         try {
             Long userId = authenticatedUser.getId();
             SessionsDetailsResponseDTO sessionDetails = sessionService.getSessionDetailsBySessionId(sessionId, userId);
-            if (sessionDetails == null) {
-                return new ResponseEntity<>("Session not found or you do not have access to it.", HttpStatus.NOT_FOUND);
-            }
             log.info("Fetched session details for session {}: {}", sessionId, sessionDetails);
             return ResponseEntity.ok(sessionDetails);
         } catch (IllegalArgumentException e) {

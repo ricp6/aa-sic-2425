@@ -53,6 +53,10 @@
   margin-top: 20px;
 }
 
+::ng-deep .mat-calendar-body-cell.weekend-date > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+  color: #0026ff;
+}
+
 .compact-slot {
   height: 32px;
   min-width: 60px;

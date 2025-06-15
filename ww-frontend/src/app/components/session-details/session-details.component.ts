@@ -31,8 +31,8 @@ export class SessionDetailsComponent implements OnInit {
       if (idParam) {
         this.loadSessionDetails(+idParam);
       } else {
-        console.error('Session ID not provided in route.');
-        this.toastr.error("Please navigate using the page commands.", "Invalid URL!");
+        // console.error('Session ID not provided in route.')
+        this.toastr.warning("Please navigate using the page commands.", "Invalid URL!");
         this.goBack();
       }
     });
@@ -46,7 +46,7 @@ export class SessionDetailsComponent implements OnInit {
         this.session = session;
       },
       error: (err) => {
-        console.error('Error fetching session details:', err);
+        // console.error('Error fetching session details:', err)
         this.goBack();
       }
     });

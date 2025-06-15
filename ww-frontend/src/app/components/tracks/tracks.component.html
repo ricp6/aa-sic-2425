@@ -73,8 +73,15 @@
 
 
     <div id="track-list-container" [class]="showAdvancedInfo ? 'complete' : 'simple'">
-      <mat-card class="track-card" *ngFor="let track of filteredTracks()"
-                (click)="showTrack(track)" [class]="showAdvancedInfo ? 'complete' : 'simple'">
+      <mat-card 
+        class="track-card"
+        *ngFor="let track of filteredTracks()"
+        (click)="showTrack(track)" 
+        (keydown.enter)="showTrack(track)"
+        (keydown.space)="showTrack(track)"
+        tabindex="0"
+        role="button"
+        [class]="showAdvancedInfo ? 'complete' : 'simple'">
 
         <div class="track-image">
           <img mat-card-image [src]="track.image" [alt]="track.name" />

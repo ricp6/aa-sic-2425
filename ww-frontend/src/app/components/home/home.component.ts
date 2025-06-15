@@ -26,8 +26,7 @@ export class HomeComponent implements OnInit {
       next: (tracks) => {
         this.tracks = tracks.filter(track => track.available);
       },
-      error: (err) => {
-        console.error(err);
+      error: () => {
         this.toastr.warning("Por favor, atualize a página ou tente novamente mais tarde.", "Desculpe! Não conseguimos carregar as pistas.");
       }
     });

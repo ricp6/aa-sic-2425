@@ -7,8 +7,8 @@ import { filter } from 'rxjs';
 import { TrackService } from './services/track.service';
 import { NotificationService } from './services/notification.service';
 import { ViewService } from './services/view.service';
-import { MatTabNavPanel } from '@angular/material/tabs'; // Keep this import
-import { MatSidenav } from '@angular/material/sidenav'; // Import MatSidenav
+import { MatTabNavPanel } from '@angular/material/tabs'; 
+import { MatSidenav } from '@angular/material/sidenav'; 
 
 
 @Component({
@@ -19,7 +19,7 @@ import { MatSidenav } from '@angular/material/sidenav'; // Import MatSidenav
 export class AppComponent implements OnInit {
 
   @ViewChild('tabPanel') tabPanel!: MatTabNavPanel;
-  @ViewChild('sidenav') sidenav!: MatSidenav; // Reference to the sidenav
+  @ViewChild('sidenav') sidenav!: MatSidenav;
 
   user: User | null = null;
   isAuthPage: boolean = false;

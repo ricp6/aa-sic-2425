@@ -1,5 +1,3 @@
-// src/app/components/reservation-form/reservation-form.component.ts
-
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -16,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
 import { TrackService } from '../../services/track.service';
 import { KartService } from '../../services/kart.service';
 import { UserService } from '../../services/user.service';
-import { SimpleTrack, TrackDetails } from '../../interfaces/track';
+import { SimpleTrack } from '../../interfaces/track';
 import { Slot } from '../../interfaces/slot';
 import { Kart } from '../../interfaces/kart';
 import { SimpleUser, User } from '../../interfaces/user';
@@ -49,11 +47,17 @@ export class ReservationFormComponent implements OnInit {
   selectedDate: Date | null = null;
   slots: Slot[] = [];
   slotDuration: number = 0;
-  minSelectableDate: Date | undefined;
+  minSelectableDate: Date = new Date();
 
   users: SimpleUser[] = []
   filteredUsers!: Observable<SimpleUser[]>;
   groupedKarts: { model: string; karts: Kart[] }[] = [];
+
+  dateClass = (d: Date): string => {
+    const day = d.getDay();
+    // 0 = Sunday, 6 = Saturday
+    return day === 0 || day === 6 ? 'weekend-date' : '';
+  };
 
   get currentUser(): User | null {
     return this.authService.getCurrentUser();
@@ -107,8 +111,6 @@ export class ReservationFormComponent implements OnInit {
 
     // Setup data filtering observables
     this.setTracksFiltering();
-
-    this.minSelectableDate = new Date();
 
     // Load initial data
     this.loadUsers();
@@ -496,7 +498,7 @@ export class ReservationFormComponent implements OnInit {
         this.router.navigate([`/reservations/${reservation.id}`]);
       },
       error: (err) => {
-        console.error(err);
+        // console.error(err)
         this.toastr.error("Failed to create reservation.");
       }
     });
@@ -508,7 +510,7 @@ export class ReservationFormComponent implements OnInit {
   loadUsers(): void {
     this.userService.getAllUsers().subscribe({
       next: (users: SimpleUser[]) => {
-        if(users != null) {
+        if(users && users.length > 0) {
           // Filter out current user only if in enterprise view
           const currentUserId = this.authService.getCurrentUser()?.id;
           this.users = this.isEnterpriseView
@@ -521,7 +523,7 @@ export class ReservationFormComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error(err)
+        // console.error(err)
         this.toastr.warning("Error loading the users information", "Going back!");
         this.goBack();
       }
@@ -535,7 +537,7 @@ export class ReservationFormComponent implements OnInit {
 
     trackObservable.subscribe({
       next: (tracks: SimpleTrack[]) => {
-        if(tracks !== null) {
+        if(tracks && tracks.length > 0) {
           // Keep only available tracks
           this.tracks = tracks.filter(track => track.available);
 
@@ -548,7 +550,7 @@ export class ReservationFormComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error(err)
+        // console.error(err)
         this.toastr.warning("Error loading the tracks information", "Going back!");
         this.goBack();
       }
@@ -571,7 +573,7 @@ export class ReservationFormComponent implements OnInit {
       this.trackSelectionFormGroup.get('selectedTrack')?.value.id,
     ).subscribe({
       next: (karts: Kart[]) => {
-        if(karts !== null) {
+        if(karts && karts.length > 0) {
           this.karts = karts;
           this.groupKarts();
 
@@ -589,14 +591,14 @@ export class ReservationFormComponent implements OnInit {
             }
           }
         } else {
-          console.log("error loading karts: ", karts)
+          // console.log("error loading karts: ", karts)
           // Restart from step 2
           this.toastr.warning("This track currently has no karts available", "Please select another track");
           this.resetDateTimeStep();
         }
       },
       error: (err) => {
-        console.error("erorr loading karts", err);
+        // console.error("erorr loading karts", err)
         // Restart from step 1
         this.toastr.warning("Error fetching this track's available karts", "Please try again");
         this.stepper.reset();
@@ -626,19 +628,17 @@ export class ReservationFormComponent implements OnInit {
 
     this.reservationService.getSlots(selectedTrack.id, this.formatedDate).subscribe({
       next: (slots: Slot[]) => {
-        if(slots != null) {
+        if(slots && slots.length > 0) {
           this.markPastSlotsAsUnavailable(slots);
           this.slots = slots;
           this.slotDuration = this.getMinutesDifference(slots[0]);
         } else {
-          console.log("error loading slots: ", slots)
-          // Restart from step 2
+          // Track is closed
           this.toastr.warning("There are no slots available for this date at this track", "Please select another date");
-          this.resetDateTimeStep();
         }
       },
       error: (err) => {
-        console.error("erorr loading slots", err);
+        // console.error("erorr loading slots", err)
         // Restart from step 1
         this.toastr.warning("Error fetching track availability", "Please try again");
         this.stepper.reset();

@@ -25,9 +25,9 @@ export class ProfileComponent implements OnInit {
   };
 
   constructor(
-    private userService: UserService,
-    private toastr: ToastrService,
-    private authService: AuthService
+    private readonly userService: UserService,
+    private readonly toastr: ToastrService,
+    private readonly authService: AuthService
   ) {}
 
 
@@ -35,7 +35,7 @@ export class ProfileComponent implements OnInit {
     this.userService.getUserProfile().subscribe({
       next: (data) => this.user = data,
       error: (err) => {
-        console.error('Error al cargar perfil:', err);
+        // console.error('Error al cargar perfil:', err)
         this.errorMessage = 'No se pudo cargar el perfil del usuario.';
       }
     });
@@ -54,16 +54,16 @@ export class ProfileComponent implements OnInit {
 
     this.userService.changePassword(this.passwordData.current, this.passwordData.new).subscribe({
       next: (res) => {
-        this.toastr.success(res?.message || "Password changed successfully", "Success");
+        this.toastr.success(res?.message ?? "Password changed successfully", "Success");
         this.passwordData = { current: '', new: '', confirm: '' };
       },
       error: (err) => {
-        console.error('Error changing password:', err);
+        // console.error('Error changing password:', err)
         const errorMsg = typeof err.error === 'string'
           ? err.error
-          : err.error?.message || "Failed to change password.";
+          : err.error?.message ?? "Failed to change password.";
 
-        this.toastr.error(errorMsg, "Password Change Error");
+        this.toastr.warning(errorMsg, "Password Change Error");
       }
     });
   }
@@ -94,8 +94,8 @@ export class ProfileComponent implements OnInit {
         this.toastr.success("Profile updated successfully.");
       },
       error: (err) => {
-        const errorMsg = err.error?.message || "Failed to update profile.";
-        this.toastr.error(errorMsg);
+        const errorMsg = err.error?.message ?? "Failed to update profile.";
+        this.toastr.warning(errorMsg);
       }
     });
   }
@@ -112,8 +112,8 @@ export class ProfileComponent implements OnInit {
         window.location.href = "/"; // redirigir al inicio o login
       },
       error: (err) => {
-        console.error(err);
-        this.toastr.error("Failed to delete account.");
+        // console.error(err)
+        this.toastr.warning("Failed to delete account.");
       }
     });
   }

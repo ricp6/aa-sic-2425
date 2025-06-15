@@ -48,7 +48,7 @@ export class NotificationService {
       .pipe(
         switchMap(() => this.getNotifications().pipe(
           catchError(error => {
-            console.error('Polling error:', error);
+            // console.error('Polling error:', error)
             return of([]);
           })
         ))
@@ -81,10 +81,7 @@ export class NotificationService {
         const unreadCount = notifications.filter(n => !n.isRead).length;
         this.setUnreadNotificationCount(unreadCount);
       }),
-      catchError((error: HttpErrorResponse) => {
-        this.handleError(error, 'loading the notifications');
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
@@ -97,20 +94,14 @@ export class NotificationService {
         }
         this.refreshNotifications(); // ensure UI reflects the change
       }),
-      catchError((error: HttpErrorResponse) => {
-        this.handleError(error, 'marking the notification as read');
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
   deleteNotification(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       tap(() => this.refreshNotifications()),
-      catchError((error: HttpErrorResponse) => {
-        this.handleError(error, 'deleting the notification');
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
@@ -120,20 +111,14 @@ export class NotificationService {
         this.setUnreadNotificationCount(0);
         this.refreshNotifications();
       }),
-      catchError((error: HttpErrorResponse) => {
-        this.handleError(error, 'marking all notifications as read');
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
   deleteReadNotifications(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/read`).pipe(
       tap(() => this.refreshNotifications()),
-      catchError((error: HttpErrorResponse) => {
-        this.handleError(error, 'deleting all read notifications');
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
@@ -144,13 +129,19 @@ export class NotificationService {
     });
   }
 
-  private handleError(error: HttpErrorResponse, context: string): void {
-    if (error.status === 401) {
-      this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-    } else if (error.status === 403) {
-      this.toastr.warning('You don’t have permission to execute this action', 'Permission Required');
-    } else {
-      this.toastr.error(`An error occurred while ${context}`, 'Server Error');
+  private handleError() {
+    return (error: HttpErrorResponse): Observable<never> => {
+      // console.error(error)
+      if (error.status === 400) {
+        this.toastr.warning(error.message, 'Invalid data!');
+      } else if (error.status === 401) {
+        this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+      } else if (error.status === 403) {
+        this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+      } else {
+        this.toastr.error('An unexpected error occurred while loading some necessary data', 'Server error');
+      }
+      return throwError(() => error);
     }
   }
 }

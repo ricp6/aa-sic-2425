@@ -3,7 +3,7 @@
   <div id="nav-home-container" [routerLink]="isEnterpriseView ? 'enterprise' : 'home'">
     <img id="nav-home-logo" src="logo.webp" width="100px" height="60px" alt="Logo">
     <h3 id="nav-home-title"> {{ isEnterpriseView ? "WW" : "WACKY WHEELS" }} </h3>
-    <h4 id="nav-home-subtitle"> {{ isEnterpriseView ? "Enterprise" : "" }} </h4>
+    <h4 id="nav-home-subtitle"> {{ isEnterpriseView ? "Owner" : "" }} </h4>
   </div>
 
   <div id="nav-right-group">
@@ -13,10 +13,10 @@
          routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Tracks
       </a>
       <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="reservations" id="reservations-link"
-         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Reservations
+         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> My Reservations
       </a>
       <a mat-tab-link *ngIf="isLoggedIn && !isEnterpriseView" routerLink="sessions" id="sessions-link"
-         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> Sessions
+         routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" tabindex="0"> My Sessions
       </a>
 
       <a mat-tab-link *ngIf="isLoggedIn && isEnterpriseView" routerLink="enterprise/tracks" id="my-tracks-link"
@@ -37,13 +37,13 @@
       </button>
       <button mat-stroked-button [matMenuTriggerFor]="profilemenu" type="button" id="user-button" tabindex="0">
         {{ userName }}
-        <img [src]="profilePicture" alt="User Profile Picture" class="user-profile-picture">
+        <img matSuffix [src]="profilePicture" alt="User Profile" class="user-profile-picture">
       </button>
     </div>
     <mat-menu #profilemenu="matMenu" id="user-menu">
       <a mat-tab-link routerLink="profile" id="profile-button" tabindex="0"> My Profile </a>
       <a mat-tab-link *ngIf="isOwner" (click)="toggleEnterprise()" id="enterprise-toggle-button" tabindex="0">
-        {{ isEnterpriseView ? 'Personal View' : 'Enterprise View' }}
+        {{ isEnterpriseView ? 'Personal View' : 'Owner View' }}
       </a>
       <a mat-tab-link (click)="logout()" id="logout-button" tabindex="0">
         <span>Logout</span>

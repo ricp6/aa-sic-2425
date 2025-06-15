@@ -59,9 +59,6 @@ public class ReservationController {
 
         try {
             ReservationDetailsResponseDTO reservationResponse = reservationService.getReservationById(reservationId, userId);
-            if (reservationResponse == null) {
-                return new ResponseEntity<>("Reservation not found or you do not have access to it.", HttpStatus.NOT_FOUND);
-            }
             log.info("Retrieved reservation for user {}: {}", userId, reservationResponse);
             return new ResponseEntity<>(reservationResponse, HttpStatus.OK);
         } catch (IllegalArgumentException e) {

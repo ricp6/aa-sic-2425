@@ -51,7 +51,7 @@ export class TrackService {
           });
       }),
       catchError((err) => {
-        console.error("Failed to load tracks or records", err);
+        // console.error("Failed to load tracks or records", err)
         return of([]);
       })
     );
@@ -60,64 +60,28 @@ export class TrackService {
   // Fetches only the owned tracks
   getOwnedTracks(): Observable<SimpleTrack[]> {
     return this.http.get<SimpleTrack[]>(`${this.tracksURL}/owned`).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the tracks', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
   
   // Fetches the track details
   getTrackDetails(id: number): Observable<TrackDetails> {
     return this.http.get<TrackDetails>(`${this.tracksURL}/${id}`).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-         this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the track details', 'Server error');
-        }
-        return throwError(() => new Error(`Something went wrong fetching track: ${error.message}`));
-      })
+      catchError(this.handleError())
     );
   }
 
   // Changes the availability of the track
   setOperationalState(trackId: number): Observable<void> {
     return this.http.put<void>(`${this.tracksURL}/changeAvailability/${trackId}`, {}).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-         this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while changing the state of the track', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
   
   // Fetches extra data for the filters
   getTracksFilterData(): Observable<FilterDTO[]> {
     return this.http.get<FilterDTO[]>(`${this.tracksURL}/filter`).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading track filter data', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
@@ -128,49 +92,29 @@ export class TrackService {
         this.tracksCache = tracks;
         this.tracksSubject.next(tracks);
       }),
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the tracks', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
   private getTracksRecords(): Observable<RecordsDTO[] | null> {
     return this.http.get<RecordsDTO[]>(this.tracksURL + '/records').pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
-        } else if (error.status === 403) {
-          this.toastr.warning('You dont have permission to execute this action', 'Permission required');
-        } else {
-          this.toastr.error('An error occurred while loading the tracks records', 'Server error');
-        }
-        return throwError(() => error);
-      })
+      catchError(this.handleError())
     );
   }
 
-  /*createTrack(data: { track: Track }) {
-    return this.http.post<Track>(this.tracksURL, data).pipe(
-      tap(() => {
-        this.toastr.success('Your track was successfully created!', 'Start racing!');
-      }),
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 400) {
-          this.toastr.warning(error.error ?? 'Invalid data given.', 'Track creation error');
-        } else if(error.status === 403) {
-          this.toastr.error(error.error ?? 'You need permission to access this page.', 'No permission');
-        } else {
-          this.toastr.error('An error occurred while processing the registration.', 'Server error');
-        }
-        return throwError(() => error);
-      })
-    );
-  }*/
+  private handleError() {
+    return (error: HttpErrorResponse): Observable<never> => {
+      // console.error(error)
+      if (error.status === 400) {
+        this.toastr.warning(error.message, 'Invalid data!');
+      } else if (error.status === 401) {
+        this.toastr.warning('Session expired or unauthorized. Please log in again.', 'Authentication Required');
+      } else if (error.status === 403) {
+        this.toastr.warning('You dont have permission to execute this action', 'Permission required');
+      } else {
+        this.toastr.error('An unexpected error occurred while loading some necessary data', 'Server error');
+      }
+      return throwError(() => error);
+    }
+  }
 }

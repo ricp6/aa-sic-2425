@@ -23,16 +23,11 @@ export class ReservationsComponent implements OnInit {
   loadReservations(): void {
     this.reservationService.getUserReservations().subscribe({
       next: (reservations: Reservation[]) => {
-        // const today = new Date();
-        // today.setHours(12, 0, 0, 0);
 
-        this.activeReservations = reservations.filter(res => {
-          // const reservationDate = new Date(res.reservationDate);
-          // reservationDate.setHours(12, 0, 0, 0);
-
-          return (res.status === ReservationStatus.PENDING || res.status === ReservationStatus.ACCEPTED)
-              // && reservationDate.getTime() >= today.getTime();
-        });
+        this.activeReservations = reservations.filter(res => 
+          res.status === ReservationStatus.PENDING || 
+          res.status === ReservationStatus.ACCEPTED
+        );
 
         this.completedReservations = reservations.filter(res =>
           res.status === ReservationStatus.REJECTED ||
@@ -41,7 +36,7 @@ export class ReservationsComponent implements OnInit {
         );
       },
       error: (err) => {
-        console.error('Failed to load reservations', err);
+        // console.error('Failed to load reservations', err)
       }
     });
   }

@@ -88,7 +88,7 @@ public class NotificationController {
                 return new ResponseEntity<>(HttpStatus.OK);
             }
             log.warn("Notification with id {} not found for user {}", id, userId);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (IllegalArgumentException e) {
             log.error("Error deleting notification: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

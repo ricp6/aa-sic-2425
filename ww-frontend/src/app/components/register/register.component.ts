@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AuthWrapperComponent } from '../auth-wrapper/auth-wrapper.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -14,8 +15,9 @@ export class RegisterComponent extends AuthWrapperComponent {
 
   constructor(
     private readonly fb: FormBuilder,
+    private readonly router: Router,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly toastr: ToastrService
   ) {
     super();
     this.form = this.fb.group({
@@ -28,8 +30,10 @@ export class RegisterComponent extends AuthWrapperComponent {
   register(): void {
     if (this.form.valid) {
       this.authService.register(this.form.value).subscribe({
-        next: () => this.router.navigate(['/auth/login']),
-        error: (err) => console.error('Register failed', err)
+        next: (user) => {
+          this.router.navigate(['/auth/login'])
+          this.toastr.success('Your account was successfully created!', 'Welcome ' + user.name + '. Please log in.');
+        }
       });
     }
   }

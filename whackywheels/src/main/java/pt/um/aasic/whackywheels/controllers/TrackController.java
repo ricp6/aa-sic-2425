@@ -82,9 +82,6 @@ public class TrackController {
     public ResponseEntity<?> getTrack(@PathVariable Long id) {
         try{
             TrackDetailsResponseDTO track = trackService.findTrack(id);
-            if (track == null) {
-                return new ResponseEntity<>("Track not found.",HttpStatus.NOT_FOUND);
-            }
             log.info("Fetched track details for track {}: {}", id, track);
             return new ResponseEntity<>(track, HttpStatus.OK);
         }catch (IllegalArgumentException e) {
