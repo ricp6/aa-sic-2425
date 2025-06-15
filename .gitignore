@@ -33,3 +33,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignorar ficheiros temporários do Microsoft Office
+~$*
