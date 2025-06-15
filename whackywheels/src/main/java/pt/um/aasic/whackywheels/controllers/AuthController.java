@@ -1,6 +1,9 @@
 package pt.um.aasic.whackywheels.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,7 +20,6 @@ import pt.um.aasic.whackywheels.security.JwtService;
 import pt.um.aasic.whackywheels.services.AuthService;
 import pt.um.aasic.whackywheels.services.NotificationService;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +27,10 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -48,12 +49,14 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO request) {
         try {
-            authService.registerNewUser(request);
-
+            authService.registerNewUser(request);   
+            log.info("User registered successfully: {}", request.getEmail());
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (IllegalStateException e) {
+            log.error("Registration failed: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Registration failed: {}", e.getMessage());
             return new ResponseEntity<>("Registration failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -95,10 +98,13 @@ public class AuthController {
                     acessToken,
                     refreshToken
             );
+            log.info("User logged in successfully: {}", request.getEmail());
             return new ResponseEntity<>(loginResponse, HttpStatus.OK);
         } catch (org.springframework.security.authentication.BadCredentialsException e) {
+            log.error("Login failed: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         } catch (Exception e) {
+            log.error("Login failed: {}", e.getMessage());
             return new ResponseEntity<>("Login failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -124,10 +130,12 @@ public class AuthController {
                 // String newRefreshToken = jwtService.generateRefreshToken(userDetails);
                 // invalidateOldRefreshToken(refreshToken); // Implementar lógica para invalidar refresh token
 
+                log.info("Token refreshed successfully for user: {}", userEmail);
                 return new ResponseEntity<>(new TokenResponseDTO(newAccessToken), HttpStatus.OK);
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token.");
         } catch (Exception e) {
+            log.error("Error refreshing token: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error refreshing token: " + e.getMessage());
         }
     }

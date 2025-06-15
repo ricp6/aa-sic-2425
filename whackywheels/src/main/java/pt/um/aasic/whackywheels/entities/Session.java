@@ -29,10 +29,12 @@ public class Session {
 
     public Session() {}
 
-    public Session(LocalTime bookedStartTime, LocalTime bookedEndTime, Reservation reservation) {
+    public Session(LocalTime bookedStartTime, LocalTime bookedEndTime, Reservation reservation, LocalTime actualStartTime, LocalTime actualEndTime) {
         this.bookedStartTime = bookedStartTime;
         this.bookedEndTime = bookedEndTime;
         this.reservation = reservation;
+        this.actualStartTime = actualStartTime;
+        this.actualEndTime = actualEndTime;
 
         this.timePerLaps = new HashSet<>();
         this.classifications = new HashSet<>();

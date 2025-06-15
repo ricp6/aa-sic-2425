@@ -109,7 +109,7 @@ public class ReservationService {
                 }
             }
 
-            Session session = new Session(sessionStartTime.toLocalTime(), sessionEndTime.toLocalTime(), reservation);
+            Session session = new Session(sessionStartTime.toLocalTime(), sessionEndTime.toLocalTime(), reservation, null, null);
             sessions.add(session);
         }
         reservation.setSessions(sessions);
@@ -240,10 +240,6 @@ public class ReservationService {
     public ReservationDetailsResponseDTO getReservationById(Long reservationId, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
-        
-        if(!reservation.getCreatedByUserId().equals(userId) && !reservation.getTrack().getOwner().getId().equals(userId)) {
-                throw new IllegalArgumentException("Only the user who created the reservation or the track owner can access it.");
-        }
 
         List<SimpleSessionResponseDTO> sessionResponses = reservation.getSessions().stream()
                 .map(session -> new SimpleSessionResponseDTO(session.getId(), session.getBookedStartTime(), session.getBookedEndTime(), session.getActualStartTime(), session.getActualEndTime()))
@@ -378,22 +374,26 @@ public class ReservationService {
 
             LocalTime openingTime = trackSchedule.getOpeningTime();
             LocalTime closingTime = trackSchedule.getClosingTime();
+            LocalDateTime realClosingTime = date.atTime(trackSchedule.getClosingTime());
             int slotDurationMinutes = track.getSlotDuration();
 
             List<SlotResponseDTO> allPossibleSlots = new ArrayList<>();
             LocalTime currentSlotTime = openingTime;
+            LocalDateTime realCurrentSlotTime = date.atTime(currentSlotTime);
 
             // Gerar todos os slots possíveis para o dia
-            while (currentSlotTime.isBefore(closingTime)) {
+            while (realCurrentSlotTime.isBefore(realClosingTime)) {
                 LocalTime slotEndTime = currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes));
-                if (currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes)).isAfter(closingTime) &&
-                        !currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes)).equals(closingTime)) {
+                if (realCurrentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes)).isAfter(realClosingTime) &&
+                        !realCurrentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes)).equals(realClosingTime)) {
                     break;
                 }
 
                 allPossibleSlots.add(new SlotResponseDTO(currentSlotTime, slotEndTime, true));
                 currentSlotTime = currentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes));
+                realCurrentSlotTime = realCurrentSlotTime.plus(Duration.ofMinutes(slotDurationMinutes));
             }
+
 
             List<Session> existingOccupiedSessions = sessionRepository.findOccupiedSessionsForTrackAndDate(
                     track.getId(),
@@ -553,7 +553,7 @@ public class ReservationService {
                     }
                 }
 
-                Session newSession = new Session(sessionStartTime.toLocalTime(), sessionEndTime.toLocalTime(), reservation);
+                Session newSession = new Session(sessionStartTime.toLocalTime(), sessionEndTime.toLocalTime(), reservation, null, null);
                 updatedSessions.add(newSession);
             }
             reservation.setSessions(updatedSessions);

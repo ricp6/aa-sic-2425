@@ -2,6 +2,8 @@ package pt.um.aasic.whackywheels.controllers;
 
 import jakarta.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reservations")
 public class ReservationController {
-
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final ReservationService reservationService;
 
     public ReservationController(ReservationService reservationService) {
@@ -38,10 +40,13 @@ public class ReservationController {
 
         try {
             ReservationDetailsResponseDTO newReservationResponse = reservationService.createReservation(request, userId);
+            log.info("Reservation created successfully for user {}: {}", userId, newReservationResponse);
             return new ResponseEntity<>(newReservationResponse, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
+            log.error("Error creating reservation: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error creating reservation: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to create reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -57,10 +62,13 @@ public class ReservationController {
             if (reservationResponse == null) {
                 return new ResponseEntity<>("Reservation not found or you do not have access to it.", HttpStatus.NOT_FOUND);
             }
+            log.info("Retrieved reservation for user {}: {}", userId, reservationResponse);
             return new ResponseEntity<>(reservationResponse, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error retrieving reservation: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error retrieving reservation: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to retrieve reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -73,8 +81,10 @@ public class ReservationController {
 
         try {
             List<ReservationResponseDTO> reservations = reservationService.getReservationsByUserId(userId);
+            log.info("Retrieved reservations for user {}: {}", userId, reservations);
             return new ResponseEntity<>(reservations, HttpStatus.OK);
         } catch (Exception e) {
+            log.error("Error retrieving reservations: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to retrieve reservations: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -87,10 +97,13 @@ public class ReservationController {
 
         try {
             reservationService.cancelReservation(reservationId, userId);
+            log.info("Reservation {} cancelled successfully for user {}", reservationId, userId);
             return new ResponseEntity<>("Reservation cancelled successfully.", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error cancelling reservation: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error cancelling reservation: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to cancel reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -103,10 +116,13 @@ public class ReservationController {
 
         try {
             ReservationDetailsResponseDTO updatedReservationResponse = reservationService.updateReservation(reservationId, request, userId);
+            log.info("Reservation {} updated successfully for user {}", reservationId, userId);
             return new ResponseEntity<>(updatedReservationResponse, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error updating reservation: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error updating reservation: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to update reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -117,10 +133,13 @@ public class ReservationController {
     public ResponseEntity<?> getSlots(@PathVariable Long trackId, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, @AuthenticationPrincipal User authenticatedUser) {
         try {
             List<SlotResponseDTO> slots = reservationService.getSlotsForTrackAndDate(trackId, date);
+            log.info("Retrieved slots for track {} on date {}: {}", trackId, date, slots);
             return ResponseEntity.ok(slots);
         } catch (IllegalArgumentException e) {
+            log.error("Error retrieving slots: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -133,10 +152,13 @@ public class ReservationController {
 
         try {
             List<ReservationResponseDTO> reservations = reservationService.getAcceptedAndPendingReservationsByTrackId(trackId, ownerId);
+            log.info("Retrieved active reservations for track {}: {}", trackId, reservations);
             return new ResponseEntity<>(reservations, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error retrieving active reservations: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error retrieving active reservations: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to retrieve reservations: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -149,10 +171,13 @@ public class ReservationController {
 
         try {
             List<ReservationResponseDTO> reservations = reservationService.getConcludedReservationsByTrackId(trackId, ownerId);
+            log.info("Retrieved concluded reservations for track {}: {}", trackId, reservations);
             return new ResponseEntity<>(reservations, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error retrieving concluded reservations: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error retrieving concluded reservations: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to retrieve reservations: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -165,10 +190,13 @@ public class ReservationController {
 
         try {
             reservationService.acceptReservation(reservationId, ownerId, request);
+            log.info("Reservation {} accepted successfully by owner {}", reservationId, ownerId);
             return new ResponseEntity<>("Reservation accepted successfully.", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error accepting reservation: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error accepting reservation: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to accept reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -181,10 +209,13 @@ public class ReservationController {
 
         try {
             reservationService.rejectReservation(reservationId, ownerId, request);
+            log.info("Reservation {} rejected successfully by owner {}", reservationId, ownerId);
             return new ResponseEntity<>("Reservation rejected successfully.", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            log.error("Error rejecting reservation: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Error rejecting reservation: {}", e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>("Failed to reject reservation: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

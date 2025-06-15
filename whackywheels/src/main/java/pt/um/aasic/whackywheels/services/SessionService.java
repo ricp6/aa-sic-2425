@@ -325,7 +325,7 @@ public class SessionService {
         sessionRepository.save(session);
     }
 
-    @Scheduled(fixedRate = 60000) // Runs every 60 seconds (1 minute)
+    @Scheduled(fixedRate = 600000) // Runs every 60 seconds (1 minute)
     @Transactional
     public void autoEndExpiredSessions() {
         LocalDate today = LocalDate.now();
