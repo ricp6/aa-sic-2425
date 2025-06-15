@@ -9,7 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class SessionService {
   
-  private readonly sessionsURL = "http://localhost:8080/api/sessions";
+  private readonly sessionsURL = "http://localhost/api/sessions";
 
   constructor(
     private readonly http: HttpClient,

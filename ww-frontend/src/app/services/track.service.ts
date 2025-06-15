@@ -8,7 +8,7 @@ import { RecordsDTO, SimpleTrack, TrackDetails, TrackWithRecords, FilterDTO } fr
   providedIn: 'root'
 })
 export class TrackService {
-  private readonly tracksURL = "http://localhost:8080/api/tracks";
+  private readonly tracksURL = "http://localhost/api/tracks";
 
   private tracksCache: SimpleTrack[] | null = null;
   private readonly tracksSubject = new BehaviorSubject<SimpleTrack[]>([]);

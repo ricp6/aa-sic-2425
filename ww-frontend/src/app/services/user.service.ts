@@ -9,7 +9,7 @@ import { SimpleUser, UserProfile } from '../interfaces/user';
   providedIn: 'root'
 })
 export class UserService {
-  private readonly userURL = "http://localhost:8080/api/users";
+  private readonly userURL = "http://localhost/api/users";
 
   constructor(
     private readonly http: HttpClient,

@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly authURL = "http://localhost:8080/api/auth";
+  private readonly authURL = "http://localhost/api/auth";
 
   private readonly userSubject = new BehaviorSubject<User | null>(null);
   private readonly tokenSubject = new BehaviorSubject<string | null>(null);

@@ -11,7 +11,7 @@ import { format } from 'date-fns';
   providedIn: 'root'
 })
 export class ReservationService {
-  private readonly reservationsURL = 'http://localhost:8080/api/reservations';
+  private readonly reservationsURL = 'http://localhost/api/reservations';
 
   constructor(
     private readonly http: HttpClient,
