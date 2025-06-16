@@ -1,0 +1,50 @@
+{
+  "Obter Detalhes da Track Selecionada" : {
+    "transaction" : "Obter Detalhes da Track Selecionada",
+    "sampleCount" : 1000,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 27.816000000000038,
+    "medianResTime" : 20.0,
+    "minResTime" : 6.0,
+    "maxResTime" : 171.0,
+    "pct1ResTime" : 57.0,
+    "pct2ResTime" : 78.0,
+    "pct3ResTime" : 113.99000000000001,
+    "throughput" : 57.273768613974795,
+    "receivedKBytesPerSec" : 72.84350837628865,
+    "sentKBytesPerSec" : 8.725300687285223
+  },
+  "Total" : {
+    "transaction" : "Total",
+    "sampleCount" : 2000,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 27.11299999999995,
+    "medianResTime" : 20.0,
+    "minResTime" : 6.0,
+    "maxResTime" : 171.0,
+    "pct1ResTime" : 53.90000000000009,
+    "pct2ResTime" : 71.0,
+    "pct3ResTime" : 111.99000000000001,
+    "throughput" : 105.17458981909971,
+    "receivedKBytesPerSec" : 111.46411245793017,
+    "sentKBytesPerSec" : 15.919981857383258
+  },
+  "Listar Pistas" : {
+    "transaction" : "Listar Pistas",
+    "sampleCount" : 1000,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 26.40999999999996,
+    "medianResTime" : 20.0,
+    "minResTime" : 6.0,
+    "maxResTime" : 160.0,
+    "pct1ResTime" : 50.0,
+    "pct2ResTime" : 66.94999999999993,
+    "pct3ResTime" : 110.94000000000005,
+    "throughput" : 52.626039364277446,
+    "receivedKBytesPerSec" : 44.613930441532474,
+    "sentKBytesPerSec" : 7.914462951268288
+  }
+}
