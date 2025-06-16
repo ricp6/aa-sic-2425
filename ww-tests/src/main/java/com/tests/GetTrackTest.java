@@ -25,12 +25,14 @@ public class GetTrackTest implements WebTest {
             // Esperar pelo botão "Tracks" na navbar e clicar
             WebElement tracksButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("tracks-link")));
             tracksButton.click();
+            Thread.sleep(500);
 
             // Esperar que os cards de pistas estejam visíveis
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".track-card")));
 
             // Obter a lista de pistas
             List<WebElement> tracks = driver.findElements(By.cssSelector(".track-card"));
+            Thread.sleep(500);
             if (tracks.isEmpty()) {
                 System.out.println("No tracks found.");
                 return false;
@@ -38,6 +40,7 @@ public class GetTrackTest implements WebTest {
 
             // Clicar na primeira pista
             tracks.get(0).click();
+            Thread.sleep(500);
 
             // Esperar pelo elemento de detalhes
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("details-card")));

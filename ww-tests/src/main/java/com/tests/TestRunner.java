@@ -1,11 +1,10 @@
 package com.tests;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
@@ -19,9 +18,14 @@ public class TestRunner {
         options.addArguments("--start-maximized");
 
         WebDriver driver = new ChromeDriver(options);
+        driver.get("http://localhost:4200/");
+
+        WebDriverWait wait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
 
         List<WebTest> tests = List.of(
-                new GetTrackTest()
+                new GetTrackTest(),
+                new LoginTest(),
+                new CreateReservationTest()
                 // add more like: new LoginTest(), new SettingsTest(), etc.
         );
 
@@ -32,8 +36,6 @@ public class TestRunner {
 
             // Reset to the home page
             driver.get("http://localhost:4200/");
-            WebDriverWait wait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-home-container")));
 
             // Run test
             System.out.println("Running test: " + test.getName());
@@ -46,7 +48,6 @@ public class TestRunner {
             } else {
                 failed.add(test.getName());
                 System.out.println("FAILED: " + test.getName());
-                driver.get("http://localhost:4200/");
             }
 
             // Wait a moment before next test

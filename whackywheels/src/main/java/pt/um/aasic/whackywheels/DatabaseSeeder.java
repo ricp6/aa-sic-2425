@@ -109,6 +109,16 @@ public class DatabaseSeeder implements CommandLineRunner {
             user4.setProfilePicture("pp5.webp");
             userRepository.save(user4);
 
+            User user5 = new User();
+            user5.setName("Autotest");
+            user5.setEmail("autotest@gmail.com");
+            user5.setPassword(passwordEncoder.encode("ao309sjd"));
+            user5.setTotalSessions(0);
+            user5.setVictories(0);
+            user5.setTracksVisited(0);
+            user5.setProfilePicture("pp5.webp");
+            userRepository.save(user5);
+
             //#endregion
 
             //#region Criar tracks

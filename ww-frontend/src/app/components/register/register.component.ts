@@ -30,9 +30,9 @@ export class RegisterComponent extends AuthWrapperComponent {
   register(): void {
     if (this.form.valid) {
       this.authService.register(this.form.value).subscribe({
-        next: (user) => {
+        next: () => {
           this.router.navigate(['/auth/login'])
-          this.toastr.success('Your account was successfully created!', 'Welcome ' + user.name + '. Please log in.');
+          this.toastr.success('Your account was successfully created!', 'Welcome ' + this.form.get('name')?.value + '. Please log in.');
         }
       });
     }
