@@ -67,7 +67,7 @@ public class UserService {
 
         // Determinar rol
         String role = (user.getUserType() != null) ? user.getUserType() : "USER";
-
+        String profilePicture = user.getProfilePicture() != null ? user.getProfilePicture() : "avatarPredet.jpg";
         // Crear y retornar el DTO
         return new UserProfileDTO(
                 user.getName(),
@@ -76,7 +76,8 @@ public class UserService {
                 user.getTotalSessions(),
                 user.getVictories(),
                 user.getTracksVisited(),
-                favoriteTrackNames
+                favoriteTrackNames,
+                profilePicture
         );
     }
 

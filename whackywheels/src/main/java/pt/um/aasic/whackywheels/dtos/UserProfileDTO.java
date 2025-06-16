@@ -10,11 +10,12 @@ public class UserProfileDTO {
     private int victories;
     private int tracksVisited;
     private List<String> favoriteTracks;
+    private String profilePicture;
 
     public UserProfileDTO() {
     }
 
-    public UserProfileDTO(String name, String email, String role, int totalSessions, int victories, int tracksVisited, List<String> favoriteTracks) {
+    public UserProfileDTO(String name, String email, String role, int totalSessions, int victories, int tracksVisited, List<String> favoriteTracks, String profilePicture) {
         this.name = name;
         this.email = email;
         this.role = role;
@@ -22,6 +23,7 @@ public class UserProfileDTO {
         this.victories = victories;
         this.tracksVisited = tracksVisited;
         this.favoriteTracks = favoriteTracks;
+        this.profilePicture = profilePicture;
     }
 
     public String getName() { return name; }
@@ -44,6 +46,9 @@ public class UserProfileDTO {
 
     public List<String> getFavoriteTracks() { return favoriteTracks; }
     public void setFavoriteTracks(List<String> favoriteTracks) { this.favoriteTracks = favoriteTracks; }
+
+    public String getProfilePicture() { return profilePicture; }
+    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture;}
 }
 
 
